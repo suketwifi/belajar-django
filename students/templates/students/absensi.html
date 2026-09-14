@@ -126,87 +126,67 @@ Absensi Siswa
 
     </div>
 
+    <!-- =====================================================
+     SCAN BARCODE
+    ===================================================== -->
+
+    <div class="scanner-simple">
+
+        <button
+            type="button"
+            id="btnMulaiScan"
+            class="btn-mulai-scan"
+        >
+            Mulai Scan
+        </button>
+
+    </div>
 
 
-    <!-- =================================================
-         BARCODE SCANNER
-    ================================================== -->
+    <!-- =====================================================
+        MODAL KAMERA
+    ===================================================== -->
 
-    <div class="table-card barcode-card">
+    <div
+        id="scannerModal"
+        class="scanner-modal"
+        style="display: none;"
+    >
 
-        <div class="barcode-header">
+        <div class="scanner-modal-content">
 
-            <div>
-                <h3>Scan Barcode Siswa</h3>
+            <div class="scanner-modal-header">
 
-                <p>
-                    Arahkan barcode siswa ke scanner.
-                    Sistem akan mencari NIM secara otomatis.
-                </p>
+                <strong>
+                    Scan Barcode Siswa
+                </strong>
+
+                <button
+                    type="button"
+                    id="btnTutupScanner"
+                    class="btn-tutup-scanner"
+                >
+                    ×
+                </button>
+
             </div>
-
-
-            <div class="scanner-status">
-
-                <span
-                    id="scanner-status-dot"
-                    class="scanner-dot"
-                ></span>
-
-                <span id="scanner-status-text">
-                    Scanner siap
-                </span>
-
-            </div>
-
-        </div>
-
-
-        <div class="barcode-scanner">
-
-            <div class="barcode-icon">
-                ▦
-            </div>
-
-            <h2>
-                Scan Barcode
-            </h2>
-
-            <p>
-                Scan barcode yang berisi NIM siswa.
-            </p>
-
-
-            <input
-                type="text"
-                id="barcode-input"
-                class="barcode-input"
-                placeholder="Scan barcode di sini..."
-                autocomplete="off"
-                autofocus
-            >
-
-
-            <button
-                type="button"
-                id="btn-scan"
-                class="btn-scan"
-            >
-                Mulai Scan
-            </button>
 
 
             <div
-                id="scan-result"
-                class="scan-result"
+                id="reader"
+                class="scanner-reader"
             ></div>
+
+
+            <p class="scanner-status" id="scannerStatus">
+                Arahkan kamera ke barcode NIM siswa.
+            </p>
 
         </div>
 
     </div>
 
-
-
+    
     <!-- =================================================
          FORM ABSENSI
     ================================================== -->
@@ -496,41 +476,29 @@ Absensi Siswa
 
 
 <!-- =====================================================
-     BARCODE JAVASCRIPT
-===================================================== -->
+     BARCODE / CAMERA SCANNER
+====================================================== -->
+
+<script src="https://unpkg.com/html5-qrcode"></script>
 
 <script>
-
 document.addEventListener("DOMContentLoaded", function () {
 
+    const btnMulaiScan = document.getElementById("btnMulaiScan");
+    const scannerModal = document.getElementById("scannerModal");
+    const btnTutupScanner = document.getElementById("btnTutupScanner");
+    const scannerStatus = document.getElementById("scannerStatus");
+    const scannerReader = document.getElementById("reader");
+    const hadirCounter = document.getElementById("hadir-counter");
 
-    /* =====================================================
-       ELEMENT
-    ===================================================== */
-
-    const barcodeInput =
-        document.getElementById("barcode-input");
-
-    const scanButton =
-        document.getElementById("btn-scan");
-
-    const scanResult =
-        document.getElementById("scan-result");
-
-    const scannerStatusText =
-        document.getElementById("scanner-status-text");
-
-    const scannerStatusDot =
-        document.getElementById("scanner-status-dot");
-
-    const hadirCounter =
-        document.getElementById("hadir-counter");
-
+    let scanner = null;
+    let scannerRunning = false;
+    let scanProcessing = false;
 
 
     /* =====================================================
-       UPDATE COUNTER HADIR
-    ===================================================== */
+       COUNTER HADIR
+    ====================================================== */
 
     function updateHadirCounter() {
 
@@ -546,242 +514,389 @@ document.addEventListener("DOMContentLoaded", function () {
 
             });
 
-
         if (hadirCounter) {
-
-            hadirCounter.textContent =
-                jumlahHadir;
-
+            hadirCounter.textContent = jumlahHadir;
         }
-
     }
 
 
-
     /* =====================================================
-       HASIL SCAN
-    ===================================================== */
+       PROSES HASIL SCAN
+    ====================================================== */
 
-    function showScanResult(message, type) {
+    function prosesHasilScan(nim) {
 
-        if (!scanResult) {
+        nim = String(nim || "").trim();
+
+        if (!nim || scanProcessing) {
             return;
         }
 
-        scanResult.textContent =
-            message;
+        const rows = document.querySelectorAll(".student-row");
 
-        scanResult.className =
-            "scan-result " + type;
-
-    }
-
-
-
-    /* =====================================================
-       SCAN SISWA
-    ===================================================== */
-
-    function scanStudent(nim) {
-
-        nim = nim.trim();
-
-
-        if (!nim) {
-
-            showScanResult(
-                "Masukkan atau scan barcode terlebih dahulu.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const rows =
-            document.querySelectorAll(".student-row");
-
-
-        let found = false;
-
+        let rowDitemukan = null;
 
         rows.forEach(function (row) {
 
             const studentNim =
-                String(row.dataset.nim).trim();
-
+                String(row.dataset.nim || "").trim();
 
             if (studentNim === nim) {
-
-                found = true;
-
-
-                /* -----------------------------------------
-                   HAPUS HIGHLIGHT SEBELUMNYA
-                ----------------------------------------- */
-
-                document
-                    .querySelectorAll(".student-row.scanned")
-                    .forEach(function (item) {
-
-                        item.classList.remove("scanned");
-
-                    });
-
-
-                /* -----------------------------------------
-                   HIGHLIGHT SISWA
-                ----------------------------------------- */
-
-                row.classList.add("scanned");
-
-
-                /* -----------------------------------------
-                   UBAH STATUS MENJADI HADIR
-                ----------------------------------------- */
-
-                const statusSelect =
-                    row.querySelector(".attendance-status");
-
-
-                if (statusSelect) {
-
-                    statusSelect.value =
-                        "Hadir";
-
-                }
-
-
-                /* -----------------------------------------
-                   KETERANGAN
-                ----------------------------------------- */
-
-                const noteInput =
-                    row.querySelector(".attendance-note");
-
-
-                if (noteInput) {
-
-                    noteInput.value = "";
-
-                }
-
-
-                /* -----------------------------------------
-                   AMBIL NAMA
-                ----------------------------------------- */
-
-                const namaElement =
-                    row.querySelector("td:nth-child(2)");
-
-
-                const nama =
-                    namaElement
-                        ? namaElement.innerText.trim()
-                        : "Siswa";
-
-
-                /* -----------------------------------------
-                   SCROLL KE SISWA
-                ----------------------------------------- */
-
-                row.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-
-
-                /* -----------------------------------------
-                   HASIL SCAN
-                ----------------------------------------- */
-
-                showScanResult(
-                    "✓ " + nama + " - Hadir",
-                    "success"
-                );
-
-
-                /* -----------------------------------------
-                   STATUS SCANNER
-                ----------------------------------------- */
-
-                scannerStatusText.textContent =
-                    "Siswa ditemukan";
-
-
-                scannerStatusDot.classList.add(
-                    "active"
-                );
-
-
-                /* -----------------------------------------
-                   UPDATE COUNTER
-                ----------------------------------------- */
-
-                updateHadirCounter();
-
+                rowDitemukan = row;
             }
 
         });
 
 
+        if (!rowDitemukan) {
 
-        /* =================================================
-           NIM TIDAK DITEMUKAN
-        ================================================= */
+            scannerStatus.textContent =
+                "NIM " + nim + " tidak ditemukan.";
 
-        if (!found) {
-
-            showScanResult(
-                "✕ NIM " + nim + " tidak ditemukan.",
-                "error"
-            );
-
-
-            scannerStatusText.textContent =
-                "Siswa tidak ditemukan";
-
-
-            scannerStatusDot.classList.remove(
-                "active"
-            );
-
+            return;
         }
 
 
-        /* =================================================
-           KOSONGKAN INPUT
-        ================================================= */
-
-        barcodeInput.value = "";
+        scanProcessing = true;
 
 
-        /* =================================================
-           FOKUS KEMBALI
-        ================================================= */
+        /* Hilangkan highlight lama */
 
-        barcodeInput.focus();
+        document
+            .querySelectorAll(".student-row.scanned")
+            .forEach(function (item) {
+
+                item.classList.remove("scanned");
+
+            });
+
+
+        /* Highlight siswa */
+
+        rowDitemukan.classList.add("scanned");
+
+
+        /* Ubah status menjadi Hadir */
+
+        const statusSelect =
+            rowDitemukan.querySelector(
+                ".attendance-status"
+            );
+
+        if (statusSelect) {
+
+            statusSelect.value = "Hadir";
+
+            statusSelect.dispatchEvent(
+                new Event(
+                    "change",
+                    {
+                        bubbles: true
+                    }
+                )
+            );
+        }
+
+
+        /* Bersihkan keterangan */
+
+        const noteInput =
+            rowDitemukan.querySelector(
+                ".attendance-note"
+            );
+
+        if (noteInput) {
+            noteInput.value = "";
+        }
+
+
+        /* Scroll ke siswa */
+
+        rowDitemukan.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+
+        /* Update counter */
+
+        updateHadirCounter();
+
+
+        scannerStatus.textContent =
+            "✓ " + rowDitemukan.querySelector(
+                "td:nth-child(2)"
+            ).innerText.trim() + " - Hadir";
+
+
+        /* Tutup kamera */
+
+        tutupScanner().finally(function () {
+
+            setTimeout(function () {
+
+                rowDitemukan.classList.remove("scanned");
+                scanProcessing = false;
+
+            }, 1500);
+
+        });
+    }
+
+
+    /* =====================================================
+       TUTUP SCANNER
+       - Modal langsung disembunyikan
+       - Kamera dihentikan
+       - Reader dibersihkan
+    ====================================================== */
+
+    async function tutupScanner() {
+
+        /* Tutup tampilan modal SEGERA */
+
+        if (scannerModal) {
+            scannerModal.style.display = "none";
+        }
+
+
+        /* Hentikan kamera */
+
+        if (scanner) {
+
+            const scannerToStop = scanner;
+
+            scanner = null;
+            scannerRunning = false;
+
+            try {
+
+                if (scannerToStop.isScanning) {
+                    await scannerToStop.stop();
+                }
+
+            } catch (error) {
+
+                console.warn(
+                    "Gagal menghentikan scanner:",
+                    error
+                );
+
+            }
+
+
+            try {
+
+                scannerToStop.clear();
+
+            } catch (error) {
+
+                console.warn(
+                    "Gagal membersihkan scanner:",
+                    error
+                );
+
+            }
+        }
+
+
+        /* Pastikan area kamera kosong */
+
+        if (scannerReader) {
+            scannerReader.innerHTML = "";
+        }
+
+        if (scannerStatus) {
+            scannerStatus.textContent =
+                "Arahkan kamera ke barcode NIM siswa.";
+        }
+    }
+
+
+    /* =====================================================
+       BUKA SCANNER
+    ====================================================== */
+
+    async function mulaiScanner() {
+
+        if (!scannerModal || !scannerReader) {
+            return;
+        }
+
+
+        /* Jangan buka dua scanner sekaligus */
+
+        if (scannerRunning) {
+            return;
+        }
+
+
+        scannerModal.style.display = "flex";
+
+        scannerStatus.textContent =
+            "Membuka kamera...";
+
+
+        scannerReader.innerHTML = "";
+
+
+        try {
+
+            scanner = new Html5Qrcode(
+                "reader"
+            );
+
+
+            await scanner.start(
+
+                {
+                    facingMode: "environment"
+                },
+
+                {
+                    fps: 10,
+
+                    qrbox: {
+                        width: 250,
+                        height: 150
+                    },
+
+                    rememberLastUsedCamera: true,
+
+                    aspectRatio: 1.777778
+                },
+
+                function (decodedText) {
+
+                    prosesHasilScan(
+                        decodedText
+                    );
+
+                },
+
+                function () {
+
+                    /*
+                     * Error scan sementara diabaikan.
+                     * Kamera tetap berjalan sampai barcode terbaca
+                     * atau tombol Close ditekan.
+                     */
+
+                }
+            );
+
+
+            scannerRunning = true;
+
+            scannerStatus.textContent =
+                "Arahkan kamera ke barcode NIM siswa.";
+
+
+        } catch (error) {
+
+            console.error(
+                "Scanner error:",
+                error
+            );
+
+            scannerRunning = false;
+
+            scanner = null;
+
+            scannerStatus.textContent =
+                "Kamera tidak dapat dibuka. Pastikan izin kamera diberikan dan gunakan HTTPS.";
+
+        }
+    }
+
+
+    /* =====================================================
+       TOMBOL MULAI SCAN
+    ====================================================== */
+
+    if (btnMulaiScan) {
+
+        btnMulaiScan.addEventListener(
+            "click",
+            function () {
+
+                scanProcessing = false;
+
+                mulaiScanner();
+
+            }
+        );
 
     }
 
 
+    /* =====================================================
+       TOMBOL CLOSE
+    ====================================================== */
+
+    if (btnTutupScanner) {
+
+        btnTutupScanner.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+                event.stopPropagation();
+
+                scanProcessing = false;
+
+                tutupScanner();
+
+            }
+        );
+
+    }
+
 
     /* =====================================================
-       BARCODE ENTER
-    ===================================================== */
+       KLIK DI LUAR MODAL = CLOSE
+    ====================================================== */
 
-    barcodeInput.addEventListener(
+    if (scannerModal) {
+
+        scannerModal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target ===
+                    scannerModal
+                ) {
+
+                    scanProcessing = false;
+
+                    tutupScanner();
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       TOMBOL ESC = CLOSE
+    ====================================================== */
+
+    document.addEventListener(
         "keydown",
         function (event) {
 
-            if (event.key === "Enter") {
+            if (
+                event.key === "Escape" &&
+                scannerModal &&
+                scannerModal.style.display === "flex"
+            ) {
 
-                event.preventDefault();
+                scanProcessing = false;
 
-                scanStudent(
-                    barcodeInput.value
-                );
+                tutupScanner();
 
             }
 
@@ -789,40 +904,9 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
 
-
     /* =====================================================
-       TOMBOL MULAI SCAN
-    ===================================================== */
-
-    scanButton.addEventListener(
-        "click",
-        function () {
-
-            barcodeInput.focus();
-
-
-            scannerStatusText.textContent =
-                "Menunggu barcode...";
-
-
-            scannerStatusDot.classList.add(
-                "active"
-            );
-
-
-            showScanResult(
-                "Silakan scan barcode siswa.",
-                "info"
-            );
-
-        }
-    );
-
-
-
-    /* =====================================================
-       PERUBAHAN STATUS MANUAL
-    ===================================================== */
+       STATUS MANUAL
+    ====================================================== */
 
     document
         .querySelectorAll(".attendance-status")
@@ -830,38 +914,314 @@ document.addEventListener("DOMContentLoaded", function () {
 
             select.addEventListener(
                 "change",
-                function () {
-
-                    updateHadirCounter();
-
-                }
+                updateHadirCounter
             );
 
         });
 
 
-
     /* =====================================================
-       HITUNG AWAL
-    ===================================================== */
+       COUNTER AWAL
+    ====================================================== */
 
     updateHadirCounter();
 
-
-
-    /* =====================================================
-       FOKUS BARCODE
-    ===================================================== */
-
-    if (barcodeInput) {
-
-        barcodeInput.focus();
-
-    }
-
 });
-
 </script>
 
-{% endblock %}
 
+<style>
+
+/* =====================================================
+   TOMBOL MULAI SCAN
+===================================================== */
+
+.scanner-simple {
+    display: flex;
+    justify-content: flex-end;
+    margin: 0 0 15px;
+}
+
+.btn-mulai-scan {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 38px;
+    padding: 0 15px;
+
+    border: 1px solid #4f46e5;
+    border-radius: 8px;
+
+    background: #4f46e5;
+    color: #ffffff;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 3px 8px rgba(
+            79,
+            70,
+            229,
+            0.18
+        );
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.btn-mulai-scan:hover {
+    background: #4338ca;
+    border-color: #4338ca;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 5px 12px rgba(
+            79,
+            70,
+            229,
+            0.22
+        );
+}
+
+.btn-mulai-scan:active {
+    transform: translateY(0);
+}
+
+
+/* =====================================================
+   MODAL KAMERA
+===================================================== */
+
+.scanner-modal {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        rgba(
+            15,
+            23,
+            42,
+            0.78
+        );
+
+    z-index: 99999;
+}
+
+
+/* =====================================================
+   BOX MODAL
+===================================================== */
+
+.scanner-modal-content {
+    position: relative;
+
+    width: 100%;
+    max-width: 520px;
+
+    padding: 18px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+
+    box-shadow:
+        0 20px 50px
+        rgba(
+            0,
+            0,
+            0,
+            0.28
+        );
+}
+
+
+/* =====================================================
+   HEADER MODAL
+===================================================== */
+
+.scanner-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 12px;
+
+    color: #111827;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   TOMBOL CLOSE
+===================================================== */
+
+.btn-tutup-scanner {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+
+    background: #f8fafc;
+    color: #334155;
+
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.btn-tutup-scanner:hover {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+
+/* =====================================================
+   READER
+===================================================== */
+
+.scanner-reader {
+    width: 100%;
+    min-height: 280px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #000000;
+}
+
+.scanner-reader video {
+    display: block;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    height: auto !important;
+
+    border-radius: 10px;
+}
+
+.scanner-reader__dashboard {
+    font-family: inherit;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.scanner-status {
+    margin: 12px 0 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+    line-height: 1.5;
+
+    text-align: center;
+}
+
+
+/* =====================================================
+   HASIL SCAN
+===================================================== */
+
+.scanned td {
+    background: #dcfce7 !important;
+
+    transition:
+        background 0.3s ease;
+}
+
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+@media print {
+
+    .scanner-simple,
+    .scanner-modal {
+        display: none !important;
+    }
+
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 600px) {
+
+    .scanner-simple {
+        justify-content: flex-start;
+    }
+
+    .btn-mulai-scan {
+        height: 38px;
+        padding: 0 14px;
+
+        font-size: 12px;
+    }
+
+    .scanner-modal {
+        padding: 10px;
+    }
+
+    .scanner-modal-content {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    .scanner-reader {
+        min-height: 240px;
+    }
+
+    .scanner-status {
+        font-size: 11px;
+    }
+}
+
+</style>
+
+
+{% endblock %}

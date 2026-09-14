@@ -1,4 +1,13 @@
-db.sqlite3
-__pycache__/
-*.pyc
 venv/
+venv311/
+
+__pycache__/
+*.py[cod]
+
+db.sqlite3
+
+.env
+
+staticfiles/
+
+*.log
