@@ -1,0 +1,867 @@
+/* =========================================================
+   HALAMAN ABSENSI
+   ========================================================= */
+
+.attendance-page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.attendance-page .table-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+}
+
+
+/* =========================================================
+   HEADER HALAMAN
+   ========================================================= */
+
+.page-header {
+    margin-bottom: 22px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 30px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.page-header p {
+    margin: 6px 0 0;
+    font-size: 15px;
+    color: #64748b;
+}
+
+
+/* =========================================================
+   PENGATURAN ABSENSI
+   ========================================================= */
+
+.attendance-filter-card {
+    padding: 24px;
+}
+
+.attendance-filter-title {
+    margin-bottom: 20px;
+}
+
+.attendance-filter-title h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.attendance-filter-title p {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+
+/* Grid filter */
+
+.attendance-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(200px, 1fr)
+                           minmax(200px, 1fr)
+                           auto;
+    align-items: end;
+    gap: 18px;
+}
+
+
+/* Field */
+
+.attendance-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.attendance-filter label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+
+/* Input */
+
+.attendance-filter input,
+.attendance-filter select {
+    width: 100%;
+    height: 42px;
+    box-sizing: border-box;
+
+    padding: 0 12px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #111827;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.attendance-filter input:focus,
+.attendance-filter select:focus {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+
+/* Tombol filter */
+
+.attendance-filter-action {
+    display: flex;
+    align-items: flex-end;
+}
+
+.attendance-filter-action .btn-view {
+    height: 42px;
+    padding: 0 20px;
+
+    border: 1px solid #4f46e5;
+    border-radius: 8px;
+
+    background: #4f46e5;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.attendance-filter-action .btn-view:hover {
+    background: #4338ca;
+    border-color: #4338ca;
+}
+
+.attendance-filter-action .btn-view:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   SCANNER BARCODE
+   ========================================================= */
+
+.barcode-card {
+    padding: 24px;
+}
+
+.barcode-header {
+    margin-bottom: 20px;
+}
+
+.barcode-header h3 {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.barcode-header p {
+    margin: 5px 0 0;
+
+    font-size: 14px;
+    color: #64748b;
+}
+
+
+/* Area scanner */
+
+.barcode-scanner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 250px;
+
+    padding: 30px 20px;
+
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+
+    background: #f8fafc;
+
+    text-align: center;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.barcode-scanner:hover {
+    border-color: #818cf8;
+    background: #f8faff;
+}
+
+
+/* Icon barcode */
+
+.barcode-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 64px;
+    height: 64px;
+
+    margin-bottom: 14px;
+
+    border-radius: 14px;
+
+    background: #eef2ff;
+    color: #4f46e5;
+
+    font-size: 34px;
+    font-weight: 700;
+}
+
+
+/* Judul scanner */
+
+.barcode-scanner h2 {
+    margin: 0 0 6px;
+
+    font-size: 20px;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.barcode-scanner p {
+    margin: 0 0 18px;
+
+    font-size: 14px;
+    color: #64748b;
+}
+
+
+/* Input barcode */
+
+.barcode-input {
+    width: min(420px, 100%);
+    height: 44px;
+
+    box-sizing: border-box;
+
+    padding: 0 14px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #111827;
+
+    font-size: 14px;
+
+    text-align: center;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.barcode-input::placeholder {
+    color: #94a3b8;
+}
+
+.barcode-input:focus {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+
+/* Tombol mulai scan */
+
+.btn-scan {
+    height: 42px;
+
+    margin-top: 12px;
+
+    padding: 0 22px;
+
+    border: 1px solid #4f46e5;
+    border-radius: 8px;
+
+    background: #4f46e5;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.btn-scan:hover {
+    background: #4338ca;
+    border-color: #4338ca;
+}
+
+.btn-scan:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   HEADER DAFTAR SISWA
+   ========================================================= */
+
+.attendance-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 18px;
+}
+
+.attendance-list-header h3 {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.attendance-list-header p {
+    margin: 5px 0 0;
+
+    font-size: 14px;
+    color: #64748b;
+}
+
+
+/* =========================================================
+   TABEL
+   ========================================================= */
+
+.attendance-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.attendance-table-wrapper .data-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    min-width: 850px;
+}
+
+
+/* Header tabel */
+
+.attendance-table-wrapper .data-table thead th {
+    padding: 13px 14px;
+
+    background: #f8fafc;
+
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+
+    color: #475569;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+
+/* Isi tabel */
+
+.attendance-table-wrapper .data-table tbody td {
+    padding: 13px 14px;
+
+    border-bottom: 1px solid #eef2f7;
+
+    color: #374151;
+
+    font-size: 14px;
+
+    vertical-align: middle;
+}
+
+
+/* Nomor */
+
+.attendance-table-wrapper .data-table th:first-child,
+.attendance-table-wrapper .data-table td:first-child {
+    width: 55px;
+    text-align: center;
+}
+
+
+/* Nama */
+
+.attendance-table-wrapper .data-table td strong {
+    color: #111827;
+    font-weight: 600;
+}
+
+
+/* Hover tabel */
+
+.attendance-table-wrapper .data-table tbody tr {
+    transition: background 0.15s ease;
+}
+
+.attendance-table-wrapper .data-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+
+/* =========================================================
+   INPUT STATUS DALAM TABEL
+   ========================================================= */
+
+.attendance-table-wrapper .data-table select,
+.attendance-table-wrapper .data-table input[type="text"] {
+    height: 38px;
+
+    box-sizing: border-box;
+
+    padding: 0 10px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-size: 13px;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.attendance-table-wrapper .data-table select {
+    min-width: 100px;
+}
+
+.attendance-table-wrapper .data-table input[type="text"] {
+    width: 100%;
+    min-width: 180px;
+}
+
+.attendance-table-wrapper .data-table select:focus,
+.attendance-table-wrapper .data-table input[type="text"]:focus {
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px rgba(99, 102, 241, 0.10);
+}
+
+
+/* =========================================================
+   TOMBOL SIMPAN
+   ========================================================= */
+
+.attendance-actions {
+    display: flex;
+    justify-content: flex-end;
+
+    margin-top: 20px;
+    padding-top: 18px;
+
+    border-top: 1px solid #eef2f7;
+}
+
+.attendance-actions .btn-save {
+    height: 42px;
+
+    padding: 0 22px;
+
+    border: 1px solid #16a34a;
+    border-radius: 8px;
+
+    background: #16a34a;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.15s ease;
+}
+
+.attendance-actions .btn-save:hover {
+    background: #15803d;
+    border-color: #15803d;
+}
+
+.attendance-actions .btn-save:active {
+    transform: translateY(1px);
+}
+
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+
+.empty-state {
+    padding: 40px 20px !important;
+
+    color: #94a3b8 !important;
+
+    text-align: center !important;
+
+    font-size: 14px !important;
+}
+
+
+/* =========================================================
+   RESPONSIVE TABLET
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .attendance-filter-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .attendance-filter-action {
+        grid-column: 1 / -1;
+    }
+
+    .attendance-filter-action .btn-view {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE HP
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .attendance-page {
+        gap: 15px;
+    }
+
+    .attendance-page .table-card {
+        padding: 16px;
+        border-radius: 11px;
+    }
+
+    .page-header h1 {
+        font-size: 25px;
+    }
+
+    .page-header p {
+        font-size: 14px;
+    }
+
+
+    /* Filter */
+
+    .attendance-filter-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .attendance-filter-action {
+        grid-column: auto;
+    }
+
+
+    /* Scanner */
+
+    .barcode-scanner {
+        min-height: 220px;
+        padding: 25px 15px;
+    }
+
+    .barcode-scanner h2 {
+        font-size: 18px;
+    }
+
+    .barcode-input {
+        width: 100%;
+    }
+
+    .btn-scan {
+        width: 100%;
+    }
+
+
+    /* Tabel */
+
+    .attendance-table-wrapper .data-table {
+        min-width: 800px;
+    }
+
+
+    /* Tombol */
+
+    .attendance-actions {
+        justify-content: stretch;
+    }
+
+    .attendance-actions .btn-save {
+        width: 100%;
+    }
+
+}
+/* =========================================
+   REKAP ABSENSI
+   ========================================= */
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+}
+
+.section-title h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.section-title p {
+    margin: 5px 0 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+
+/* =========================================
+   STATISTIC CARDS
+   ========================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 20px 0;
+}
+
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.stat-card-primary {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+
+.stat-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.stat-icon.hadir {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.stat-icon.izin {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.stat-icon.sakit {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.stat-icon.alpa {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.stat-icon.persen {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.stat-icon.hari {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.stat-label {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.stat-card strong {
+    display: block;
+    color: #1e293b;
+    font-size: 24px;
+}
+
+
+/* =========================================
+   STATUS BADGE
+   ========================================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-hadir {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-izin {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.status-sakit {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.status-alpa {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+
+/* =========================================
+   PERCENTAGE
+   ========================================= */
+
+.percentage-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 130px;
+}
+
+.percentage-wrapper > span {
+    min-width: 48px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+}
+
+.percentage-bar {
+    width: 70px;
+    height: 7px;
+    overflow: hidden;
+    border-radius: 10px;
+    background: #e2e8f0;
+}
+
+.percentage-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: #22c55e;
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 1000px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-title {
+        align-items: flex-start;
+    }
+
+    .percentage-wrapper {
+        min-width: 110px;
+    }
+
+    .percentage-bar {
+        width: 55px;
+    }
+
+}

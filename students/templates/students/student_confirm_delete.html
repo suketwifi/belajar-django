@@ -1,0 +1,58 @@
+{% extends "students/base.html" %}
+{% load static %}
+
+{% block title %}
+Hapus Siswa
+{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'students/student_form.css' %}">
+
+<h1>Hapus Siswa</h1>
+<p>Apakah Anda yakin ingin menghapus siswa ini?</p>
+
+<div class="table-card delete-card">
+
+<div class="delete-warning">
+    <h3>{{ student.nama }}</h3>
+
+    <p>
+        <strong>NIM:</strong> {{ student.nim }}
+    </p>
+
+    <p>
+        <strong>Prodi:</strong> {{ student.prodi }}
+    </p>
+</div>
+
+<div class="delete-confirmation">
+    <p>
+        Data siswa ini akan dihapus secara permanen.
+        Apakah Anda yakin ingin melanjutkan?
+    </p>
+</div>
+
+<form method="post" class="delete-actions">
+
+    {% csrf_token %}
+
+    <button
+        type="submit"
+        class="btn-delete"
+    >
+        🗑️ Ya, Hapus Siswa
+    </button>
+
+    <a
+        href="{% url 'student_list' %}"
+        class="btn-view"
+    >
+        Batal
+    </a>
+
+</form>
+
+</div>
+
+{% endblock %}

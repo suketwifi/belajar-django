@@ -1,0 +1,1103 @@
+{% extends "students/base.html" %}
+
+{% load static %}
+
+{% block title %}
+Cetak Rapot
+{% endblock %}
+
+
+{% block content %}
+
+<div class="cetak-rapot-page">
+
+    <div class="cetak-toolbar no-print">
+
+        <a
+            href="{% url 'rapot' %}"
+            class="btn-kembali"
+        >
+            Kembali
+        </a>
+
+        <button
+            type="button"
+            class="btn-cetak"
+            onclick="window.print()"
+        >
+            Cetak Rapot
+        </button>
+
+    </div>
+
+
+    <div class="rapot-document">
+
+
+        <!-- =====================================================
+             KOP MADRASAH
+        ====================================================== -->
+
+        <div class="rapot-header">
+
+            <div class="rapot-logo">
+
+                <img
+                    src="{% static 'students/logo-madin.Jpeg' %}"
+                    alt="Logo Madrasah"
+                >
+
+            </div>
+
+
+            <div class="rapot-header-text">
+
+                <div class="pondok-name">
+                    PONDOK PESANTREN KEDUNGLO
+                    AL MUNADHHDHOROH
+                </div>
+
+                <div class="madrasah-name">
+                    MADRASAH DINIYAH ‘ULYA WAHIDIYAH
+                </div>
+
+                <div class="address">
+                    Jl. KH. Wahid Hasyim Bandar Lor
+                    Kecamatan Mojoroto Kota Kediri
+                    Jawa Timur
+                </div>
+
+                <div class="contact">
+                    Telp. (0354) 771018 - 774511
+                    Kode Pos 64114
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="rapot-line"></div>
+
+
+        <!-- =====================================================
+             JUDUL
+        ====================================================== -->
+
+        <div class="rapot-title">
+
+            <h1>
+                RAPOR HASIL BELAJAR SISWA
+            </h1>
+
+            <div class="rapot-period">
+
+                Tahun Ajaran
+
+                <strong>
+                    {{ tahun_ajaran.nama|default:"-" }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             IDENTITAS SISWA
+        ====================================================== -->
+
+        <div class="student-identity">
+
+            <div class="identity-row">
+
+                <div class="identity-label">
+                    Nama Siswa
+                </div>
+
+                <div class="identity-separator">
+                    :
+                </div>
+
+                <div class="identity-value">
+                    {{ student.nama }}
+                </div>
+
+            </div>
+
+
+            <div class="identity-row">
+
+                <div class="identity-label">
+                    NIM
+                </div>
+
+                <div class="identity-separator">
+                    :
+                </div>
+
+                <div class="identity-value">
+                    {{ student.nim }}
+                </div>
+
+            </div>
+
+
+            <div class="identity-row">
+
+                <div class="identity-label">
+                    Kelas
+                </div>
+
+                <div class="identity-separator">
+                    :
+                </div>
+
+                <div class="identity-value">
+                    {{ student.kelas.nama|default:"-" }}
+                </div>
+
+            </div>
+
+
+            <div class="identity-row">
+
+                <div class="identity-label">
+                    Semester
+                </div>
+
+                <div class="identity-separator">
+                    :
+                </div>
+
+                <div class="identity-value">
+                    {{ student.semester|default:"-" }}
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             NILAI
+        ====================================================== -->
+
+        <div class="nilai-title">
+            A. NILAI AKADEMIK
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table class="rapot-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th class="no-column">
+                            No
+                        </th>
+
+                        <th>
+                            Mata Pelajaran
+                        </th>
+
+                        <th>
+                            Kitab
+                        </th>
+
+                        <th class="score-column">
+                            Nilai Harian
+                        </th>
+
+                        <th class="score-column">
+                            Nilai Ujian
+                        </th>
+
+                        <th class="score-column">
+                            Nilai Akhir
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for nilai in penilaians %}
+
+                    <tr>
+
+                        <td class="no-column">
+                            {{ forloop.counter }}
+                        </td>
+
+                        <td>
+                            {{ nilai.mata_pelajaran.nama }}
+                        </td>
+
+                        <td>
+
+                            {% if nilai.mata_pelajaran.kitab %}
+                                {{ nilai.mata_pelajaran.kitab }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </td>
+
+                        <td class="score-column">
+
+                            {% if nilai.nilai_harian is not None %}
+                                {{ nilai.nilai_harian }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </td>
+
+                        <td class="score-column">
+
+                            {% if nilai.nilai_ujian is not None %}
+                                {{ nilai.nilai_ujian }}
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </td>
+
+                        <td class="score-column final-score">
+
+                            {% if nilai.nilai_akhir is not None %}
+
+                                <strong>
+                                    {{ nilai.nilai_akhir }}
+                                </strong>
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="empty-cell"
+                        >
+                            Belum ada data nilai.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =====================================================
+             RINGKASAN
+        ====================================================== -->
+
+        <div class="nilai-summary">
+
+            <div>
+
+                <span>
+                    Jumlah Mata Pelajaran
+                </span>
+
+                <strong>
+                    {{ penilaians|length }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Jumlah Nilai Akhir
+                </span>
+
+                <strong id="jumlahNilai">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Rata-rata Nilai
+                </span>
+
+                <strong id="rataRata">
+                    -
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             TANDA TANGAN KEPALA MADRASAH
+        ====================================================== -->
+
+        <div class="signature-section">
+
+            <div class="signature-place">
+
+                <p>
+                    Kediri,
+                    {% now "d F Y" %}
+                </p>
+
+                <p>
+                    Mengetahui,
+                </p>
+
+                <p>
+                    Kepala Madrasah
+                </p>
+
+                <div class="signature-space"></div>
+
+                <strong>
+                    Nur Wachid, M.Pd
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- =====================================================
+             FOOTER
+        ====================================================== -->
+
+        <div class="rapot-footer">
+
+            Sistem Utama Fasilitas Informasi,
+            Siswa, &amp; Madrasah (SUFISM)
+
+            <br>
+
+            By : Nurul Arifin bin Ahmad Jaelani
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================================================
+   HALAMAN
+========================================================= */
+
+.cetak-rapot-page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.cetak-toolbar {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 18px;
+}
+
+.btn-kembali,
+.btn-cetak {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    height: 40px;
+
+    padding: 0 15px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.btn-kembali {
+    background: #ffffff;
+
+    color: #475569;
+
+    border: 1px solid #d1d5db;
+}
+
+.btn-kembali:hover {
+    background: #f8fafc;
+}
+
+.btn-cetak {
+    background: #2563eb;
+
+    color: #ffffff;
+
+    border: 1px solid #2563eb;
+}
+
+.btn-cetak:hover {
+    background: #1d4ed8;
+}
+
+
+/* =========================================================
+   DOKUMEN
+========================================================= */
+
+.rapot-document {
+    background: #ffffff;
+
+    padding: 45px 50px;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 5px 20px
+        rgba(15,23,42,0.06);
+}
+
+
+/* =========================================================
+   KOP
+========================================================= */
+
+.rapot-header {
+    display: flex;
+
+    align-items: center;
+
+    gap: 24px;
+
+    min-height: 125px;
+}
+
+.rapot-logo {
+    width: 115px;
+
+    min-width: 115px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+}
+
+.rapot-logo img {
+    width: 100px;
+
+    height: 100px;
+
+    object-fit: contain;
+}
+
+.rapot-header-text {
+    flex: 1;
+
+    text-align: center;
+
+    padding-right: 90px;
+}
+
+.pondok-name {
+    font-size: 18px;
+
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    color: #111827;
+}
+
+.madrasah-name {
+    margin-top: 2px;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    color: #111827;
+}
+
+.address {
+    margin-top: 6px;
+
+    color: #374151;
+
+    font-size: 12px;
+
+    line-height: 1.55;
+}
+
+.contact {
+    margin-top: 2px;
+
+    color: #374151;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+.rapot-line {
+    margin: 15px 0 18px;
+
+    border-top: 3px double #111827;
+}
+
+
+/* =========================================================
+   JUDUL
+========================================================= */
+
+.rapot-title {
+    margin-bottom: 24px;
+
+    text-align: center;
+}
+
+.rapot-title h1 {
+    margin: 0;
+
+    color: #111827;
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    letter-spacing: 0.4px;
+}
+
+.rapot-period {
+    margin-top: 7px;
+
+    color: #374151;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   IDENTITAS
+========================================================= */
+
+.student-identity {
+    max-width: 600px;
+
+    margin-bottom: 22px;
+}
+
+.identity-row {
+    display: grid;
+
+    grid-template-columns:
+        145px
+        20px
+        1fr;
+
+    gap: 6px;
+
+    margin-bottom: 5px;
+
+    font-size: 13px;
+}
+
+.identity-label,
+.identity-separator {
+    color: #374151;
+}
+
+.identity-value {
+    color: #111827;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   NILAI
+========================================================= */
+
+.nilai-title {
+    margin-bottom: 8px;
+
+    color: #111827;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+.table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.rapot-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+}
+
+.rapot-table th,
+.rapot-table td {
+    border: 1px solid #374151;
+
+    padding: 9px 10px;
+
+    color: #111827;
+
+    font-size: 12px;
+
+    vertical-align: middle;
+}
+
+.rapot-table th {
+    background: #f3f4f6;
+
+    text-align: center;
+
+    font-weight: 700;
+}
+
+.rapot-table td {
+    background: #ffffff;
+}
+
+.no-column {
+    width: 45px;
+
+    text-align: center;
+}
+
+.score-column {
+    width: 90px;
+
+    text-align: center;
+}
+
+.final-score strong {
+    font-weight: 700;
+}
+
+.empty-cell {
+    padding: 25px !important;
+
+    text-align: center;
+
+    color: #94a3b8 !important;
+}
+
+
+/* =========================================================
+   RINGKASAN
+========================================================= */
+
+.nilai-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+    margin-top: 18px;
+}
+
+.nilai-summary > div {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 10px 12px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 6px;
+}
+
+.nilai-summary span {
+    color: #4b5563;
+
+    font-size: 11px;
+}
+
+.nilai-summary strong {
+    color: #111827;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TANDA TANGAN
+========================================================= */
+
+.signature-section {
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 45px;
+}
+
+.signature-place {
+    width: 280px;
+
+    color: #374151;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+
+    text-align: center;
+}
+
+.signature-space {
+    height: 72px;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.rapot-footer {
+    margin-top: 35px;
+
+    padding-top: 12px;
+
+    border-top: 1px solid #e5e7eb;
+
+    color: #9ca3af;
+
+    font-size: 9px;
+
+    line-height: 1.6;
+
+    text-align: center;
+}
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+@media print {
+
+    @page {
+        size: A4;
+
+        margin: 15mm;
+    }
+
+    html,
+    body {
+        margin: 0 !important;
+
+        padding: 0 !important;
+
+        background: #ffffff !important;
+    }
+
+    .sidebar,
+    .navbar,
+    .system-footer,
+    .cetak-toolbar,
+    .no-print {
+        display: none !important;
+    }
+
+    .content {
+        margin: 0 !important;
+
+        padding: 0 !important;
+    }
+
+    .cetak-rapot-page {
+        width: 100%;
+
+        max-width: none;
+    }
+
+    .rapot-document {
+        padding: 0;
+
+        border: none;
+
+        border-radius: 0;
+
+        box-shadow: none;
+    }
+
+    .rapot-header {
+        min-height: 110px;
+    }
+
+    .rapot-logo {
+        width: 105px;
+
+        min-width: 105px;
+    }
+
+    .rapot-logo img {
+        width: 90px;
+
+        height: 90px;
+    }
+
+    .rapot-header-text {
+        padding-right: 90px;
+    }
+
+    .pondok-name {
+        font-size: 16px;
+    }
+
+    .madrasah-name {
+        font-size: 15px;
+    }
+
+    .address,
+    .contact {
+        font-size: 10px;
+    }
+
+    .rapot-title h1 {
+        font-size: 16px;
+    }
+
+    .rapot-period {
+        font-size: 11px;
+    }
+
+    .identity-row {
+        font-size: 11px;
+    }
+
+    .nilai-title {
+        font-size: 11px;
+    }
+
+    .rapot-table th,
+    .rapot-table td {
+        padding: 7px;
+
+        font-size: 10px;
+    }
+
+    .nilai-summary span {
+        font-size: 9px;
+    }
+
+    .nilai-summary strong {
+        font-size: 11px;
+    }
+
+    .signature-place {
+        font-size: 10px;
+    }
+
+    .rapot-footer {
+        font-size: 8px;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .rapot-document {
+        padding: 25px 18px;
+    }
+
+    .rapot-header {
+        align-items: flex-start;
+    }
+
+    .rapot-logo {
+        width: 75px;
+
+        min-width: 75px;
+    }
+
+    .rapot-logo img {
+        width: 65px;
+
+        height: 65px;
+    }
+
+    .rapot-header-text {
+        padding-right: 0;
+    }
+
+    .pondok-name {
+        font-size: 13px;
+    }
+
+    .madrasah-name {
+        font-size: 12px;
+    }
+
+    .address,
+    .contact {
+        font-size: 9px;
+    }
+
+    .nilai-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .signature-section {
+        justify-content: center;
+    }
+
+    .signature-place {
+        width: 250px;
+    }
+
+}
+
+</style>
+
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const nilaiAkhir = [];
+
+        document
+            .querySelectorAll(
+                '.final-score strong'
+            )
+            .forEach(
+                function (element) {
+
+                    const nilai =
+                        Number(
+                            element.textContent.trim()
+                        );
+
+                    if (!Number.isNaN(nilai)) {
+
+                        nilaiAkhir.push(nilai);
+
+                    }
+
+                }
+            );
+
+
+        const jumlahNilaiElement =
+            document.getElementById(
+                'jumlahNilai'
+            );
+
+        const rataRataElement =
+            document.getElementById(
+                'rataRata'
+            );
+
+
+        if (nilaiAkhir.length > 0) {
+
+            const jumlah =
+                nilaiAkhir.reduce(
+                    function (
+                        total,
+                        nilai
+                    ) {
+
+                        return total + nilai;
+
+                    },
+                    0
+                );
+
+
+            const rataRata =
+                jumlah / nilaiAkhir.length;
+
+
+            if (jumlahNilaiElement) {
+
+                jumlahNilaiElement.textContent =
+                    jumlah;
+
+            }
+
+
+            if (rataRataElement) {
+
+                rataRataElement.textContent =
+                    rataRata.toFixed(2);
+
+            }
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

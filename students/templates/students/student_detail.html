@@ -1,0 +1,282 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Detail Siswa
+{% endblock %}
+
+{% block content %}
+
+<div class="detail-page">
+
+
+<!-- HEADER -->
+<div class="page-header detail-header">
+
+    <div>
+        <h1>Detail Siswa</h1>
+        <p>Informasi lengkap data siswa.</p>
+    </div>
+
+    <div class="detail-header-actions">
+
+        <a href="{% url 'student_list' %}" class="btn-back">
+            ← Kembali
+        </a>
+
+        <a href="{% url 'student_edit' student.id %}" class="btn-edit-main">
+            ✏️ Edit Siswa
+        </a>
+
+    </div>
+
+</div>
+
+
+<!-- PROFILE CARD -->
+<div class="student-profile-card">
+
+    <div class="profile-avatar">
+        {{ student.nama|first|upper }}
+    </div>
+
+    <div class="profile-info">
+
+        <h2>{{ student.nama }}</h2>
+
+        <div class="profile-meta">
+
+            <span>
+                NIM: <strong>{{ student.nim }}</strong>
+            </span>
+
+            {% if student.kelas %}
+            <span>
+                Kelas: <strong>{{ student.kelas.nama }}</strong>
+            </span>
+            {% endif %}
+
+            {% if student.status %}
+                <span class="profile-status active">
+                    ● Aktif
+                </span>
+            {% else %}
+                <span class="profile-status inactive">
+                    ● Tidak Aktif
+                </span>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- DATA SISWA -->
+<div class="detail-grid">
+
+
+    <!-- INFORMASI PRIBADI -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <div class="detail-card-icon">
+                👤
+            </div>
+
+            <div>
+                <h3>Informasi Pribadi</h3>
+                <p>Data identitas siswa</p>
+            </div>
+
+        </div>
+
+
+        <div class="detail-list">
+
+            <div class="detail-item">
+                <span>Nama Lengkap</span>
+                <strong>{{ student.nama }}</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>NIM</span>
+                <strong>{{ student.nim }}</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Jenis Kelamin</span>
+                <strong>{{ student.jk }}</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Tempat Lahir</span>
+                <strong>{{ student.tempat_lahir }}</strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Tanggal Lahir</span>
+                <strong>
+                    {{ student.tanggal_lahir|date:"d F Y" }}
+                </strong>
+            </div>
+
+            <div class="detail-item">
+                <span>Nama Ayah</span>
+                <strong>
+                    {% if student.nama_ayah %}
+                        {{ student.nama_ayah }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="detail-item">
+                <span>No. Telepon</span>
+                <strong>
+                    {% if student.no_tlpn %}
+                        {{ student.no_tlpn }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- INFORMASI AKADEMIK -->
+    <div class="detail-card">
+
+        <div class="detail-card-header">
+
+            <div class="detail-card-icon">
+                🎓
+            </div>
+
+            <div>
+                <h3>Informasi Akademik</h3>
+                <p>Data pendidikan siswa</p>
+            </div>
+
+        </div>
+
+
+        <div class="detail-list">
+
+            <div class="detail-item">
+                <span>Kelas</span>
+
+                <strong>
+                    {% if student.kelas %}
+                        <span class="class-badge">
+                            {{ student.kelas.nama }}
+                        </span>
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+                <span>Semester</span>
+
+                <strong>
+                    {% if student.semester %}
+                        {{ student.semester }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+                <span>Program Studi</span>
+
+                <strong>
+                    {% if student.prodi %}
+                        {{ student.prodi }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+                <span>Asrama</span>
+
+                <strong>
+                    {% if student.asrama_master %}
+                        {{ student.asrama_master.nama }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </strong>
+
+            </div>
+
+            <div class="detail-item">
+                <span>Status Siswa</span>
+
+                <strong>
+                    {% if student.status %}
+                        <span class="status-badge active">
+                            Aktif
+                        </span>
+                    {% else %}
+                        <span class="status-badge inactive">
+                            Tidak Aktif
+                        </span>
+                    {% endif %}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ALAMAT -->
+    <div class="detail-card address-card">
+
+        <div class="detail-card-header">
+
+            <div class="detail-card-icon">
+                📍
+            </div>
+
+            <div>
+                <h3>Alamat</h3>
+                <p>Alamat tempat tinggal siswa</p>
+            </div>
+
+        </div>
+
+        <div class="address-content">
+
+            {% if student.alamat %}
+                {{ student.alamat }}
+            {% else %}
+                <span class="text-muted">
+                    Alamat belum tersedia.
+                </span>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+</div>
+
+</div>
+
+{% endblock %}

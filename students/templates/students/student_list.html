@@ -1,0 +1,373 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Data Siswa
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Data Siswa</h1>
+        <p>Kelola data seluruh siswa madrasah.</p>
+    </div>
+
+        <div class="student-actions">
+
+        <a href="{% url 'student_create' %}" class="btn-add">
+            + Tambah Siswa
+        </a>
+
+        <form method="post"
+            action="{% url 'import_siswa' %}"
+            enctype="multipart/form-data"
+            class="import-form">
+
+            {% csrf_token %}
+
+            <label for="file-excel" class="btn-import">
+                Import Excel
+            </label>
+
+            <input
+                type="file"
+                id="file-excel"
+                name="file"
+                accept=".xlsx"
+                hidden
+                onchange="this.form.submit()"
+            >
+
+        </form>
+
+        <a href="{% url 'export_siswa' %}" class="btn-export">
+            Export Excel
+        </a>
+
+        <a
+        href="{% url 'download_format_siswa' %}"
+        class="btn-format"
+        >
+        Download Format
+        </a>
+
+
+        </div>
+
+
+</div>
+
+
+<div class="table-card">
+
+    <div class="table-header">
+
+    <div>
+        <h3>Daftar Siswa</h3>
+    </div>
+
+</div>
+
+
+<form
+    method="get"
+    class="student-filter"
+>
+
+    <!-- SEARCH -->
+
+    <div class="filter-item search-filter">
+
+        <label for="search">
+            Cari Siswa
+        </label>
+
+        <input
+            type="text"
+            id="search"
+            name="search"
+            class="search-box"
+            placeholder="Nama atau NIM..."
+            value="{{ search }}"
+        >
+
+    </div>
+
+
+    <!-- TAHUN AJARAN -->
+
+    <div class="filter-item">
+
+        <label for="tahun_ajaran">
+            Tahun Ajaran
+        </label>
+
+        <select
+            name="tahun_ajaran"
+            id="tahun_ajaran"
+        >
+
+            <option value="">
+                Semua Tahun Ajaran
+            </option>
+
+            {% for tahun in tahun_ajarans %}
+
+                <option
+                    value="{{ tahun.id }}"
+                    {% if tahun_ajaran_id == tahun.id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ tahun.nama }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+
+    <!-- KELAS -->
+
+    <div class="filter-item">
+
+        <label for="kelas">
+            Kelas
+        </label>
+
+        <select
+            name="kelas"
+            id="kelas"
+        >
+
+            <option value="">
+                Semua Kelas
+            </option>
+
+            {% for kelas in kelass %}
+
+                <option
+                    value="{{ kelas.id }}"
+                    {% if kelas_id == kelas.id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ kelas.nama }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+
+    <!-- ASRAMA -->
+
+    <div class="filter-item">
+
+        <label for="asrama">
+            Asrama
+        </label>
+
+        <select
+            name="asrama"
+            id="asrama"
+        >
+
+            <option value="">
+                Semua Asrama
+            </option>
+
+            {% for asrama in asramas %}
+
+                <option
+                    value="{{ asrama.id }}"
+                    {% if asrama_id == asrama.id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ asrama.nama }}
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+
+    <!-- STATUS -->
+
+    <div class="filter-item">
+
+        <label for="status">
+            Status
+        </label>
+
+        <select
+            name="status"
+            id="status"
+        >
+
+            <option value="">
+                Semua Status
+            </option>
+
+            <option
+                value="aktif"
+                {% if status == 'aktif' %}
+                    selected
+                {% endif %}
+            >
+                Aktif
+            </option>
+
+            <option
+                value="nonaktif"
+                {% if status == 'nonaktif' %}
+                    selected
+                {% endif %}
+            >
+                Nonaktif
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ACTION -->
+
+    <div class="filter-buttons">
+
+        <button
+            type="submit"
+            class="btn-filter"
+        >
+            Terapkan Filter
+        </button>
+
+        <a
+            href="{% url 'student_list' %}"
+            class="btn-reset"
+        >
+            Reset
+        </a>
+
+        <a
+            href="{% url 'export_siswa' %}?search={{ search|urlencode }}&tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}&asrama={{ asrama_id }}&status={{ status }}"
+            class="btn-export"
+        >
+            Export Excel
+        </a>
+
+    </div>
+
+</form>
+
+
+    <div class="table-container">
+
+        <table class="student-table">
+
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>NIM</th>
+                    <th>Nama</th>
+                    <th>Kelas</th>
+                    <th>Tahun Ajaran</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for student in students %}
+
+                <tr>
+
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+
+                    <td>
+                        <strong>{{ student.nim }}</strong>
+                    </td>
+
+                    <td>
+                        <strong>{{ student.nama }}</strong>
+                    </td>
+
+                    <td>
+                        {% if student.kelas %}
+                            {{ student.kelas.nama }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if student.tahun_ajaran %}
+                            {{ student.tahun_ajaran.nama }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="actions">
+
+                        <!-- VIEW -->
+                        <a
+                            href="{% url 'student_detail' student.id %}"
+                            class="btn-view"
+                            title="Lihat Detail"
+                        >
+                            👁
+                        </a>
+
+                        <!-- EDIT -->
+                        <a
+                            href="{% url 'student_edit' student.id %}"
+                            class="btn-edit"
+                            title="Edit"
+                        >
+                            ✏️
+                        </a>
+
+                        <!-- HAPUS -->
+                        <a
+                            href="{% url 'student_delete' student.id %}"
+                            class="btn-delete"
+                            title="Hapus"
+                        >
+                            🗑️
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="6" class="empty">
+                        Belum ada data siswa.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

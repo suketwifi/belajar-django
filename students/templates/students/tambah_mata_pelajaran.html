@@ -1,0 +1,790 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Tambah Mata Pelajaran
+{% endblock %}
+
+{% block content %}
+
+<div class="tambah-mapel-page">
+
+    <!-- HEADER -->
+
+    <div class="page-header tambah-mapel-header">
+
+        <div>
+            <h1>Tambah Mata Pelajaran</h1>
+            <p>
+                Tambahkan mata pelajaran dan tentukan kelas yang berlaku
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- CARD -->
+
+    <div class="tambah-mapel-card">
+
+        <div class="tambah-mapel-card-header">
+
+            <h2>Informasi Mata Pelajaran</h2>
+
+            <p>
+                Lengkapi informasi mata pelajaran berikut.
+            </p>
+
+        </div>
+
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+
+            <div class="tambah-mapel-body">
+
+
+                <!-- NAMA -->
+
+                <div class="mapel-form-group">
+
+                    <label for="nama">
+                        Nama Mata Pelajaran
+                        <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nama"
+                        name="nama"
+                        maxlength="100"
+                        value="{{ request.POST.nama|default:'' }}"
+                        placeholder="Contoh: Matematika"
+                        autocomplete="off"
+                        required
+                    >
+
+                    <small>
+                        Masukkan nama mata pelajaran.
+                    </small>
+
+                </div>
+
+
+                <div class="form-group">
+                    <label for="kitab">Kitab</label>
+
+                    <input
+                        type="text"
+                        name="kitab"
+                        id="kitab"
+                        maxlength="150"
+                        placeholder="Masukkan nama kitab"
+                    >
+                </div>
+
+
+                <!-- TAHUN AJARAN -->
+
+                <div class="mapel-form-group">
+
+                    <label for="tahun_ajaran">
+                        Tahun Ajaran
+                        <span class="required">*</span>
+                    </label>
+
+                    <select
+                        id="tahun_ajaran"
+                        name="tahun_ajaran"
+                        required
+                    >
+
+                        <option value="">
+                            -- Pilih Tahun Ajaran --
+                        </option>
+
+                        {% for tahun in tahun_ajarans %}
+
+                        <option
+                            value="{{ tahun.id }}"
+                            {% if request.POST.tahun_ajaran == tahun.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ tahun.nama }}
+                            {% if tahun.aktif %}
+                                - Aktif
+                            {% endif %}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                    <small>
+                        Mata pelajaran akan tersimpan pada tahun ajaran ini.
+                    </small>
+
+                </div>
+
+
+                <!-- KELAS -->
+
+                <div class="mapel-form-group">
+
+                    <label>
+                        Kelas yang Berlaku
+                        <span class="required">*</span>
+                    </label>
+
+                    <div class="kelas-selection">
+
+                        {% for kelas in kelass %}
+
+                        <label class="kelas-option">
+
+                            <input
+                                type="checkbox"
+                                name="kelas"
+                                value="{{ kelas.id }}"
+                            >
+
+                            <span class="kelas-option-box">
+
+                                <span class="kelas-check">
+                                    ✓
+                                </span>
+
+                                <span class="kelas-option-name">
+                                    {{ kelas.nama }}
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        {% empty %}
+
+                        <div class="no-kelas">
+                            Belum ada data kelas.
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <small>
+                        Pilih satu atau beberapa kelas yang menggunakan
+                        mata pelajaran ini.
+                    </small>
+
+                </div>
+
+
+                <!-- STATUS -->
+
+                <div class="mapel-form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <label class="status-toggle">
+
+                        <input
+                            type="checkbox"
+                            name="aktif"
+                            {% if not request.POST or request.POST.aktif == 'on' %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <span class="status-toggle-box">
+                            <span class="status-toggle-circle"></span>
+                        </span>
+
+                        <span class="status-toggle-text">
+                            Mata pelajaran aktif
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="tambah-mapel-footer">
+
+                <a
+                    href="{% url 'data_mata_pelajaran' %}"
+                    class="btn-mapel-batal"
+                >
+                    Batal
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn-mapel-simpan"
+                >
+                    <span class="btn-mapel-save-icon">✓</span>
+                    Simpan Mata Pelajaran
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+/* =========================================
+   PAGE
+========================================= */
+
+.tambah-mapel-page {
+    width: 100%;
+    max-width: 950px;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.tambah-mapel-header {
+    margin-bottom: 24px;
+}
+
+
+/* =========================================
+   CARD
+========================================= */
+
+.tambah-mapel-card {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================
+   CARD HEADER
+========================================= */
+
+.tambah-mapel-card-header {
+    padding: 24px 28px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tambah-mapel-card-header h2 {
+    margin: 0 0 6px;
+
+    color: #111827;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.tambah-mapel-card-header p {
+    margin: 0;
+
+    color: #6b7280;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   BODY
+========================================= */
+
+.tambah-mapel-body {
+    padding: 30px 28px;
+}
+
+
+/* =========================================
+   FORM GROUP
+========================================= */
+
+.mapel-form-group {
+    max-width: 600px;
+    margin-bottom: 26px;
+}
+
+.mapel-form-group:last-child {
+    margin-bottom: 0;
+}
+
+.mapel-form-group > label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #374151;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.required {
+    color: #dc2626;
+}
+
+
+/* =========================================
+   INPUT & SELECT
+========================================= */
+
+.mapel-form-group input[type="text"],
+.mapel-form-group select {
+    width: 100%;
+    height: 46px;
+
+    box-sizing: border-box;
+
+    padding: 0 14px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+
+    background: #ffffff;
+
+    color: #111827;
+
+    font-family: inherit;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.mapel-form-group input[type="text"]:hover,
+.mapel-form-group select:hover {
+    border-color: #9ca3af;
+}
+
+.mapel-form-group input[type="text"]:focus,
+.mapel-form-group select:focus {
+    outline: none;
+
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================
+   HELP TEXT
+========================================= */
+
+.mapel-form-group small {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #9ca3af;
+
+    font-size: 12px;
+}
+
+
+/* =========================================
+   KELAS SELECTION
+========================================= */
+
+.kelas-selection {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 10px;
+}
+
+
+/* =========================================
+   KELAS OPTION
+========================================= */
+
+.kelas-option {
+    position: relative;
+
+    display: block;
+
+    margin: 0;
+
+    cursor: pointer;
+}
+
+.kelas-option > input {
+    position: absolute;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+.kelas-option-box {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-height: 46px;
+
+    padding: 0 13px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.kelas-option:hover .kelas-option-box {
+    border-color: #9ca3af;
+}
+
+.kelas-check {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 20px;
+    height: 20px;
+
+    flex-shrink: 0;
+
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+
+    color: transparent;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    transition: 0.2s ease;
+}
+
+.kelas-option-name {
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* CHECKED */
+
+.kelas-option > input:checked + .kelas-option-box {
+    border-color: #2563eb;
+
+    background: #eff6ff;
+
+    box-shadow:
+        0 0 0 2px rgba(37, 99, 235, 0.06);
+}
+
+.kelas-option > input:checked + .kelas-option-box .kelas-check {
+    border-color: #2563eb;
+
+    background: #2563eb;
+
+    color: #ffffff;
+}
+
+
+/* =========================================
+   NO CLASS
+========================================= */
+
+.no-kelas {
+    padding: 15px;
+
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+
+    color: #9ca3af;
+
+    font-size: 13px;
+}
+
+
+/* =========================================
+   STATUS
+========================================= */
+
+.status-toggle {
+    display: inline-flex !important;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 0 !important;
+
+    cursor: pointer;
+}
+
+.status-toggle input {
+    display: none;
+}
+
+.status-toggle-box {
+    position: relative;
+
+    display: inline-block;
+
+    width: 42px;
+    height: 24px;
+
+    border-radius: 20px;
+
+    background: #d1d5db;
+
+    transition: 0.2s ease;
+}
+
+.status-toggle-circle {
+    position: absolute;
+
+    top: 3px;
+    left: 3px;
+
+    width: 18px;
+    height: 18px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    box-shadow:
+        0 1px 3px rgba(0,0,0,0.2);
+
+    transition: 0.2s ease;
+}
+
+.status-toggle input:checked + .status-toggle-box {
+    background: #2563eb;
+}
+
+.status-toggle input:checked + .status-toggle-box
+.status-toggle-circle {
+    transform: translateX(18px);
+}
+
+.status-toggle-text {
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 500;
+}
+
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.tambah-mapel-footer {
+    display: flex;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    padding: 18px 28px;
+
+    background: #f9fafb;
+
+    border-top: 1px solid #e5e7eb;
+}
+
+
+/* =========================================
+   BATAL
+========================================= */
+
+.btn-mapel-batal {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 95px;
+    height: 42px;
+
+    padding: 0 18px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.btn-mapel-batal:hover {
+    background: #f3f4f6;
+
+    border-color: #9ca3af;
+
+    color: #111827;
+
+    text-decoration: none;
+}
+
+
+/* =========================================
+   SIMPAN
+========================================= */
+
+.btn-mapel-simpan {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 190px;
+    height: 42px;
+
+    padding: 0 18px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #2563eb;
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 2px 5px rgba(37, 99, 235, 0.18);
+
+    transition: 0.2s ease;
+}
+
+.btn-mapel-simpan:hover {
+    background: #1d4ed8;
+
+    border-color: #1d4ed8;
+
+    box-shadow:
+        0 4px 10px rgba(37, 99, 235, 0.24);
+
+    transform: translateY(-1px);
+}
+
+.btn-mapel-simpan:active {
+    transform: translateY(0);
+}
+
+.btn-mapel-save-icon {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 20px;
+    height: 20px;
+
+    margin-right: 7px;
+
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 5px;
+
+    font-size: 12px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 750px) {
+
+    .kelas-selection {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+@media (max-width: 550px) {
+
+    .tambah-mapel-card-header,
+    .tambah-mapel-body {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .tambah-mapel-footer {
+        padding-left: 20px;
+        padding-right: 20px;
+
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .btn-mapel-batal,
+    .btn-mapel-simpan {
+        width: 100%;
+    }
+
+    .kelas-selection {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+</style>
+
+{% endblock %}

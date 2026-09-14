@@ -1,0 +1,423 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Data Kelas
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header kelas-page-header">
+
+    <div>
+        <h1>Data Kelas</h1>
+        <p>Kelola daftar kelas yang tersedia di madrasah</p>
+    </div>
+
+    <a href="{% url 'tambah_kelas' %}" class="btn-tambah-kelas">
+    <span class="btn-tambah-icon">+</span>
+    <span>Tambah Kelas</span>
+</a>
+
+</div>
+
+
+<!-- STATISTIK -->
+
+<div class="kelas-stat-card">
+
+    <div class="kelas-stat-info">
+        <span class="kelas-stat-label">Total Kelas</span>
+        <strong>{{ kelass|length }}</strong>
+        <small>Kelas terdaftar</small>
+    </div>
+
+</div>
+
+
+<!-- DATA KELAS -->
+
+<div class="kelas-table-card">
+
+    <div class="kelas-table-header">
+
+        <div>
+            <h2>Daftar Kelas</h2>
+            <p>Data kelas yang terdaftar dalam sistem</p>
+        </div>
+
+    </div>
+
+
+    {% if kelass %}
+
+    <div class="kelas-table-wrapper">
+
+        <table class="kelas-table">
+
+            <thead>
+                <tr>
+                    <th width="80">No</th>
+                    <th>Nama Kelas</th>
+                    <th width="160">Status</th>
+                    <th width="150">Aksi</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for kelas in kelass %}
+
+                <tr>
+
+                    <td class="kelas-number">
+                        {{ forloop.counter }}
+                    </td>
+
+                    <td>
+                        <div class="kelas-name">
+                            {{ kelas.nama }}
+                        </div>
+                    </td>
+
+                    <td>
+                        <span class="kelas-status">
+                            Aktif
+                        </span>
+                    </td>
+
+                    <td>
+                        <a href="{% url 'edit_kelas' kelas.id %}"
+                            class="kelas-action">
+                                Edit
+                        </a>
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="kelas-empty">
+
+        <h3>Belum ada data kelas</h3>
+
+        <p>
+            Belum ada kelas yang terdaftar.
+            Silakan tambahkan kelas baru.
+        </p>
+
+        <a href="{% url 'tambah_kelas' %}" class="btn btn-primary">
+            + Tambah Kelas
+        </a>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+    
+<style>
+
+    /* =========================
+    TOMBOL TAMBAH KELAS
+    ========================= */
+
+    .btn-tambah-kelas {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+
+        min-height: 42px;
+        padding: 0 17px;
+
+        background: #2563eb;
+        color: #ffffff;
+
+        border: 1px solid #2563eb;
+        border-radius: 8px;
+
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+
+        box-shadow: 0 2px 5px rgba(37, 99, 235, 0.18);
+
+        transition:
+            background 0.2s ease,
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .btn-tambah-kelas:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+
+        color: #ffffff;
+        text-decoration: none;
+
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+
+        transform: translateY(-1px);
+    }
+
+    .btn-tambah-kelas:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 5px rgba(37, 99, 235, 0.18);
+    }
+
+
+    /* TANDA PLUS */
+
+    .btn-tambah-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        width: 21px;
+        height: 21px;
+
+        border: 1.5px solid rgba(255, 255, 255, 0.85);
+        border-radius: 5px;
+
+        font-size: 17px;
+        font-weight: 400;
+        line-height: 1;
+    }
+
+    /* =========================
+       HEADER
+    ========================= */
+
+    .kelas-page-header {
+        margin-bottom: 24px;
+    }
+
+
+    /* =========================
+       STATISTIK
+    ========================= */
+
+    .kelas-stat-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        max-width: 300px;
+    }
+
+    .kelas-stat-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .kelas-stat-label {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 5px;
+    }
+
+    .kelas-stat-info strong {
+        font-size: 30px;
+        line-height: 1.2;
+        color: #111827;
+    }
+
+    .kelas-stat-info small {
+        margin-top: 5px;
+        color: #9ca3af;
+        font-size: 12px;
+    }
+
+
+    /* =========================
+       TABLE CARD
+    ========================= */
+
+    .kelas-table-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .kelas-table-header {
+        padding: 22px 24px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .kelas-table-header h2 {
+        margin: 0 0 5px;
+        font-size: 18px;
+        color: #111827;
+    }
+
+    .kelas-table-header p {
+        margin: 0;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+
+    /* =========================
+       TABLE
+    ========================= */
+
+    .kelas-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .kelas-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .kelas-table th {
+        background: #f9fafb;
+        padding: 14px 20px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        color: #6b7280;
+        text-transform: uppercase;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .kelas-table td {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+        color: #374151;
+    }
+
+    .kelas-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .kelas-table tbody tr:hover {
+        background: #fafafa;
+    }
+
+
+    /* =========================
+       NOMOR
+    ========================= */
+
+    .kelas-number {
+        color: #9ca3af !important;
+        font-size: 13px !important;
+    }
+
+
+    /* =========================
+       NAMA KELAS
+    ========================= */
+
+    .kelas-name {
+        font-weight: 600;
+        color: #111827;
+    }
+
+
+    /* =========================
+       STATUS
+    ========================= */
+
+    .kelas-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 20px;
+        background: #ecfdf3;
+        color: #15803d;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+
+    /* =========================
+       ACTION
+    ========================= */
+
+    .kelas-action {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 7px;
+        background: #f3f4f6;
+        color: #374151;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .kelas-action:hover {
+        background: #e5e7eb;
+    }
+
+
+    /* =========================
+       EMPTY STATE
+    ========================= */
+
+    .kelas-empty {
+        padding: 60px 30px;
+        text-align: center;
+    }
+
+    .kelas-empty h3 {
+        margin: 0 0 8px;
+        color: #111827;
+        font-size: 18px;
+    }
+
+    .kelas-empty p {
+        margin: 0 auto 20px;
+        max-width: 450px;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 768px) {
+
+        .kelas-page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .kelas-stat-card {
+            max-width: none;
+        }
+
+        .kelas-table th,
+        .kelas-table td {
+            padding: 12px 14px;
+        }
+
+    }
+
+</style>
+
+{% endblock %}

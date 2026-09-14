@@ -1,0 +1,544 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Edit Mata Pelajaran
+{% endblock %}
+
+{% block content %}
+
+<div class="edit-mapel-page">
+
+    <div class="page-header">
+        <div>
+            <h1>Edit Mata Pelajaran</h1>
+            <p>Perbarui data mata pelajaran dan kelas yang berlaku</p>
+        </div>
+    </div>
+
+    <div class="edit-mapel-card">
+
+        <div class="edit-mapel-card-header">
+            <div>
+                <h2>Informasi Mata Pelajaran</h2>
+                <p>Silakan perbarui data berikut.</p>
+            </div>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="edit-mapel-body">
+
+                <!-- NAMA -->
+                <div class="form-group">
+                    <label for="nama">
+                        Nama Mata Pelajaran
+                        <span>*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nama"
+                        name="nama"
+                        value="{{ mata_pelajaran.nama }}"
+                        placeholder="Contoh: Matematika"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="kitab">Kitab</label>
+
+                    <input
+                        type="text"
+                        name="kitab"
+                        id="kitab"
+                        maxlength="150"
+                        value="{{ mata_pelajaran.kitab }}"
+                        placeholder="Masukkan nama kitab"
+                    >
+                </div>
+
+
+                <!-- TAHUN AJARAN -->
+                <div class="form-group">
+
+                    <label for="tahun_ajaran">
+                        Tahun Ajaran
+                        <span>*</span>
+                    </label>
+
+                    <select
+                        id="tahun_ajaran"
+                        name="tahun_ajaran"
+                        required
+                    >
+
+                        <option value="">
+                            Pilih Tahun Ajaran
+                        </option>
+
+                        {% for tahun in tahun_ajarans %}
+
+                        <option
+                            value="{{ tahun.id }}"
+                            {% if tahun.id == mata_pelajaran.tahun_ajaran_id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ tahun.nama }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- KELAS -->
+                <div class="form-group">
+
+                    <label>
+                        Berlaku Untuk Kelas
+                        <span>*</span>
+                    </label>
+
+                    <p class="form-help">
+                        Pilih satu atau beberapa kelas yang mengikuti
+                        mata pelajaran ini.
+                    </p>
+
+                    <div class="kelas-options">
+
+                        {% for kelas in kelass %}
+
+                        <label class="kelas-option">
+
+                            <input
+                                type="checkbox"
+                                name="kelas"
+                                value="{{ kelas.id }}"
+                                {% if kelas in mata_pelajaran.kelas.all %}
+                                    checked
+                                {% endif %}
+                            >
+
+                            <span class="kelas-option-box">
+
+                                <span class="kelas-check">
+                                    ✓
+                                </span>
+
+                                <span class="kelas-option-name">
+                                    {{ kelas.nama }}
+                                </span>
+
+                            </span>
+
+                        </label>
+
+                        {% empty %}
+
+                        <div class="no-kelas">
+                            Belum ada data kelas.
+                        </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+
+                <!-- STATUS -->
+                <div class="form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <label class="status-toggle">
+
+                        <input
+                            type="checkbox"
+                            name="aktif"
+                            {% if mata_pelajaran.aktif %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <span class="toggle-slider"></span>
+
+                        <span class="toggle-text">
+                            Mata pelajaran aktif
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+            <div class="edit-mapel-footer">
+
+                <a
+                    href="{% url 'data_mata_pelajaran' %}"
+                    class="btn-batal"
+                >
+                    Batal
+                </a>
+
+                <button
+                    type="submit"
+                    class="btn-simpan"
+                >
+                    <span class="btn-simpan-icon">✓</span>
+                    <span>Simpan Perubahan</span>
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<style>
+
+.edit-mapel-page {
+    width: 100%;
+}
+
+.edit-mapel-card {
+    width: 100%;
+    max-width: 900px;
+    margin-top: 24px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    overflow: hidden;
+}
+
+.edit-mapel-card-header {
+    padding: 22px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fafafa;
+}
+
+.edit-mapel-card-header h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #111827;
+}
+
+.edit-mapel-card-header p {
+    margin: 6px 0 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.edit-mapel-body {
+    padding: 26px 24px;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-group label > span:first-child {
+    color: #dc2626;
+}
+
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    height: 44px;
+    padding: 0 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+    box-sizing: border-box;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.form-help {
+    margin: -2px 0 12px;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+
+.kelas-options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.kelas-option {
+    margin: 0;
+    cursor: pointer;
+}
+
+.kelas-option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.kelas-option-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.kelas-option-box:hover {
+    border-color: #93c5fd;
+    background: #f8fbff;
+}
+
+.kelas-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    color: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.kelas-option-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.kelas-option input:checked
++ .kelas-option-box {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.kelas-option input:checked
++ .kelas-option-box .kelas-check {
+    border-color: #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.kelas-option input:checked
++ .kelas-option-box .kelas-option-name {
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+
+.no-kelas {
+    grid-column: 1 / -1;
+    padding: 16px;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    color: #6b7280;
+    text-align: center;
+    font-size: 14px;
+}
+
+
+/* STATUS */
+
+.status-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin: 0 !important;
+}
+
+.status-toggle input {
+    display: none;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    border-radius: 999px;
+    background: #d1d5db;
+    transition: background 0.2s ease;
+}
+
+.toggle-slider::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease;
+}
+
+.status-toggle input:checked
++ .toggle-slider {
+    background: #2563eb;
+}
+
+.status-toggle input:checked
++ .toggle-slider::after {
+    transform: translateX(18px);
+}
+
+.toggle-text {
+    margin: 0 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+}
+
+
+/* FOOTER */
+
+.edit-mapel-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #fafafa;
+}
+
+.btn-batal,
+.btn-simpan {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.btn-batal {
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    color: #374151;
+}
+
+.btn-batal:hover {
+    background: #f3f4f6;
+    color: #111827;
+    text-decoration: none;
+}
+
+.btn-simpan {
+    gap: 8px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn-simpan:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.btn-simpan-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+
+    .kelas-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .edit-mapel-body {
+        padding: 20px 16px;
+    }
+
+    .edit-mapel-card-header {
+        padding: 18px 16px;
+    }
+
+    .edit-mapel-footer {
+        padding: 16px;
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .kelas-options {
+        grid-template-columns: 1fr;
+    }
+
+    .edit-mapel-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .btn-batal,
+    .btn-simpan {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+{% endblock %}

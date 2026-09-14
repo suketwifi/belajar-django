@@ -1,0 +1,868 @@
+html
+{% extends "students/base.html" %}
+
+{% load static %}
+
+{% block title %}
+Absensi Siswa
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'students/absensi.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Absensi Siswa</h1>
+        <p>Catat kehadiran siswa dengan cepat menggunakan barcode.</p>
+    </div>
+</div>
+
+
+<!-- =====================================================
+     PESAN DJANGO
+===================================================== -->
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+    <div class="message {{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+<div class="attendance-page">
+
+
+    <!-- =================================================
+         FILTER ABSENSI
+    ================================================== -->
+
+    <div class="table-card attendance-filter-card">
+
+        <div class="attendance-filter-title">
+            <div>
+                <h3>Pengaturan Absensi</h3>
+                <p>
+                    Pilih tanggal dan kelas sebelum melakukan absensi.
+                </p>
+            </div>
+        </div>
+
+        <form method="get">
+
+            <div class="attendance-filter-grid">
+
+                <!-- TANGGAL -->
+                <div class="attendance-filter">
+
+                    <label for="tanggal">
+                        Tanggal
+                    </label>
+
+                    <input
+                        type="date"
+                        id="tanggal"
+                        name="tanggal"
+                        value="{{ tanggal }}"
+                    >
+
+                </div>
+
+
+                <!-- KELAS -->
+                <div class="attendance-filter">
+
+                    <label for="kelas">
+                        Kelas
+                    </label>
+
+                    <select
+                        id="kelas"
+                        name="kelas"
+                    >
+
+                        <option value="">
+                            Semua Kelas
+                        </option>
+
+                        {% for kelas in kelass %}
+
+                        <option
+                            value="{{ kelas.id }}"
+                            {% if kelas_id == kelas.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ kelas.nama }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- TOMBOL -->
+                <div class="attendance-filter-action">
+
+                    <button
+                        type="submit"
+                        class="btn-view"
+                    >
+                        Tampilkan
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- =================================================
+         BARCODE SCANNER
+    ================================================== -->
+
+    <div class="table-card barcode-card">
+
+        <div class="barcode-header">
+
+            <div>
+                <h3>Scan Barcode Siswa</h3>
+
+                <p>
+                    Arahkan barcode siswa ke scanner.
+                    Sistem akan mencari NIM secara otomatis.
+                </p>
+            </div>
+
+
+            <div class="scanner-status">
+
+                <span
+                    id="scanner-status-dot"
+                    class="scanner-dot"
+                ></span>
+
+                <span id="scanner-status-text">
+                    Scanner siap
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="barcode-scanner">
+
+            <div class="barcode-icon">
+                ▦
+            </div>
+
+            <h2>
+                Scan Barcode
+            </h2>
+
+            <p>
+                Scan barcode yang berisi NIM siswa.
+            </p>
+
+
+            <input
+                type="text"
+                id="barcode-input"
+                class="barcode-input"
+                placeholder="Scan barcode di sini..."
+                autocomplete="off"
+                autofocus
+            >
+
+
+            <button
+                type="button"
+                id="btn-scan"
+                class="btn-scan"
+            >
+                Mulai Scan
+            </button>
+
+
+            <div
+                id="scan-result"
+                class="scan-result"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         FORM ABSENSI
+    ================================================== -->
+
+    <form
+        method="post"
+        id="attendance-form"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- TANGGAL -->
+        <input
+            type="hidden"
+            name="tanggal"
+            value="{{ tanggal }}"
+        >
+
+
+        <!-- KELAS -->
+        <input
+            type="hidden"
+            name="kelas"
+            value="{{ kelas_id }}"
+        >
+
+
+        <div class="table-card">
+
+
+            <!-- =================================================
+                 HEADER DAFTAR SISWA
+            ================================================== -->
+
+            <div class="attendance-list-header">
+
+                <div>
+
+                    <h3>
+                        Daftar Siswa
+                    </h3>
+
+                    <p>
+
+                        {% if students %}
+                            {{ students|length }} siswa
+                        {% else %}
+                            Belum ada siswa
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+
+                {% if students %}
+
+                <div class="attendance-counter">
+
+                    <span id="hadir-counter">
+                        0
+                    </span>
+
+                    siswa hadir
+
+                </div>
+
+                {% endif %}
+
+            </div>
+
+
+
+            <!-- =================================================
+                 TABLE
+            ================================================== -->
+
+            <div class="attendance-table-wrapper">
+
+                <table
+                    class="data-table"
+                    id="attendance-table"
+                >
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                No
+                            </th>
+
+                            <th>
+                                Nama
+                            </th>
+
+                            <th>
+                                NIM
+                            </th>
+
+                            <th>
+                                Kelas
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Keterangan
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for student in students %}
+
+                        <tr
+                            class="student-row"
+                            data-student-id="{{ student.id }}"
+                            data-nim="{{ student.nim }}"
+                        >
+
+                            <!-- NOMOR -->
+                            <td>
+                                {{ forloop.counter }}
+                            </td>
+
+
+                            <!-- NAMA -->
+                            <td>
+
+                                <strong>
+                                    {{ student.nama }}
+                                </strong>
+
+                            </td>
+
+
+                            <!-- NIM -->
+                            <td>
+
+                                <span class="student-nim">
+                                    {{ student.nim }}
+                                </span>
+
+                            </td>
+
+
+                            <!-- KELAS -->
+                            <td>
+
+                                {% if student.kelas %}
+                                    {{ student.kelas.nama }}
+                                {% else %}
+                                    -
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- STATUS -->
+                            <td>
+
+                                <select
+                                    name="status_{{ student.id }}"
+                                    class="attendance-status"
+                                >
+
+                                    <!-- HADIR -->
+                                    <option
+                                        value="Hadir"
+                                        {% if student.absensi_hari_ini and student.absensi_hari_ini.status == "Hadir" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Hadir
+                                    </option>
+
+
+                                    <!-- IZIN -->
+                                    <option
+                                        value="Izin"
+                                        {% if student.absensi_hari_ini and student.absensi_hari_ini.status == "Izin" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Izin
+                                    </option>
+
+
+                                    <!-- SAKIT -->
+                                    <option
+                                        value="Sakit"
+                                        {% if student.absensi_hari_ini and student.absensi_hari_ini.status == "Sakit" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Sakit
+                                    </option>
+
+
+                                    <!-- ALPA -->
+                                    <option
+                                        value="Alpa"
+                                        {% if not student.absensi_hari_ini or student.absensi_hari_ini.status == "Alpa" %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Alpa
+                                    </option>
+
+                                </select>
+
+                            </td>
+
+
+                            <!-- KETERANGAN -->
+                            <td>
+
+                                <input
+                                    type="text"
+                                    name="keterangan_{{ student.id }}"
+                                    class="attendance-note"
+                                    placeholder="Keterangan..."
+                                    value="{% if student.absensi_hari_ini %}{{ student.absensi_hari_ini.keterangan }}{% endif %}"
+                                >
+
+                            </td>
+
+                        </tr>
+
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty-state"
+                            >
+                                Belum ada data siswa.
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 TOMBOL SIMPAN
+            ================================================== -->
+
+            {% if students %}
+
+            <div class="attendance-actions">
+
+                <button
+                    type="submit"
+                    class="btn-save"
+                >
+                    Simpan Absensi
+                </button>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </form>
+
+</div>
+
+
+
+<!-- =====================================================
+     BARCODE JAVASCRIPT
+===================================================== -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+
+    /* =====================================================
+       ELEMENT
+    ===================================================== */
+
+    const barcodeInput =
+        document.getElementById("barcode-input");
+
+    const scanButton =
+        document.getElementById("btn-scan");
+
+    const scanResult =
+        document.getElementById("scan-result");
+
+    const scannerStatusText =
+        document.getElementById("scanner-status-text");
+
+    const scannerStatusDot =
+        document.getElementById("scanner-status-dot");
+
+    const hadirCounter =
+        document.getElementById("hadir-counter");
+
+
+
+    /* =====================================================
+       UPDATE COUNTER HADIR
+    ===================================================== */
+
+    function updateHadirCounter() {
+
+        let jumlahHadir = 0;
+
+        document
+            .querySelectorAll(".attendance-status")
+            .forEach(function (select) {
+
+                if (select.value === "Hadir") {
+                    jumlahHadir++;
+                }
+
+            });
+
+
+        if (hadirCounter) {
+
+            hadirCounter.textContent =
+                jumlahHadir;
+
+        }
+
+    }
+
+
+
+    /* =====================================================
+       HASIL SCAN
+    ===================================================== */
+
+    function showScanResult(message, type) {
+
+        if (!scanResult) {
+            return;
+        }
+
+        scanResult.textContent =
+            message;
+
+        scanResult.className =
+            "scan-result " + type;
+
+    }
+
+
+
+    /* =====================================================
+       SCAN SISWA
+    ===================================================== */
+
+    function scanStudent(nim) {
+
+        nim = nim.trim();
+
+
+        if (!nim) {
+
+            showScanResult(
+                "Masukkan atau scan barcode terlebih dahulu.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const rows =
+            document.querySelectorAll(".student-row");
+
+
+        let found = false;
+
+
+        rows.forEach(function (row) {
+
+            const studentNim =
+                String(row.dataset.nim).trim();
+
+
+            if (studentNim === nim) {
+
+                found = true;
+
+
+                /* -----------------------------------------
+                   HAPUS HIGHLIGHT SEBELUMNYA
+                ----------------------------------------- */
+
+                document
+                    .querySelectorAll(".student-row.scanned")
+                    .forEach(function (item) {
+
+                        item.classList.remove("scanned");
+
+                    });
+
+
+                /* -----------------------------------------
+                   HIGHLIGHT SISWA
+                ----------------------------------------- */
+
+                row.classList.add("scanned");
+
+
+                /* -----------------------------------------
+                   UBAH STATUS MENJADI HADIR
+                ----------------------------------------- */
+
+                const statusSelect =
+                    row.querySelector(".attendance-status");
+
+
+                if (statusSelect) {
+
+                    statusSelect.value =
+                        "Hadir";
+
+                }
+
+
+                /* -----------------------------------------
+                   KETERANGAN
+                ----------------------------------------- */
+
+                const noteInput =
+                    row.querySelector(".attendance-note");
+
+
+                if (noteInput) {
+
+                    noteInput.value = "";
+
+                }
+
+
+                /* -----------------------------------------
+                   AMBIL NAMA
+                ----------------------------------------- */
+
+                const namaElement =
+                    row.querySelector("td:nth-child(2)");
+
+
+                const nama =
+                    namaElement
+                        ? namaElement.innerText.trim()
+                        : "Siswa";
+
+
+                /* -----------------------------------------
+                   SCROLL KE SISWA
+                ----------------------------------------- */
+
+                row.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+
+
+                /* -----------------------------------------
+                   HASIL SCAN
+                ----------------------------------------- */
+
+                showScanResult(
+                    "✓ " + nama + " - Hadir",
+                    "success"
+                );
+
+
+                /* -----------------------------------------
+                   STATUS SCANNER
+                ----------------------------------------- */
+
+                scannerStatusText.textContent =
+                    "Siswa ditemukan";
+
+
+                scannerStatusDot.classList.add(
+                    "active"
+                );
+
+
+                /* -----------------------------------------
+                   UPDATE COUNTER
+                ----------------------------------------- */
+
+                updateHadirCounter();
+
+            }
+
+        });
+
+
+
+        /* =================================================
+           NIM TIDAK DITEMUKAN
+        ================================================= */
+
+        if (!found) {
+
+            showScanResult(
+                "✕ NIM " + nim + " tidak ditemukan.",
+                "error"
+            );
+
+
+            scannerStatusText.textContent =
+                "Siswa tidak ditemukan";
+
+
+            scannerStatusDot.classList.remove(
+                "active"
+            );
+
+        }
+
+
+        /* =================================================
+           KOSONGKAN INPUT
+        ================================================= */
+
+        barcodeInput.value = "";
+
+
+        /* =================================================
+           FOKUS KEMBALI
+        ================================================= */
+
+        barcodeInput.focus();
+
+    }
+
+
+
+    /* =====================================================
+       BARCODE ENTER
+    ===================================================== */
+
+    barcodeInput.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (event.key === "Enter") {
+
+                event.preventDefault();
+
+                scanStudent(
+                    barcodeInput.value
+                );
+
+            }
+
+        }
+    );
+
+
+
+    /* =====================================================
+       TOMBOL MULAI SCAN
+    ===================================================== */
+
+    scanButton.addEventListener(
+        "click",
+        function () {
+
+            barcodeInput.focus();
+
+
+            scannerStatusText.textContent =
+                "Menunggu barcode...";
+
+
+            scannerStatusDot.classList.add(
+                "active"
+            );
+
+
+            showScanResult(
+                "Silakan scan barcode siswa.",
+                "info"
+            );
+
+        }
+    );
+
+
+
+    /* =====================================================
+       PERUBAHAN STATUS MANUAL
+    ===================================================== */
+
+    document
+        .querySelectorAll(".attendance-status")
+        .forEach(function (select) {
+
+            select.addEventListener(
+                "change",
+                function () {
+
+                    updateHadirCounter();
+
+                }
+            );
+
+        });
+
+
+
+    /* =====================================================
+       HITUNG AWAL
+    ===================================================== */
+
+    updateHadirCounter();
+
+
+
+    /* =====================================================
+       FOKUS BARCODE
+    ===================================================== */
+
+    if (barcodeInput) {
+
+        barcodeInput.focus();
+
+    }
+
+});
+
+</script>
+
+{% endblock %}
+
