@@ -1,0 +1,987 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Input Presensi Guru
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="popup-container">
+
+    {% for message in messages %}
+
+        {% if 'presensi_guru' in message.tags %}
+
+        <div class="popup-notification">
+
+            <div class="popup-icon">
+                ✓
+            </div>
+
+            <div class="popup-content">
+
+                <strong>Presensi Berhasil</strong>
+
+                <span>
+                    {{ message }}
+                </span>
+
+            </div>
+
+            <button
+                type="button"
+                class="popup-close"
+                onclick="closePopup(this)"
+            >
+                ×
+            </button>
+
+        </div>
+
+        {% endif %}
+
+    {% endfor %}
+
+</div>
+{% endif %}
+
+<div class="presensi-guru-page">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="page-header">
+
+        <div>
+            <h1>Input Presensi Guru</h1>
+
+            <p>
+                Catat kehadiran guru
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTER TANGGAL
+         ===================================================== -->
+
+    <div class="presensi-filter-card">
+
+        <form
+            method="get"
+            class="presensi-filter-form"
+        >
+
+            <div class="presensi-filter-group">
+
+                <label for="tanggal">
+                    Tanggal Presensi
+                </label>
+
+                <input
+                    type="date"
+                    name="tanggal"
+                    id="tanggal"
+                    value="{{ tanggal }}"
+                    required
+                >
+
+            </div>
+
+            <div class="presensi-filter-button">
+
+                <button
+                    type="submit"
+                    class="btn-tampilkan-presensi"
+                >
+                    Tampilkan
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         FORM PRESENSI
+         ===================================================== -->
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="tanggal"
+            value="{{ tanggal }}"
+        >
+
+
+        <div class="presensi-guru-card">
+
+            <!-- HEADER -->
+
+            <div class="presensi-guru-card-header">
+
+                <div>
+
+                    <h2>
+                        Daftar Guru
+                    </h2>
+
+                    <p>
+                        Atur status presensi guru pada tanggal
+                        yang dipilih.
+                    </p>
+
+                </div>
+
+                <div class="presensi-total">
+
+                    <span>
+                        Total Guru
+                    </span>
+
+                    <strong>
+                        {{ gurus|length }}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- TABLE -->
+
+            <div class="presensi-guru-table-wrapper">
+
+                <table class="presensi-guru-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th class="col-no">
+                                NO
+                            </th>
+
+                            <th class="col-nama">
+                                NAMA GURU
+                            </th>
+
+                            <th class="col-jk">
+                                JENIS KELAMIN
+                            </th>
+
+                            <th class="col-status">
+                                STATUS
+                            </th>
+
+                            <th class="col-keterangan">
+                                KETERANGAN
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for guru in gurus %}
+
+                        <tr
+                            data-guru-id="{{ guru.id }}"
+                        >
+
+                            <td class="col-no">
+                                {{ forloop.counter }}
+                            </td>
+
+                            <td class="guru-name">
+                                {{ guru.nama }}
+                            </td>
+
+                            <td class="guru-jk">
+
+                                {% if guru.jenis_kelamin == 'L' %}
+                                    Laki-laki
+                                {% elif guru.jenis_kelamin == 'P' %}
+                                    Perempuan
+                                {% else %}
+                                    -
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                <select
+                                    name="status_{{ guru.id }}"
+                                    class="status-select"
+                                    data-guru-id="{{ guru.id }}"
+                                >
+
+                                    <option
+                                        value="Alpa"
+                                        {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Alpa' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Alpa
+                                    </option>
+
+                                    <option
+                                        value="Hadir"
+                                        {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Hadir' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Hadir
+                                    </option>
+
+                                    <option
+                                        value="Izin"
+                                        {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Izin' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Izin
+                                    </option>
+
+                                    <option
+                                        value="Sakit"
+                                        {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Sakit' %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        Sakit
+                                    </option>
+
+                                </select>
+
+                            </td>
+
+                            <td>
+
+                                <input
+                                    type="text"
+                                    name="keterangan_{{ guru.id }}"
+                                    class="keterangan-input"
+                                    value="{% if guru.presensi_hari_ini %}{{ guru.presensi_hari_ini.keterangan }}{% endif %}"
+                                    placeholder="Keterangan..."
+                                >
+
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                class="presensi-empty"
+                            >
+
+                                Belum ada data guru.
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            {% if gurus %}
+
+            <div class="presensi-guru-footer">
+
+                <div class="presensi-info">
+
+                    Tanggal:
+                    <strong>
+                        {{ tanggal }}
+                    </strong>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn-simpan-presensi"
+                >
+                    Simpan Presensi
+                </button>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<style>
+
+/* =========================================================
+   HALAMAN
+   ========================================================= */
+
+.presensi-guru-page {
+    width: 100%;
+}
+
+
+/* =========================================================
+   FILTER CARD
+   ========================================================= */
+
+.presensi-filter-card {
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 12px;
+
+    padding: 20px 24px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 2px 7px rgba(15, 23, 42, 0.035);
+}
+
+.presensi-filter-form {
+    display: flex;
+
+    align-items: flex-end;
+
+    gap: 15px;
+}
+
+.presensi-filter-group {
+    width: 240px;
+}
+
+.presensi-filter-group label {
+    display: block;
+
+    margin-bottom: 7px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    color: #475569;
+}
+
+.presensi-filter-group input {
+    width: 100%;
+
+    height: 42px;
+
+    padding: 0 12px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #dbe2ea;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #334155;
+
+    font-size: 14px;
+
+    outline: none;
+}
+
+.presensi-filter-group input:focus {
+    border-color: #2563eb;
+}
+
+.btn-tampilkan-presensi {
+    height: 42px;
+
+    padding: 0 20px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.btn-tampilkan-presensi:hover {
+    background: #1d4ed8;
+}
+
+
+/* =========================================================
+   CARD UTAMA
+   ========================================================= */
+
+.presensi-guru-card {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 13px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.035);
+}
+
+
+/* =========================================================
+   HEADER CARD
+   ========================================================= */
+
+.presensi-guru-card-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 24px 26px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.presensi-guru-card-header h2 {
+    margin: 0 0 6px;
+
+    color: #1e293b;
+
+    font-size: 19px;
+
+    font-weight: 700;
+}
+
+.presensi-guru-card-header p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   TOTAL
+   ========================================================= */
+
+.presensi-total {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+.presensi-total span {
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.presensi-total strong {
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 34px;
+
+    height: 34px;
+
+    padding: 0 8px;
+
+    border-radius: 8px;
+
+    background: #eff6ff;
+
+    color: #2563eb;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.presensi-guru-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.presensi-guru-table {
+    width: 100%;
+
+    min-width: 900px;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+}
+
+.presensi-guru-table thead th {
+    height: 48px;
+
+    padding: 0 18px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    text-align: left;
+}
+
+.presensi-guru-table tbody tr {
+    height: 64px;
+
+    transition: background 0.15s ease;
+}
+
+.presensi-guru-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.presensi-guru-table tbody td {
+    padding: 8px 18px;
+
+    border-bottom: 1px solid #edf0f4;
+
+    vertical-align: middle;
+}
+
+.presensi-guru-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   KOLOM
+   ========================================================= */
+
+.col-no {
+    width: 65px;
+}
+
+.col-nama {
+    width: 30%;
+}
+
+.col-jk {
+    width: 18%;
+}
+
+.col-status {
+    width: 160px;
+}
+
+.col-keterangan {
+    width: 28%;
+}
+
+
+/* =========================================================
+   DATA
+   ========================================================= */
+
+.presensi-guru-table tbody .col-no {
+    color: #94a3b8;
+
+    font-size: 13px;
+}
+
+.guru-name {
+    color: #111827;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.guru-jk {
+    color: #475569;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   SELECT STATUS
+   ========================================================= */
+
+.status-select {
+    width: 130px;
+
+    height: 38px;
+
+    padding: 0 10px;
+
+    border: 1px solid #dbe2ea;
+
+    border-radius: 7px;
+
+    background: #ffffff;
+
+    color: #334155;
+
+    font-size: 13px;
+
+    outline: none;
+
+    cursor: pointer;
+}
+
+.status-select:focus {
+    border-color: #2563eb;
+}
+
+
+/* =========================================================
+   KETERANGAN
+   ========================================================= */
+
+.keterangan-input {
+    width: 100%;
+
+    height: 38px;
+
+    box-sizing: border-box;
+
+    padding: 0 11px;
+
+    border: 1px solid #dbe2ea;
+
+    border-radius: 7px;
+
+    color: #334155;
+
+    font-size: 13px;
+
+    outline: none;
+}
+
+.keterangan-input:focus {
+    border-color: #2563eb;
+}
+
+.keterangan-input::placeholder {
+    color: #94a3b8;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.presensi-guru-footer {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 18px 24px;
+
+    border-top: 1px solid #e5e7eb;
+
+    background: #ffffff;
+}
+
+.presensi-info {
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+.presensi-info strong {
+    color: #334155;
+}
+
+.btn-simpan-presensi {
+    height: 42px;
+
+    padding: 0 22px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: #ffffff;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 3px 8px rgba(37, 99, 235, 0.18);
+}
+
+.btn-simpan-presensi:hover {
+    background: #1d4ed8;
+}
+
+
+/* =========================================================
+   KOSONG
+   ========================================================= */
+
+.presensi-empty {
+    padding: 55px 20px !important;
+
+    text-align: center;
+
+    color: #94a3b8;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .presensi-filter-form {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .presensi-filter-group {
+        width: 100%;
+    }
+
+    .presensi-filter-button {
+        width: 100%;
+    }
+
+    .btn-tampilkan-presensi {
+        width: 100%;
+    }
+
+    .presensi-guru-card-header {
+        align-items: flex-start;
+
+        gap: 15px;
+
+        flex-direction: column;
+    }
+
+    .presensi-guru-footer {
+        align-items: stretch;
+
+        gap: 15px;
+
+        flex-direction: column;
+    }
+
+    .btn-simpan-presensi {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+<style>
+.popup-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 99999;
+}
+
+.popup-notification {
+    width: 380px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    border-left: 5px solid #22c55e;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+    animation: popupMasuk 0.35s ease;
+}
+
+.popup-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+
+    border-radius: 50%;
+
+    background: #dcfce7;
+    color: #16a34a;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.popup-content {
+    flex: 1;
+}
+
+.popup-content strong {
+    display: block;
+    color: #166534;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.popup-content span {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.popup-close {
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.popup-close:hover {
+    color: #334155;
+}
+
+@keyframes popupMasuk {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes popupKeluar {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+}
+
+.popup-hide {
+    animation: popupKeluar 0.3s ease forwards;
+}
+
+@media (max-width: 600px) {
+
+    .popup-container {
+        top: 15px;
+        left: 15px;
+        right: 15px;
+    }
+
+    .popup-notification {
+        width: auto;
+    }
+}
+</style>
+
+<script>
+function closePopup(button) {
+
+    const popup = button.closest('.popup-notification');
+
+    popup.classList.add('popup-hide');
+
+    setTimeout(function () {
+        popup.remove();
+    }, 300);
+}
+
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const popups = document.querySelectorAll(
+        '.popup-notification'
+    );
+
+    popups.forEach(function (popup) {
+
+        setTimeout(function () {
+
+            popup.classList.add('popup-hide');
+
+            setTimeout(function () {
+                popup.remove();
+            }, 300);
+
+        }, 4000);
+
+    });
+
+});
+</script>
+
+{% endblock %}

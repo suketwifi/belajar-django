@@ -1,0 +1,142 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Edit Guru
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Edit Guru</h1>
+
+        <p>
+            Perbarui data guru
+        </p>
+    </div>
+
+</div>
+
+
+<div class="table-card">
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <div style="max-width:600px;">
+
+            <label
+                for="nama"
+                style="
+                    display:block;
+                    margin-bottom:8px;
+                    font-weight:600;
+                    color:#334155;
+                "
+            >
+                Nama Guru
+            </label>
+
+            <input
+                type="text"
+                name="nama"
+                id="nama"
+                value="{{ guru.nama }}"
+                required
+                style="
+                    width:100%;
+                    padding:12px 14px;
+                    border:1px solid #dbe2ea;
+                    border-radius:8px;
+                    font-size:14px;
+                    box-sizing:border-box;
+                "
+            >
+
+        </div>
+
+        <div style="margin-top:20px;">
+
+            <label
+                for="jenis_kelamin"
+                style="
+                    display:block;
+                    margin-bottom:8px;
+                    font-weight:600;
+                    color:#334155;
+                "
+            >
+                Jenis Kelamin
+            </label>
+
+            <select
+                name="jenis_kelamin"
+                id="jenis_kelamin"
+                required
+                style="
+                    width:100%;
+                    padding:12px 14px;
+                    border:1px solid #dbe2ea;
+                    border-radius:8px;
+                    font-size:14px;
+                    background:#ffffff;
+                    box-sizing:border-box;
+                "
+            >
+
+                <option
+                    value="L"
+                    {% if guru.jenis_kelamin == 'L' %}selected{% endif %}
+                >
+                    Laki-laki
+                </option>
+
+                <option
+                    value="P"
+                    {% if guru.jenis_kelamin == 'P' %}selected{% endif %}
+                >
+                    Perempuan
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div
+            style="
+                margin-top:25px;
+                display:flex;
+                gap:10px;
+            "
+        >
+
+            <button
+                type="submit"
+                class="btn-add"
+                style="border:0;"
+            >
+                Simpan Perubahan
+            </button>
+
+            <a
+                href="{% url 'data_guru' %}"
+                class="btn-edit"
+                style="
+                    display:inline-flex;
+                    align-items:center;
+                    text-decoration:none;
+                "
+            >
+                Batal
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

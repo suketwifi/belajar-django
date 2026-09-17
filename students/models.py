@@ -14,6 +14,75 @@ class Kelas(models.Model):
     def __str__(self):
         return self.nama
 
+class Guru(models.Model):
+
+    JENIS_KELAMIN_CHOICES = [
+        ('L', 'Laki-laki'),
+        ('P', 'Perempuan'),
+    ]
+
+    nama = models.CharField(
+        max_length=150,
+        unique=True
+    )
+
+    jenis_kelamin = models.CharField(
+        max_length=1,
+        choices=JENIS_KELAMIN_CHOICES,
+        default='L'
+    )
+
+    def __str__(self):
+        return self.nama
+
+    class Meta:
+        ordering = ['nama']
+        verbose_name = 'Guru'
+        verbose_name_plural = 'Guru'
+
+    class Meta:
+        ordering = ['nama']
+        verbose_name = 'Guru'
+        verbose_name_plural = 'Guru'
+
+
+class PresensiGuru(models.Model):
+    STATUS_CHOICES = [
+        ('Hadir', 'Hadir'),
+        ('Izin', 'Izin'),
+        ('Sakit', 'Sakit'),
+        ('Alpa', 'Alpa'),
+    ]
+
+    guru = models.ForeignKey(
+        Guru,
+        on_delete=models.CASCADE,
+        related_name='presensi'
+    )
+
+    tanggal = models.DateField()
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='Alpa'
+    )
+
+    keterangan = models.TextField(
+        blank=True
+    )
+
+    class Meta:
+        ordering = ['-tanggal', 'guru__nama']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['guru', 'tanggal'],
+                name='unique_presensi_guru_per_tanggal'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.guru.nama} - {self.tanggal} - {self.status}'    
 
 class Student(models.Model):
     nama = models.CharField(max_length=100)

@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block title %}
-Absensi Siswa
+Presensi Siswa
 {% endblock %}
 
 {% block extra_css %}
@@ -12,27 +12,52 @@ Absensi Siswa
 
 {% block content %}
 
+{% if messages %}
+<div class="popup-container">
+
+    {% for message in messages %}
+
+        {% if 'presensi_siswa' in message.tags %}
+
+        <div class="popup-notification">
+
+            <div class="popup-icon">
+                ✓
+            </div>
+
+            <div class="popup-content">
+
+                <strong>Presensi Berhasil</strong>
+
+                <span>
+                    {{ message }}
+                </span>
+
+            </div>
+
+            <button
+                type="button"
+                class="popup-close"
+                onclick="closePopup(this)"
+            >
+                ×
+            </button>
+
+        </div>
+
+        {% endif %}
+
+    {% endfor %}
+
+</div>
+{% endif %}
+
 <div class="page-header">
     <div>
-        <h1>Absensi Siswa</h1>
+        <h1>Presensi Siswa</h1>
         <p>Catat kehadiran siswa dengan cepat menggunakan barcode.</p>
     </div>
 </div>
-
-
-<!-- =====================================================
-     PESAN DJANGO
-===================================================== -->
-
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-    <div class="message {{ message.tags }}">
-        {{ message }}
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
 
 
 <div class="attendance-page">
@@ -46,7 +71,7 @@ Absensi Siswa
 
         <div class="attendance-filter-title">
             <div>
-                <h3>Pengaturan Absensi</h3>
+                <h3>Pengaturan Presensi</h3>
                 <p>
                     Pilih tanggal dan kelas sebelum melakukan absensi.
                 </p>
@@ -460,7 +485,7 @@ Absensi Siswa
                     type="submit"
                     class="btn-save"
                 >
-                    Simpan Absensi
+                    Simpan Presensi
                 </button>
 
             </div>
@@ -1222,6 +1247,162 @@ document.addEventListener("DOMContentLoaded", function () {
 }
 
 </style>
+
+<style>
+/* ================================
+   POPUP NOTIFIKASI
+   ================================ */
+
+.popup-container {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 99999;
+}
+
+.popup-notification {
+    width: 380px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 13px;
+
+    border-left: 5px solid #22c55e;
+
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+    animation: popupMasuk 0.35s ease;
+}
+
+.popup-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #16a34a;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.popup-content {
+    flex: 1;
+}
+
+.popup-content strong {
+    display: block;
+    color: #166534;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.popup-content span {
+    display: block;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.popup-close {
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.popup-close:hover {
+    color: #334155;
+}
+
+@keyframes popupMasuk {
+    from {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes popupKeluar {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(40px);
+    }
+}
+
+.popup-hide {
+    animation: popupKeluar 0.3s ease forwards;
+}
+
+
+/* ================================
+   MOBILE
+   ================================ */
+
+@media (max-width: 600px) {
+
+    .popup-container {
+        top: 15px;
+        left: 15px;
+        right: 15px;
+    }
+
+    .popup-notification {
+        width: auto;
+    }
+}
+</style>
+
+<script>
+function closePopup(button) {
+    const popup = button.closest('.popup-notification');
+
+    popup.classList.add('popup-hide');
+
+    setTimeout(function () {
+        popup.remove();
+    }, 300);
+}
+
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const popups = document.querySelectorAll('.popup-notification');
+
+    popups.forEach(function (popup) {
+
+        setTimeout(function () {
+
+            popup.classList.add('popup-hide');
+
+            setTimeout(function () {
+                popup.remove();
+            }, 300);
+
+        }, 4000);
+
+    });
+
+});
+</script>
 
 
 {% endblock %}

@@ -99,15 +99,15 @@ urlpatterns = [
     # =====================================================
 
     path(
-        'absensi/',
-        login_required(views.absensi),
-        name='absensi'
+    'presensi-siswa/',
+    views.absensi,
+    name='presensi_siswa'
     ),
 
     path(
-        'absensi/rekap/',
-        login_required(views.rekap_absensi),
-        name='rekap_absensi'
+        'presensi-siswa/rekap/',
+        views.rekap_absensi,
+        name='rekap_presensi_siswa'
     ),
 
     path(
@@ -188,6 +188,46 @@ urlpatterns = [
     'rapot/cetak/<int:id>/',
     login_required(views.cetak_rapot_siswa),
     name='cetak_rapot_siswa'
+    ),
+
+    path(
+    'guru/',
+    views.data_guru,
+    name='data_guru'
+    ),
+
+    path(
+        'guru/tambah/',
+        views.tambah_guru,
+        name='tambah_guru'
+    ),
+
+    path(
+        'guru/<int:id>/edit/',
+        views.edit_guru,
+        name='edit_guru'
+    ),
+
+    # =========================================================
+    # PRESENSI GURU
+    # =========================================================
+
+    path(
+        'presensi-guru/',
+        views.presensi_guru,
+        name='presensi_guru'
+    ),
+
+    path(
+        'presensi-guru/rekap/',
+        views.rekap_presensi_guru,
+        name='rekap_presensi_guru'
+    ),
+
+    path(
+        'presensi-guru/rekap/cetak/',
+        views.cetak_rekap_presensi_guru,
+        name='cetak_rekap_presensi_guru'
     ),
 
 ]

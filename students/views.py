@@ -1,18 +1,21 @@
 import openpyxl
-from datetime import datetime, timedelta
-
+from datetime import datetime, timedelta, date
+import calendar
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
 from django.db.models import Q, Count, Case, When, IntegerField
 from django.db.models.functions import TruncMonth
 from django.http import HttpResponse
+from django.urls import reverse
 
 from .models import (
     Student,
     Asrama,
     Kelas,
     Absensi,
+    Guru,
+    PresensiGuru,
     TahunAjaran,
     MataPelajaran,
     Penilaian,
@@ -739,48 +742,27 @@ def absensi(request):
 
     if request.method == 'POST':
 
-        tanggal = request.POST.get(
-            'tanggal',
-            ''
-        ).strip()
+        tanggal = request.POST.get('tanggal', '').strip()
+        kelas_id = request.POST.get('kelas', '').strip()
 
-        kelas_id = request.POST.get(
-            'kelas',
-            ''
-        ).strip()
-
-        # -------------------------------------------------
-        # VALIDASI TANGGAL
-        # -------------------------------------------------
-
-        if not tanggal:
-
-            messages.error(
-                request,
-                'Tanggal absensi wajib dipilih.'
-            )
-
-            return redirect('absensi')
+        # ---------------------------------------------
+        # Validasi tanggal
+        # ---------------------------------------------
 
         try:
-
             tanggal_obj = datetime.strptime(
                 tanggal,
                 '%Y-%m-%d'
             ).date()
 
-        except ValueError:
+        except (ValueError, TypeError):
 
-            messages.error(
-                request,
-                'Format tanggal tidak valid.'
-            )
+            tanggal_obj = timezone.localdate()
+            tanggal = tanggal_obj.strftime('%Y-%m-%d')
 
-            return redirect('absensi')
-
-        # -------------------------------------------------
-        # SISWA AKTIF
-        # -------------------------------------------------
+        # ---------------------------------------------
+        # Ambil siswa aktif
+        # ---------------------------------------------
 
         students = (
             Student.objects
@@ -788,15 +770,15 @@ def absensi(request):
             .order_by('nama')
         )
 
+        # Jika memilih kelas
         if kelas_id:
-
             students = students.filter(
                 kelas_id=kelas_id
             )
 
-        # -------------------------------------------------
-        # STATUS VALID
-        # -------------------------------------------------
+        # ---------------------------------------------
+        # Status yang diperbolehkan
+        # ---------------------------------------------
 
         status_valid = [
             'Hadir',
@@ -805,11 +787,9 @@ def absensi(request):
             'Alpa',
         ]
 
-        jumlah_disimpan = 0
-
-        # -------------------------------------------------
-        # SIMPAN ABSENSI
-        # -------------------------------------------------
+        # ---------------------------------------------
+        # Simpan absensi setiap siswa
+        # ---------------------------------------------
 
         for student in students:
 
@@ -823,8 +803,8 @@ def absensi(request):
                 ''
             ).strip()
 
+            # Validasi status
             if status not in status_valid:
-
                 status = 'Alpa'
 
             Absensi.objects.update_or_create(
@@ -836,35 +816,21 @@ def absensi(request):
                 }
             )
 
-            jumlah_disimpan += 1
-
-        # -------------------------------------------------
-        # PESAN BERHASIL
-        # -------------------------------------------------
-
         messages.success(
             request,
-            (
-                f'{jumlah_disimpan} data absensi '
-                f'untuk tanggal '
-                f'{tanggal_obj.strftime("%d/%m/%Y")} '
-                'berhasil disimpan.'
-            )
+            f'Presensi siswa untuk tanggal '
+            f'{tanggal_obj.strftime("%d/%m/%Y")} berhasil disimpan.',
+            extra_tags='presensi_siswa'
         )
 
-        # -------------------------------------------------
-        # KEMBALI KE TANGGAL YANG SAMA
-        # -------------------------------------------------
-
-        if kelas_id:
-
-            return redirect(
-                f'/absensi/?tanggal={tanggal_obj.isoformat()}'
-                f'&kelas={kelas_id}'
-            )
+        # ---------------------------------------------
+        # KEMBALI KE HALAMAN ABSENSI
+        # ---------------------------------------------
 
         return redirect(
-            f'/absensi/?tanggal={tanggal_obj.isoformat()}'
+            f"{reverse('presensi_siswa')}"
+            f"?tanggal={tanggal}"
+            f"&kelas={kelas_id}"
         )
 
     # =====================================================
@@ -873,21 +839,10 @@ def absensi(request):
 
     tanggal = request.GET.get(
         'tanggal',
-        ''
-    ).strip()
+        timezone.localdate().isoformat()
+    )
 
-    if not tanggal:
-
-        tanggal = (
-            timezone
-            .localdate()
-            .isoformat()
-        )
-
-    # -----------------------------------------------------
-    # VALIDASI TANGGAL
-    # -----------------------------------------------------
-
+    # Validasi tanggal GET
     try:
 
         tanggal_obj = datetime.strptime(
@@ -895,21 +850,23 @@ def absensi(request):
             '%Y-%m-%d'
         ).date()
 
-        tanggal = tanggal_obj.isoformat()
-
-    except ValueError:
+    except (ValueError, TypeError):
 
         tanggal_obj = timezone.localdate()
         tanggal = tanggal_obj.isoformat()
+
+    # ---------------------------------------------
+    # Filter kelas
+    # ---------------------------------------------
 
     kelas_id = request.GET.get(
         'kelas',
         ''
     ).strip()
 
-    # -----------------------------------------------------
-    # SISWA AKTIF
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # Ambil siswa aktif
+    # ---------------------------------------------
 
     students = (
         Student.objects
@@ -918,29 +875,14 @@ def absensi(request):
         .order_by('nama')
     )
 
-    # -----------------------------------------------------
-    # KELAS
-    # -----------------------------------------------------
-
-    kelass = (
-        Kelas.objects
-        .all()
-        .order_by('nama')
-    )
-
-    # -----------------------------------------------------
-    # FILTER KELAS
-    # -----------------------------------------------------
-
     if kelas_id:
-
         students = students.filter(
             kelas_id=kelas_id
         )
 
-    # -----------------------------------------------------
-    # ABSENSI TANGGAL TERPILIH
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # Ambil data absensi tanggal tersebut
+    # ---------------------------------------------
 
     absensi_data = (
         Absensi.objects
@@ -950,14 +892,18 @@ def absensi(request):
         )
     )
 
+    # ---------------------------------------------
+    # Buat map absensi
+    # ---------------------------------------------
+
     absensi_map = {
         absensi.student_id: absensi
         for absensi in absensi_data
     }
 
-    # -----------------------------------------------------
-    # TEMPELKAN DATA KE SISWA
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # Tempel data absensi ke masing-masing siswa
+    # ---------------------------------------------
 
     for student in students:
 
@@ -965,21 +911,32 @@ def absensi(request):
             absensi_map.get(student.id)
         )
 
-    # -----------------------------------------------------
-    # RENDER
-    # -----------------------------------------------------
+    # ---------------------------------------------
+    # Ambil semua kelas
+    # ---------------------------------------------
+
+    kelass = (
+        Kelas.objects
+        .all()
+        .order_by('nama')
+    )
+
+    # ---------------------------------------------
+    # Render
+    # ---------------------------------------------
+
+    context = {
+        'students': students,
+        'kelass': kelass,
+        'tanggal': tanggal,
+        'kelas_id': kelas_id,
+    }
 
     return render(
         request,
         'students/absensi.html',
-        {
-            'students': students,
-            'kelass': kelass,
-            'tanggal': tanggal,
-            'kelas_id': kelas_id,
-        }
+        context
     )
-
 
 # =========================================================
 # REKAP ABSENSI
@@ -1009,13 +966,9 @@ def rekap_absensi(request):
 
     if not tanggal_mulai:
 
-        tanggal_mulai_obj = (
-            tanggal_hari_ini.replace(day=1)
-        )
+        tanggal_mulai_obj = tanggal_hari_ini.replace(day=1)
 
-        tanggal_mulai = (
-            tanggal_mulai_obj.strftime('%Y-%m-%d')
-        )
+        tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
 
     else:
 
@@ -1028,13 +981,9 @@ def rekap_absensi(request):
 
         except ValueError:
 
-            tanggal_mulai_obj = (
-                tanggal_hari_ini.replace(day=1)
-            )
+            tanggal_mulai_obj = tanggal_hari_ini.replace(day=1)
 
-            tanggal_mulai = (
-                tanggal_mulai_obj.strftime('%Y-%m-%d')
-            )
+            tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
 
     # -----------------------------------------------------
     # TANGGAL SAMPAI
@@ -1049,14 +998,10 @@ def rekap_absensi(request):
 
         tanggal_sampai_obj = (
             bulan_berikutnya
-            - timedelta(
-                days=bulan_berikutnya.day
-            )
+            - timedelta(days=bulan_berikutnya.day)
         )
 
-        tanggal_sampai = (
-            tanggal_sampai_obj.strftime('%Y-%m-%d')
-        )
+        tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
 
     else:
 
@@ -1076,14 +1021,10 @@ def rekap_absensi(request):
 
             tanggal_sampai_obj = (
                 bulan_berikutnya
-                - timedelta(
-                    days=bulan_berikutnya.day
-                )
+                - timedelta(days=bulan_berikutnya.day)
             )
 
-            tanggal_sampai = (
-                tanggal_sampai_obj.strftime('%Y-%m-%d')
-            )
+            tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
 
     # -----------------------------------------------------
     # JIKA TANGGAL TERBALIK
@@ -1096,21 +1037,15 @@ def rekap_absensi(request):
             tanggal_mulai_obj
         )
 
-        tanggal_mulai = (
-            tanggal_mulai_obj.strftime('%Y-%m-%d')
-        )
-
-        tanggal_sampai = (
-            tanggal_sampai_obj.strftime('%Y-%m-%d')
-        )
+        tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
+        tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
 
     # =====================================================
     # DAFTAR TANGGAL
     # =====================================================
 
     jumlah_hari = (
-        tanggal_sampai_obj
-        - tanggal_mulai_obj
+        tanggal_sampai_obj - tanggal_mulai_obj
     ).days + 1
 
     tanggal_list = [
@@ -1185,9 +1120,7 @@ def rekap_absensi(request):
 
         if absensi_data.student_id not in absensi_map:
 
-            absensi_map[
-                absensi_data.student_id
-            ] = {}
+            absensi_map[absensi_data.student_id] = {}
 
         absensi_map[
             absensi_data.student_id
@@ -1218,27 +1151,37 @@ def rekap_absensi(request):
         sakit = 0
         alpa = 0
 
+        # -------------------------------------------------
+        # SIAPKAN STATUS SETIAP TANGGAL
+        # -------------------------------------------------
+
+        daftar_hari = []
+
         for tanggal in tanggal_list:
 
-            status = data_hari.get(
-                tanggal
-            )
+            status = data_hari.get(tanggal)
 
             if status == 'Hadir':
-
                 hadir += 1
 
             elif status == 'Izin':
-
                 izin += 1
 
             elif status == 'Sakit':
-
                 sakit += 1
 
             elif status == 'Alpa':
-
                 alpa += 1
+
+            daftar_hari.append({
+                'tanggal': tanggal,
+                'hari': tanggal.day,
+                'status': status,
+            })
+
+        # -------------------------------------------------
+        # TOTAL
+        # -------------------------------------------------
 
         total = (
             hadir
@@ -1258,18 +1201,17 @@ def rekap_absensi(request):
 
             persentase = 0
 
-        rekap_bulanan_siswa.append(
-            {
-                'student': student,
-                'hari': data_hari,
-                'hadir': hadir,
-                'izin': izin,
-                'sakit': sakit,
-                'alpa': alpa,
-                'total': total,
-                'persentase': persentase,
-            }
-        )
+        rekap_bulanan_siswa.append({
+            'student': student,
+            'hari': data_hari,
+            'daftar_hari': daftar_hari,
+            'hadir': hadir,
+            'izin': izin,
+            'sakit': sakit,
+            'alpa': alpa,
+            'total': total,
+            'persentase': persentase,
+        })
 
         total_hadir += hadir
         total_izin += izin
@@ -1306,7 +1248,6 @@ def rekap_absensi(request):
     # =====================================================
 
     nama_bulan_indonesia = {
-
         'January': 'Januari',
         'February': 'Februari',
         'March': 'Maret',
@@ -1319,17 +1260,12 @@ def rekap_absensi(request):
         'October': 'Oktober',
         'November': 'November',
         'December': 'Desember',
-
     }
 
     if (
-        tanggal_mulai_obj.month
-        == tanggal_sampai_obj.month
-
+        tanggal_mulai_obj.month == tanggal_sampai_obj.month
         and
-
-        tanggal_mulai_obj.year
-        == tanggal_sampai_obj.year
+        tanggal_mulai_obj.year == tanggal_sampai_obj.year
     ):
 
         nama_bulan = (
@@ -1427,6 +1363,950 @@ def rekap_absensi(request):
     return render(
         request,
         'students/rekap_absensi.html',
+        context
+    )
+
+
+# =========================================================
+# INPUT PRESENSI GURU
+# =========================================================
+
+def presensi_guru(request):
+
+    # =====================================================
+    # POST - SIMPAN PRESENSI
+    # =====================================================
+
+    if request.method == 'POST':
+
+        tanggal = request.POST.get(
+            'tanggal',
+            ''
+        ).strip()
+
+        # -------------------------------------------------
+        # VALIDASI TANGGAL
+        # -------------------------------------------------
+
+        if not tanggal:
+
+            messages.error(
+                request,
+                'Tanggal presensi wajib dipilih.'
+            )
+
+            return redirect('presensi_guru')
+
+        try:
+
+            tanggal_obj = datetime.strptime(
+                tanggal,
+                '%Y-%m-%d'
+            ).date()
+
+        except ValueError:
+
+            messages.error(
+                request,
+                'Format tanggal tidak valid.'
+            )
+
+            return redirect('presensi_guru')
+
+        # -------------------------------------------------
+        # GURU
+        # -------------------------------------------------
+
+        gurus = (
+            Guru.objects
+            .all()
+            .order_by('nama')
+        )
+
+        # -------------------------------------------------
+        # STATUS VALID
+        # -------------------------------------------------
+
+        status_valid = [
+            'Hadir',
+            'Izin',
+            'Sakit',
+            'Alpa',
+        ]
+
+        jumlah_disimpan = 0
+
+        # -------------------------------------------------
+        # SIMPAN DATA
+        # -------------------------------------------------
+
+        for guru in gurus:
+
+            status = request.POST.get(
+                f'status_{guru.id}',
+                'Alpa'
+            )
+
+            keterangan = request.POST.get(
+                f'keterangan_{guru.id}',
+                ''
+            ).strip()
+
+            if status not in status_valid:
+                status = 'Alpa'
+
+            PresensiGuru.objects.update_or_create(
+
+                guru=guru,
+
+                tanggal=tanggal_obj,
+
+                defaults={
+                    'status': status,
+                    'keterangan': keterangan,
+                }
+
+            )
+
+            jumlah_disimpan += 1
+
+        # -------------------------------------------------
+        # PESAN
+        # -------------------------------------------------
+
+        messages.success(
+            request,
+            f'Presensi guru untuk tanggal '
+            f'{tanggal_obj.strftime("%d/%m/%Y")} berhasil disimpan.',
+            extra_tags='presensi_guru'
+        )
+
+        return redirect(
+            f"{reverse('presensi_guru')}"
+            f"?tanggal={tanggal}"
+        )
+
+    # =====================================================
+    # GET - TAMPILKAN DATA
+    # =====================================================
+
+    tanggal = request.GET.get(
+        'tanggal',
+        ''
+    ).strip()
+
+    if not tanggal:
+
+        tanggal = (
+            timezone
+            .localdate()
+            .isoformat()
+        )
+
+    # -----------------------------------------------------
+    # VALIDASI TANGGAL
+    # -----------------------------------------------------
+
+    try:
+
+        tanggal_obj = datetime.strptime(
+            tanggal,
+            '%Y-%m-%d'
+        ).date()
+
+        tanggal = tanggal_obj.isoformat()
+
+    except ValueError:
+
+        tanggal_obj = timezone.localdate()
+
+        tanggal = tanggal_obj.isoformat()
+
+    # -----------------------------------------------------
+    # GURU
+    # -----------------------------------------------------
+
+    gurus = (
+        Guru.objects
+        .all()
+        .order_by('nama')
+    )
+
+    # -----------------------------------------------------
+    # PRESENSI PADA TANGGAL TERPILIH
+    # -----------------------------------------------------
+
+    presensi_data = (
+        PresensiGuru.objects
+        .filter(
+            tanggal=tanggal_obj,
+            guru__in=gurus
+        )
+    )
+
+    presensi_map = {
+        presensi.guru_id: presensi
+        for presensi in presensi_data
+    }
+
+    # -----------------------------------------------------
+    # TEMPELKAN PRESENSI KE GURU
+    # -----------------------------------------------------
+
+    for guru in gurus:
+
+        guru.presensi_hari_ini = (
+            presensi_map.get(guru.id)
+        )
+
+    # -----------------------------------------------------
+    # RENDER
+    # -----------------------------------------------------
+
+    return render(
+        request,
+        'students/presensi_guru.html',
+        {
+            'gurus': gurus,
+            'tanggal': tanggal,
+        }
+    )
+# =========================================================
+# REKAP PRESENSI GURU
+# =========================================================
+def rekap_presensi_guru(request):
+
+    # =====================================================
+    # TANGGAL
+    # =====================================================
+
+    tanggal_hari_ini = timezone.localdate()
+
+    tanggal_mulai = request.GET.get('tanggal_mulai', '').strip()
+    tanggal_sampai = request.GET.get('tanggal_sampai', '').strip()
+
+    # -------------------------
+    # TANGGAL MULAI
+    # -------------------------
+
+    if not tanggal_mulai:
+
+        tanggal_mulai_obj = tanggal_hari_ini.replace(day=1)
+
+        tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
+
+    else:
+
+        try:
+
+            tanggal_mulai_obj = datetime.strptime(
+                tanggal_mulai,
+                '%Y-%m-%d'
+            ).date()
+
+        except ValueError:
+
+            tanggal_mulai_obj = tanggal_hari_ini.replace(day=1)
+
+            tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
+
+
+    # -------------------------
+    # TANGGAL SAMPAI
+    # -------------------------
+
+    if not tanggal_sampai:
+
+        bulan_berikutnya = (
+            tanggal_mulai_obj.replace(day=28)
+            + timedelta(days=4)
+        )
+
+        tanggal_sampai_obj = (
+            bulan_berikutnya
+            - timedelta(days=bulan_berikutnya.day)
+        )
+
+        tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
+
+    else:
+
+        try:
+
+            tanggal_sampai_obj = datetime.strptime(
+                tanggal_sampai,
+                '%Y-%m-%d'
+            ).date()
+
+        except ValueError:
+
+            bulan_berikutnya = (
+                tanggal_mulai_obj.replace(day=28)
+                + timedelta(days=4)
+            )
+
+            tanggal_sampai_obj = (
+                bulan_berikutnya
+                - timedelta(days=bulan_berikutnya.day)
+            )
+
+            tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
+
+
+    # =====================================================
+    # JIKA TANGGAL TERBALIK
+    # =====================================================
+
+    if tanggal_mulai_obj > tanggal_sampai_obj:
+
+        tanggal_mulai_obj, tanggal_sampai_obj = (
+            tanggal_sampai_obj,
+            tanggal_mulai_obj
+        )
+
+        tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
+
+        tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
+
+
+    # =====================================================
+    # DAFTAR TANGGAL
+    # =====================================================
+
+    jumlah_hari = (
+        tanggal_sampai_obj - tanggal_mulai_obj
+    ).days + 1
+
+    tanggal_list = [
+        tanggal_mulai_obj + timedelta(days=i)
+        for i in range(jumlah_hari)
+    ]
+
+    hari_bulan = [
+        tanggal.day
+        for tanggal in tanggal_list
+    ]
+
+
+    # =====================================================
+    # DATA GURU
+    # =====================================================
+
+    gurus = (
+        Guru.objects
+        .all()
+        .order_by('nama')
+    )
+
+
+    # =====================================================
+    # DATA PRESENSI GURU
+    # =====================================================
+
+    presensis = (
+        PresensiGuru.objects
+        .select_related('guru')
+        .filter(
+            tanggal__range=[
+                tanggal_mulai_obj,
+                tanggal_sampai_obj
+            ],
+            guru__in=gurus
+        )
+        .order_by(
+            'tanggal',
+            'guru__nama'
+        )
+    )
+
+
+    # =====================================================
+    # BUAT MAP PRESENSI
+    # =====================================================
+
+    presensi_map = {}
+
+    for presensi in presensis:
+
+        if presensi.guru_id not in presensi_map:
+
+            presensi_map[presensi.guru_id] = {}
+
+        presensi_map[
+            presensi.guru_id
+        ][
+            presensi.tanggal
+        ] = presensi.status
+
+
+    # =====================================================
+    # REKAP
+    # =====================================================
+
+    rekap_bulanan_guru = []
+
+    total_hadir = 0
+    total_izin = 0
+    total_sakit = 0
+    total_alpa = 0
+
+
+    # =====================================================
+    # LOOP GURU
+    # =====================================================
+
+    for guru in gurus:
+
+        data_hari = presensi_map.get(
+            guru.id,
+            {}
+        )
+
+        hadir = 0
+        izin = 0
+        sakit = 0
+        alpa = 0
+
+        daftar_hari = []
+
+
+        # ---------------------------------------------
+        # LOOP SETIAP TANGGAL
+        # ---------------------------------------------
+
+        for tanggal in tanggal_list:
+
+            status = data_hari.get(
+                tanggal
+            )
+
+
+            # Simpan data untuk template
+            daftar_hari.append({
+
+                'tanggal': tanggal,
+
+                'status': status,
+
+            })
+
+
+            # Hitung statistik
+
+            if status == 'Hadir':
+
+                hadir += 1
+
+            elif status == 'Izin':
+
+                izin += 1
+
+            elif status == 'Sakit':
+
+                sakit += 1
+
+            elif status == 'Alpa':
+
+                alpa += 1
+
+
+        # =================================================
+        # TOTAL
+        # =================================================
+
+        total = (
+            hadir
+            + izin
+            + sakit
+            + alpa
+        )
+
+
+        # =================================================
+        # PERSENTASE
+        # =================================================
+
+        if total > 0:
+
+            persentase = round(
+                (hadir / total) * 100,
+                1
+            )
+
+        else:
+
+            persentase = 0
+
+
+        # =================================================
+        # MASUKKAN KE REKAP
+        # =================================================
+
+        rekap_bulanan_guru.append({
+
+            'guru': guru,
+
+            'hari': data_hari,
+
+            'daftar_hari': daftar_hari,
+
+            'hadir': hadir,
+
+            'izin': izin,
+
+            'sakit': sakit,
+
+            'alpa': alpa,
+
+            'total': total,
+
+            'persentase': persentase,
+
+        })
+
+
+        # =================================================
+        # TOTAL SEMUA GURU
+        # =================================================
+
+        total_hadir += hadir
+
+        total_izin += izin
+
+        total_sakit += sakit
+
+        total_alpa += alpa
+
+
+    # =====================================================
+    # TOTAL ABSENSI
+    # =====================================================
+
+    total_absensi = (
+        total_hadir
+        + total_izin
+        + total_sakit
+        + total_alpa
+    )
+
+
+    # =====================================================
+    # PERSENTASE KEHADIRAN
+    # =====================================================
+
+    if total_absensi > 0:
+
+        persentase_kehadiran = round(
+            (total_hadir / total_absensi) * 100,
+            1
+        )
+
+    else:
+
+        persentase_kehadiran = 0
+
+
+    # =====================================================
+    # NAMA BULAN INDONESIA
+    # =====================================================
+
+    nama_bulan_indonesia = {
+
+        'January': 'Januari',
+
+        'February': 'Februari',
+
+        'March': 'Maret',
+
+        'April': 'April',
+
+        'May': 'Mei',
+
+        'June': 'Juni',
+
+        'July': 'Juli',
+
+        'August': 'Agustus',
+
+        'September': 'September',
+
+        'October': 'Oktober',
+
+        'November': 'November',
+
+        'December': 'Desember',
+
+    }
+
+
+    # =====================================================
+    # NAMA PERIODE
+    # =====================================================
+
+    if (
+        tanggal_mulai_obj.month
+        == tanggal_sampai_obj.month
+
+        and
+
+        tanggal_mulai_obj.year
+        == tanggal_sampai_obj.year
+    ):
+
+        nama_bulan = (
+
+            nama_bulan_indonesia.get(
+
+                tanggal_mulai_obj.strftime('%B'),
+
+                tanggal_mulai_obj.strftime('%B')
+
+            )
+
+            + f' {tanggal_mulai_obj.year}'
+
+        )
+
+    else:
+
+        nama_bulan = (
+
+            tanggal_mulai_obj.strftime('%d/%m/%Y')
+
+            + ' - '
+
+            + tanggal_sampai_obj.strftime('%d/%m/%Y')
+
+        )
+
+
+    # =====================================================
+    # CONTEXT
+    # =====================================================
+
+    context = {
+
+        'bulan':
+            tanggal_mulai_obj.strftime('%Y-%m'),
+
+        'nama_bulan':
+            nama_bulan,
+
+        'tahun':
+            tanggal_mulai_obj.year,
+
+        'nomor_bulan':
+            tanggal_mulai_obj.month,
+
+        'tanggal_list':
+            tanggal_list,
+
+        'hari_bulan':
+            hari_bulan,
+
+        'jumlah_hari':
+            jumlah_hari,
+
+        'tanggal_mulai':
+            tanggal_mulai_obj,
+
+        'tanggal_sampai':
+            tanggal_sampai_obj,
+
+        'tanggal_mulai_obj':
+            tanggal_mulai_obj,
+
+        'tanggal_sampai_obj':
+            tanggal_sampai_obj,
+
+        'tanggal_mulai_value':
+            tanggal_mulai,
+
+        'tanggal_sampai_value':
+            tanggal_sampai,
+
+        'rekap_bulanan_guru':
+            rekap_bulanan_guru,
+
+        'total_hadir':
+            total_hadir,
+
+        'total_izin':
+            total_izin,
+
+        'total_sakit':
+            total_sakit,
+
+        'total_alpa':
+            total_alpa,
+
+        'total_absensi':
+            total_absensi,
+
+        'persentase_kehadiran':
+            persentase_kehadiran,
+
+        'hari_efektif':
+            jumlah_hari,
+
+    }
+
+
+    return render(
+        request,
+        'students/rekap_presensi_guru.html',
+        context
+    )
+
+def cetak_rekap_presensi_guru(request):
+
+    # =====================================================
+    # FILTER TANGGAL
+    # =====================================================
+
+    tanggal_mulai = request.GET.get('tanggal_mulai')
+    tanggal_sampai = request.GET.get('tanggal_sampai')
+
+    # Default: bulan berjalan
+    if not tanggal_mulai:
+        tanggal_mulai_obj = date.today().replace(day=1)
+    else:
+        tanggal_mulai_obj = datetime.strptime(
+            tanggal_mulai,
+            '%Y-%m-%d'
+        ).date()
+
+    if not tanggal_sampai:
+        if tanggal_mulai:
+            tanggal_sampai_obj = tanggal_mulai_obj.replace(
+                day=calendar.monthrange(
+                    tanggal_mulai_obj.year,
+                    tanggal_mulai_obj.month
+                )[1]
+            )
+        else:
+            tanggal_sampai_obj = tanggal_mulai_obj.replace(
+                day=calendar.monthrange(
+                    tanggal_mulai_obj.year,
+                    tanggal_mulai_obj.month
+                )[1]
+            )
+    else:
+        tanggal_sampai_obj = datetime.strptime(
+            tanggal_sampai,
+            '%Y-%m-%d'
+        ).date()
+
+    # Jika terbalik, tukar
+    if tanggal_mulai_obj > tanggal_sampai_obj:
+        tanggal_mulai_obj, tanggal_sampai_obj = (
+            tanggal_sampai_obj,
+            tanggal_mulai_obj
+        )
+
+    # =====================================================
+    # DAFTAR TANGGAL
+    # =====================================================
+
+    tanggal_list = []
+
+    tanggal_sekarang = tanggal_mulai_obj
+
+    while tanggal_sekarang <= tanggal_sampai_obj:
+        tanggal_list.append(tanggal_sekarang)
+        tanggal_sekarang += timedelta(days=1)
+
+    hari_bulan = [
+        tanggal.day
+        for tanggal in tanggal_list
+    ]
+
+    jumlah_hari = len(tanggal_list)
+
+    # =====================================================
+    # DATA GURU
+    # =====================================================
+
+    gurus = Guru.objects.all().order_by('nama')
+
+    # =====================================================
+    # DATA PRESENSI
+    # =====================================================
+
+    presensi_gurus = PresensiGuru.objects.filter(
+        tanggal__range=[
+            tanggal_mulai_obj,
+            tanggal_sampai_obj
+        ],
+        guru__in=gurus
+    ).select_related(
+        'guru'
+    ).order_by(
+        'tanggal',
+        'guru__nama'
+    )
+
+    # =====================================================
+    # BUAT MAP PRESENSI
+    # =====================================================
+
+    presensi_map = {}
+
+    for presensi in presensi_gurus:
+
+        guru_id = presensi.guru_id
+
+        if guru_id not in presensi_map:
+            presensi_map[guru_id] = {}
+
+        presensi_map[guru_id][
+            presensi.tanggal
+        ] = presensi.status
+
+    # =====================================================
+    # REKAP GURU
+    # =====================================================
+
+    rekap_bulanan_guru = []
+
+    total_hadir = 0
+    total_izin = 0
+    total_sakit = 0
+    total_alpa = 0
+
+    for guru in gurus:
+
+        daftar_hari = []
+
+        guru_hadir = 0
+        guru_izin = 0
+        guru_sakit = 0
+        guru_alpa = 0
+
+        for tanggal in tanggal_list:
+
+            status = presensi_map.get(
+                guru.id,
+                {}
+            ).get(
+                tanggal
+            )
+
+            daftar_hari.append({
+                'tanggal': tanggal,
+                'status': status
+            })
+
+            if status == 'Hadir':
+                guru_hadir += 1
+
+            elif status == 'Izin':
+                guru_izin += 1
+
+            elif status == 'Sakit':
+                guru_sakit += 1
+
+            elif status == 'Alpa':
+                guru_alpa += 1
+
+        total_absensi_guru = (
+            guru_hadir
+            + guru_izin
+            + guru_sakit
+            + guru_alpa
+        )
+
+        if total_absensi_guru > 0:
+            persentase = round(
+                (guru_hadir / total_absensi_guru) * 100,
+                2
+            )
+        else:
+            persentase = 0
+
+        rekap_bulanan_guru.append({
+            'guru': guru,
+            'hari': daftar_hari,
+            'hadir': guru_hadir,
+            'izin': guru_izin,
+            'sakit': guru_sakit,
+            'alpa': guru_alpa,
+            'total': total_absensi_guru,
+            'persentase': persentase,
+        })
+
+        total_hadir += guru_hadir
+        total_izin += guru_izin
+        total_sakit += guru_sakit
+        total_alpa += guru_alpa
+
+    # =====================================================
+    # TOTAL
+    # =====================================================
+
+    total_absensi = (
+        total_hadir
+        + total_izin
+        + total_sakit
+        + total_alpa
+    )
+
+    if total_absensi > 0:
+        persentase_kehadiran = round(
+            (total_hadir / total_absensi) * 100,
+            2
+        )
+    else:
+        persentase_kehadiran = 0
+
+    # =====================================================
+    # NAMA BULAN
+    # =====================================================
+
+    nama_bulan = [
+        '',
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
+    ]
+
+    bulan = tanggal_mulai_obj.month
+    tahun = tanggal_mulai_obj.year
+
+    context = {
+        'bulan': bulan,
+        'nama_bulan': nama_bulan[bulan],
+        'tahun': tahun,
+
+        'tanggal_list': tanggal_list,
+        'hari_bulan': hari_bulan,
+        'jumlah_hari': jumlah_hari,
+
+        'tanggal_mulai_obj': tanggal_mulai_obj,
+        'tanggal_sampai_obj': tanggal_sampai_obj,
+
+        'rekap_bulanan_guru': rekap_bulanan_guru,
+
+        'total_hadir': total_hadir,
+        'total_izin': total_izin,
+        'total_sakit': total_sakit,
+        'total_alpa': total_alpa,
+        'total_absensi': total_absensi,
+        'persentase_kehadiran': persentase_kehadiran,
+    }
+
+    return render(
+        request,
+        'students/cetak_rekap_presensi_guru.html',
         context
     )
 
@@ -2341,6 +3221,146 @@ def edit_kelas(request, id):
         'students/edit_kelas.html',
         {
             'kelas': kelas
+        }
+    )
+
+# =========================================================
+# DATA GURU
+# =========================================================
+
+def data_guru(request):
+    gurus = Guru.objects.all().order_by('nama')
+
+    context = {
+        'gurus': gurus,
+    }
+
+    return render(
+        request,
+        'students/data_guru.html',
+        context
+    )
+
+
+def tambah_guru(request):
+
+    if request.method == 'POST':
+
+        nama = request.POST.get(
+            'nama',
+            ''
+        ).strip()
+
+        jenis_kelamin = request.POST.get(
+            'jenis_kelamin',
+            ''
+        ).strip()
+
+        if not nama:
+
+            messages.error(
+                request,
+                'Nama guru wajib diisi.'
+            )
+
+        elif jenis_kelamin not in ['L', 'P']:
+
+            messages.error(
+                request,
+                'Jenis kelamin wajib dipilih.'
+            )
+
+        elif Guru.objects.filter(
+            nama__iexact=nama
+        ).exists():
+
+            messages.error(
+                request,
+                'Guru tersebut sudah ada.'
+            )
+
+        else:
+
+            Guru.objects.create(
+                nama=nama,
+                jenis_kelamin=jenis_kelamin
+            )
+
+            messages.success(
+                request,
+                'Data guru berhasil ditambahkan.'
+            )
+
+            return redirect('data_guru')
+
+    return render(
+        request,
+        'students/tambah_guru.html'
+    )
+
+
+def edit_guru(request, id):
+
+    guru = get_object_or_404(
+        Guru,
+        id=id
+    )
+
+    if request.method == 'POST':
+
+        nama = request.POST.get(
+            'nama',
+            ''
+        ).strip()
+
+        jenis_kelamin = request.POST.get(
+            'jenis_kelamin',
+            ''
+        ).strip()
+
+        if not nama:
+
+            messages.error(
+                request,
+                'Nama guru wajib diisi.'
+            )
+
+        elif jenis_kelamin not in ['L', 'P']:
+
+            messages.error(
+                request,
+                'Jenis kelamin wajib dipilih.'
+            )
+
+        elif Guru.objects.filter(
+            nama__iexact=nama
+        ).exclude(
+            id=guru.id
+        ).exists():
+
+            messages.error(
+                request,
+                'Nama guru tersebut sudah digunakan.'
+            )
+
+        else:
+
+            guru.nama = nama
+            guru.jenis_kelamin = jenis_kelamin
+            guru.save()
+
+            messages.success(
+                request,
+                'Data guru berhasil diperbarui.'
+            )
+
+            return redirect('data_guru')
+
+    return render(
+        request,
+        'students/edit_guru.html',
+        {
+            'guru': guru
         }
     )
 

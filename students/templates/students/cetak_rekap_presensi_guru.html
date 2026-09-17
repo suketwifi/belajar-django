@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Cetak Rekap Presensi Guru
+    </title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            color: #111;
+            background: white;
+        }
+
+        .print-container {
+            width: 100%;
+        }
+
+        /* =================================================
+           HEADER
+        ================================================= */
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .header h1 {
+            margin: 0 0 5px 0;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: normal;
+        }
+
+        .periode {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+
+        /* =================================================
+           TABLE
+        ================================================= */
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        th,
+        td {
+            border: 1px solid #000;
+            padding: 5px 3px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #eeeeee;
+            font-weight: bold;
+        }
+
+        .col-no {
+            width: 35px;
+        }
+
+        .col-nama {
+            width: 150px;
+            text-align: left;
+        }
+
+        .col-jk {
+            width: 65px;
+        }
+
+        .col-hari {
+            width: 28px;
+        }
+
+        .col-persen {
+            width: 65px;
+        }
+
+        td.nama {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        .status-hadir {
+            font-weight: bold;
+        }
+
+        .status-izin {
+            font-weight: bold;
+        }
+
+        .status-sakit {
+            font-weight: bold;
+        }
+
+        .status-alpa {
+            font-weight: bold;
+        }
+
+        .status-kosong {
+            color: #777;
+        }
+
+        /* =================================================
+           FOOTER / KETERANGAN
+        ================================================= */
+
+        .keterangan {
+            margin-top: 12px;
+            font-size: 10px;
+        }
+
+        .keterangan span {
+            margin-right: 18px;
+        }
+
+        /* =================================================
+           TANDA TANGAN
+        ================================================= */
+
+        .signature-area {
+            margin-top: 45px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .signature {
+            width: 220px;
+            text-align: center;
+        }
+
+        .signature .space {
+            height: 55px;
+        }
+
+        /* =================================================
+           PRINT
+        ================================================= */
+
+        @page {
+            size: A4 landscape;
+            margin: 10mm;
+        }
+
+        @media print {
+
+            body {
+                padding: 0;
+                font-size: 9px;
+            }
+
+            .header {
+                margin-bottom: 10px;
+            }
+
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .header h2 {
+                font-size: 12px;
+            }
+
+            .periode {
+                font-size: 10px;
+            }
+
+            th,
+            td {
+                padding: 3px 2px;
+            }
+
+            .keterangan {
+                font-size: 9px;
+            }
+
+            .signature-area {
+                margin-top: 30px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="print-container">
+
+    <!-- =================================================
+         HEADER
+    ================================================= -->
+
+    <div class="header">
+
+        <h1>
+            Rekap Presensi Guru
+        </h1>
+
+        <h2>
+            Rekap Kehadiran Guru
+        </h2>
+
+        <div class="periode">
+
+            Periode:
+            <strong>
+                {{ tanggal_mulai_obj|date:"d/m/Y" }}
+            </strong>
+
+            s/d
+
+            <strong>
+                {{ tanggal_sampai_obj|date:"d/m/Y" }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         TABEL REKAP
+    ================================================= -->
+
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th class="col-no">
+                    No
+                </th>
+
+                <th class="col-nama">
+                    Nama Guru
+                </th>
+
+                <th class="col-jk">
+                    JK
+                </th>
+
+                {% for tanggal in tanggal_list %}
+
+                    <th class="col-hari">
+                        {{ tanggal.day }}
+                    </th>
+
+                {% endfor %}
+
+                <th class="col-persen">
+                    %
+                </th>
+
+            </tr>
+
+        </thead>
+
+
+        <tbody>
+
+            {% for data in rekap_bulanan_guru %}
+
+                <tr>
+
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+
+                    <td class="nama">
+                        {{ data.guru.nama }}
+                    </td>
+
+                    <td>
+
+                        {% if data.guru.jenis_kelamin == "L" %}
+                            L
+                        {% elif data.guru.jenis_kelamin == "P" %}
+                            P
+                        {% else %}
+                            -
+                        {% endif %}
+
+                    </td>
+
+
+                    {% for hari in data.hari %}
+
+                        <td>
+
+                            {% if hari.status == "Hadir" %}
+
+                                <span class="status-hadir">
+                                    H
+                                </span>
+
+                            {% elif hari.status == "Izin" %}
+
+                                <span class="status-izin">
+                                    I
+                                </span>
+
+                            {% elif hari.status == "Sakit" %}
+
+                                <span class="status-sakit">
+                                    S
+                                </span>
+
+                            {% elif hari.status == "Alpa" %}
+
+                                <span class="status-alpa">
+                                    A
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-kosong">
+                                    -
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                    {% endfor %}
+
+
+                    <td>
+                        {{ data.persentase }}%
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+
+                    <td
+                        colspan="{{ jumlah_hari|add:'4' }}"
+                    >
+                        Tidak ada data guru.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+    <!-- =================================================
+         KETERANGAN
+    ================================================= -->
+
+    <div class="keterangan">
+
+        <strong>Keterangan:</strong>
+
+        <span>H = Hadir</span>
+
+        <span>I = Izin</span>
+
+        <span>S = Sakit</span>
+
+        <span>A = Alpa</span>
+
+        <span>- = Belum ada presensi</span>
+
+    </div>
+
+
+    <!-- =================================================
+         TANDA TANGAN
+    ================================================= -->
+
+    <div class="signature-area">
+
+        <div class="signature">
+
+            <div>
+                Mengetahui,
+            </div>
+
+            <div class="space"></div>
+
+            <strong>
+                __________________________
+            </strong>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    window.addEventListener('load', function () {
+
+        setTimeout(function () {
+            window.print();
+        }, 500);
+
+    });
+
+</script>
+
+</body>
+
+</html>

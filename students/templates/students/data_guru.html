@@ -1,0 +1,586 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Data Guru
+{% endblock %}
+
+{% block content %}
+
+<div class="guru-page">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="page-header">
+
+        <div>
+            <h1>Data Guru</h1>
+
+            <p>
+                Kelola daftar guru yang tersedia di madrasah
+            </p>
+        </div>
+
+        <a
+            href="{% url 'tambah_guru' %}"
+            class="guru-add-button"
+        >
+            <span class="guru-add-icon">+</span>
+            <span>Tambah Guru</span>
+        </a>
+
+    </div>
+
+
+    <!-- =====================================================
+         STATISTIK
+         ===================================================== -->
+
+    <div class="guru-stat-card">
+
+        <div class="guru-stat-label">
+            Total Guru
+        </div>
+
+        <div class="guru-stat-number">
+            {{ gurus|length }}
+        </div>
+
+        <div class="guru-stat-description">
+            Guru terdaftar
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         DAFTAR GURU
+         ===================================================== -->
+
+    <div class="guru-table-card">
+
+        <div class="guru-table-header">
+
+            <div>
+
+                <h2>
+                    Daftar Guru
+                </h2>
+
+                <p>
+                    Data guru yang terdaftar dalam sistem
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="guru-table-wrapper">
+
+            <table class="guru-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th class="guru-no">
+                            NO
+                        </th>
+
+                        <th>
+                            NAMA GURU
+                        </th>
+
+                        <th class="guru-gender-header">
+                            JENIS KELAMIN
+                        </th>
+
+                        <th class="guru-action-header">
+                            AKSI
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for guru in gurus %}
+
+                    <tr>
+
+                        <td class="guru-no">
+                            {{ forloop.counter }}
+                        </td>
+
+                        <td class="guru-name">
+                            {{ guru.nama }}
+                        </td>
+
+                        <td class="guru-gender">
+
+                            {% if guru.jenis_kelamin == 'L' %}
+                                Laki-laki
+                            {% elif guru.jenis_kelamin == 'P' %}
+                                Perempuan
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </td>
+
+                        <td class="guru-action">
+
+                            <a
+                                href="{% url 'edit_guru' guru.id %}"
+                                class="guru-edit-button"
+                            >
+                                Edit
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="guru-empty"
+                        >
+
+                            <div class="guru-empty-title">
+                                Belum ada data guru
+                            </div>
+
+                            <div class="guru-empty-text">
+                                Silakan tambahkan guru menggunakan tombol
+                                "Tambah Guru".
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<style>
+
+/* =========================================================
+   HALAMAN DATA GURU
+   ========================================================= */
+
+.guru-page {
+    width: 100%;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.guru-page .page-header {
+    margin-bottom: 26px;
+}
+
+.guru-page .page-header h1 {
+    margin: 0 0 6px;
+    font-size: 30px;
+    font-weight: 700;
+    color: #172554;
+    letter-spacing: -0.5px;
+}
+
+.guru-page .page-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TOMBOL TAMBAH
+   ========================================================= */
+
+.guru-add-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    min-height: 46px;
+    padding: 0 18px;
+
+    background: #2563eb;
+    color: #ffffff;
+
+    border-radius: 8px;
+
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.guru-add-button:hover {
+    background: #1d4ed8;
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(37, 99, 235, 0.22);
+}
+
+.guru-add-icon {
+    width: 22px;
+    height: 22px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+
+/* =========================================================
+   STATISTIK
+   ========================================================= */
+
+.guru-stat-card {
+    width: 290px;
+    min-height: 128px;
+
+    box-sizing: border-box;
+
+    padding: 24px 26px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+
+    box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
+
+    margin-bottom: 26px;
+}
+
+.guru-stat-label {
+    font-size: 13px;
+    color: #64748b;
+
+    margin-bottom: 8px;
+}
+
+.guru-stat-number {
+    font-size: 34px;
+    line-height: 1;
+
+    font-weight: 700;
+
+    color: #0f172a;
+
+    margin-bottom: 7px;
+}
+
+.guru-stat-description {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.guru-table-card {
+    width: 100%;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.guru-table-header {
+    padding: 27px 26px 23px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.guru-table-header h2 {
+    margin: 0 0 7px;
+
+    font-size: 19px;
+    font-weight: 700;
+
+    color: #1e293b;
+}
+
+.guru-table-header p {
+    margin: 0;
+
+    font-size: 13px;
+    color: #64748b;
+}
+
+
+/* =========================================================
+   TABLE WRAPPER
+   ========================================================= */
+
+.guru-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.guru-table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    table-layout: fixed;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.guru-table thead th {
+    height: 48px;
+
+    padding: 0 20px;
+
+    background: #ffffff;
+
+    color: #64748b;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-align: left;
+
+    letter-spacing: 0.2px;
+}
+
+.guru-table .guru-no {
+    width: 70px;
+}
+
+.guru-table .guru-gender-header {
+    width: 180px;
+}
+
+.guru-action-header {
+    width: 120px;
+
+    text-align: center !important;
+}
+
+
+/* =========================================================
+   TABLE BODY
+   ========================================================= */
+
+.guru-table tbody tr {
+    height: 66px;
+
+    transition: background 0.15s ease;
+}
+
+.guru-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.guru-table tbody td {
+    padding: 0 20px;
+
+    border-bottom: 1px solid #edf0f4;
+
+    color: #334155;
+
+    vertical-align: middle;
+}
+
+.guru-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================================================
+   NOMOR
+   ========================================================= */
+
+.guru-table tbody .guru-no {
+    color: #94a3b8;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   NAMA GURU
+   ========================================================= */
+
+.guru-name {
+    color: #111827 !important;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   AKSI
+   ========================================================= */
+
+.guru-action {
+    text-align: center;
+}
+
+.guru-edit-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 50px;
+    height: 34px;
+
+    padding: 0 12px;
+
+    box-sizing: border-box;
+
+    background: #f1f5f9;
+
+    color: #334155;
+
+    border-radius: 7px;
+
+    text-decoration: none;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+.guru-edit-button:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+
+/* =========================================================
+   DATA KOSONG
+   ========================================================= */
+
+.guru-empty {
+    text-align: center;
+
+    padding: 55px 20px !important;
+
+    color: #94a3b8;
+}
+
+.guru-empty-title {
+    margin-bottom: 7px;
+
+    color: #475569;
+
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.guru-empty-text {
+    color: #94a3b8;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .guru-page .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .guru-add-button {
+        width: auto;
+    }
+
+    .guru-stat-card {
+        width: 100%;
+    }
+
+    .guru-table {
+        min-width: 650px;
+    }
+
+}
+
+.guru-gender-header {
+    width: 180px;
+}
+
+.guru-gender {
+    color: #475569 !important;
+    font-size: 14px;
+}
+
+</style>
+
+{% endblock %}

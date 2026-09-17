@@ -1,0 +1,1423 @@
+{% extends "students/base.html" %}
+{% load rekap_tags %}
+
+{% block title %}
+Rekap Presensi Guru
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+
+/* =========================================================
+   HALAMAN
+   ========================================================= */
+
+.rekap-page {
+    width: 100%;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.rekap-page .page-header {
+    margin-bottom: 24px;
+}
+
+.rekap-page .page-header h1 {
+    margin: 0 0 6px;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.rekap-page .page-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.rekap-card {
+    width: 100%;
+    box-sizing: border-box;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+}
+
+
+/* =========================================================
+   HEADER CARD
+   ========================================================= */
+
+.rekap-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.rekap-section-title {
+    margin: 0 0 5px;
+    font-size: 19px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.rekap-section-description {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   FILTER
+   ========================================================= */
+
+.rekap-filter {
+    display: grid;
+    grid-template-columns:
+        minmax(180px, 1fr)
+        minmax(180px, 1fr)
+        auto;
+    gap: 16px;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.filter-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.filter-group input {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.filter-group input:hover {
+    border-color: #94a3b8;
+}
+
+.filter-group input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.filter-button {
+    height: 42px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 9px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.filter-button:hover {
+    background: #1d4ed8;
+}
+
+.rekap-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.print-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 9px;
+    background: #0f766e;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.print-button:hover {
+    background: #115e59;
+}
+
+
+/* =========================================================
+   STATISTIK
+   ========================================================= */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    min-width: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 17px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.stat-icon {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.stat-icon.hadir {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.stat-icon.izin {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.stat-icon.sakit {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.stat-icon.alpa {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.stat-icon.persen {
+    background: #ede9fe;
+    color: #7c3aed;
+}
+
+.stat-content {
+    min-width: 0;
+}
+
+.stat-label {
+    display: block;
+    margin-bottom: 4px;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.stat-value {
+    display: block;
+    color: #0f172a;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   PERIODE
+   ========================================================= */
+
+.month-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.month-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    -webkit-overflow-scrolling: touch;
+}
+
+.rekap-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #ffffff;
+}
+
+.rekap-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    height: 42px;
+    padding: 8px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+    box-sizing: border-box;
+}
+
+.rekap-table tbody td {
+    height: 50px;
+    padding: 9px 8px;
+    border-bottom: 1px solid #f1f5f9;
+    border-right: 1px solid #f1f5f9;
+    color: #334155;
+    font-size: 12px;
+    vertical-align: middle;
+    box-sizing: border-box;
+}
+
+.rekap-table tbody tr:hover td {
+    background: #f8fafc;
+}
+
+
+/* =========================================================
+   KOLOM
+   ========================================================= */
+
+.no-column {
+    width: 45px;
+    min-width: 45px;
+    max-width: 45px;
+}
+
+.name-column {
+    width: 230px;
+    min-width: 230px;
+    max-width: 230px;
+    text-align: left;
+}
+
+.gender-column {
+    width: 120px;
+    min-width: 120px;
+    max-width: 120px;
+    text-align: center;
+}
+
+.day-column {
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    text-align: center;
+}
+
+.percent-column {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+    text-align: center;
+}
+
+
+/* =========================================================
+   STICKY KIRI
+   ========================================================= */
+
+.rekap-table th.no-column,
+.rekap-table td.no-column {
+    position: sticky;
+    left: 0;
+    z-index: 5;
+    background: #ffffff;
+}
+
+.rekap-table th.name-column,
+.rekap-table td.name-column {
+    position: sticky;
+    left: 45px;
+    z-index: 5;
+    background: #ffffff;
+}
+
+.rekap-table th.gender-column,
+.rekap-table td.gender-column {
+    position: sticky;
+    left: 275px;
+    z-index: 5;
+    background: #ffffff;
+    box-shadow: 2px 0 4px rgba(15, 23, 42, 0.05);
+}
+
+.rekap-table thead th.no-column,
+.rekap-table thead th.name-column,
+.rekap-table thead th.gender-column {
+    background: #f8fafc;
+    z-index: 8;
+}
+
+
+/* =========================================================
+   NAMA GURU
+   ========================================================= */
+
+.guru-name {
+    display: block;
+    color: #0f172a;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.gender-text {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.day-status {
+    display: inline-flex;
+    width: 27px;
+    height: 27px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.day-hadir {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.day-izin {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.day-sakit {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.day-alpa {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.day-empty {
+    background: #f8fafc;
+    color: #cbd5e1;
+}
+
+
+/* =========================================================
+   PERSENTASE
+   ========================================================= */
+
+.percent-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.percent-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 60px;
+    height: 28px;
+    padding: 0 7px;
+    border-radius: 7px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   LEGEND
+   ========================================================= */
+
+.legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.legend-box {
+    width: 25px;
+    height: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.legend-hadir {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.legend-izin {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.legend-sakit {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.legend-alpa {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.legend-empty {
+    background: #f8fafc;
+    color: #cbd5e1;
+}
+
+
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
+.empty-state {
+    height: 180px !important;
+    padding: 50px 20px !important;
+    text-align: center !important;
+    color: #94a3b8 !important;
+}
+
+.empty-icon {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 30px;
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
+.table-wrapper::-webkit-scrollbar {
+    height: 9px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 20px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 20px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1200px) {
+
+    .stats-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .rekap-filter {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rekap-filter .filter-button {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 900px) {
+
+    .rekap-filter {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-button {
+        width: 100%;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rekap-section-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .rekap-actions {
+        width: 100%;
+    }
+
+    .print-button {
+        flex: 1;
+    }
+}
+
+
+@media (max-width: 600px) {
+
+    .rekap-card {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .rekap-page .page-header h1 {
+        font-size: 23px;
+    }
+
+    .rekap-page .page-header p {
+        font-size: 13px;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .month-title {
+        align-items: flex-start;
+    }
+
+    .month-icon {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+    }
+
+    .rekap-table th.name-column,
+    .rekap-table td.name-column {
+        width: 200px;
+        min-width: 200px;
+        max-width: 200px;
+    }
+
+    .rekap-table th.gender-column,
+    .rekap-table td.gender-column {
+        width: 100px;
+        min-width: 100px;
+        max-width: 100px;
+    }
+
+    .print-button {
+        width: 100%;
+        flex: none;
+    }
+}
+
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+
+    @page {
+        size: landscape;
+        margin: 10mm;
+    }
+
+    body {
+        background: #ffffff !important;
+    }
+
+    .rekap-page {
+        width: 100%;
+    }
+
+    .rekap-page .page-header {
+        margin-bottom: 12px;
+    }
+
+    .rekap-page .page-header h1 {
+        font-size: 20px;
+    }
+
+    .rekap-page .page-header p {
+        font-size: 11px;
+    }
+
+    .rekap-card:first-of-type,
+    .stats-grid,
+    .legend,
+    .rekap-actions {
+        display: none !important;
+    }
+
+    .rekap-card {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .table-wrapper {
+        overflow: visible !important;
+        border: none !important;
+        width: 100% !important;
+    }
+
+    .rekap-table {
+        width: 100% !important;
+        min-width: 0 !important;
+        table-layout: auto;
+    }
+
+    .rekap-table th,
+    .rekap-table td {
+        position: static !important;
+        left: auto !important;
+        top: auto !important;
+        z-index: auto !important;
+        box-shadow: none !important;
+    }
+
+    .rekap-table thead th {
+        height: 30px;
+        padding: 4px;
+        background: #f1f5f9 !important;
+        color: #1e293b;
+        font-size: 8px;
+    }
+
+    .rekap-table tbody td {
+        height: 30px;
+        padding: 4px;
+        font-size: 8px;
+    }
+
+    .rekap-table th.no-column,
+    .rekap-table td.no-column {
+        width: 25px;
+        min-width: 25px;
+        max-width: 25px;
+    }
+
+    .rekap-table th.name-column,
+    .rekap-table td.name-column {
+        width: auto;
+        min-width: 100px;
+        max-width: none;
+    }
+
+    .rekap-table th.gender-column,
+    .rekap-table td.gender-column {
+        width: 55px;
+        min-width: 55px;
+        max-width: 55px;
+    }
+
+    .rekap-table th.day-column,
+    .rekap-table td.day-column {
+        width: auto;
+        min-width: 20px;
+        max-width: 30px;
+    }
+
+    .rekap-table th.percent-column,
+    .rekap-table td.percent-column {
+        width: 55px;
+        min-width: 55px;
+        max-width: 55px;
+    }
+
+    .guru-name {
+        font-size: 8px;
+    }
+
+    .gender-text {
+        font-size: 7px;
+    }
+
+    .day-status {
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        font-size: 7px;
+    }
+
+    .percent-number {
+        min-width: 35px;
+        height: 18px;
+        padding: 0 3px;
+        border-radius: 4px;
+        font-size: 7px;
+    }
+
+    .empty-state {
+        height: 100px !important;
+        padding: 25px 10px !important;
+    }
+
+    .empty-icon {
+        font-size: 20px;
+    }
+
+    .day-status,
+    .percent-number,
+    .rekap-table thead th {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="rekap-page">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="page-header">
+
+        <div>
+
+            <h1>
+                Rekap Presensi Guru
+            </h1>
+
+            <p>
+                Rekap kehadiran guru berdasarkan tanggal
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTER
+         ===================================================== -->
+
+    <div class="rekap-card">
+
+        <div class="rekap-section-header">
+
+            <div>
+
+                <h2 class="rekap-section-title">
+                    Filter Rekap
+                </h2>
+
+                <p class="rekap-section-description">
+                    Pilih rentang tanggal yang ingin dilihat
+                </p>
+
+            </div>
+
+
+            <div class="rekap-actions">
+
+                <a
+                    href="{% url 'cetak_rekap_presensi_guru' %}?tanggal_mulai={{ tanggal_mulai_value }}&tanggal_sampai={{ tanggal_sampai_value }}"
+                    class="print-button"
+                    target="_blank"
+                >
+                    🖨️ Cetak Rekap
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <form method="get">
+
+            <div class="rekap-filter">
+
+
+                <div class="filter-group">
+
+                    <label for="tanggal_mulai">
+                        Tanggal Mulai
+                    </label>
+
+                    <input
+                        type="date"
+                        id="tanggal_mulai"
+                        name="tanggal_mulai"
+                        value="{{ tanggal_mulai_value }}"
+                    >
+
+                </div>
+
+
+                <div class="filter-group">
+
+                    <label for="tanggal_sampai">
+                        Tanggal Sampai
+                    </label>
+
+                    <input
+                        type="date"
+                        id="tanggal_sampai"
+                        name="tanggal_sampai"
+                        value="{{ tanggal_sampai_value }}"
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="filter-button"
+                >
+                    🔍 Tampilkan
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         STATISTIK
+         ===================================================== -->
+
+    <div class="stats-grid">
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon hadir">
+                ✓
+            </div>
+
+            <div class="stat-content">
+
+                <span class="stat-label">
+                    Hadir
+                </span>
+
+                <strong class="stat-value">
+                    {{ total_hadir }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon izin">
+                I
+            </div>
+
+            <div class="stat-content">
+
+                <span class="stat-label">
+                    Izin
+                </span>
+
+                <strong class="stat-value">
+                    {{ total_izin }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon sakit">
+                S
+            </div>
+
+            <div class="stat-content">
+
+                <span class="stat-label">
+                    Sakit
+                </span>
+
+                <strong class="stat-value">
+                    {{ total_sakit }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon alpa">
+                A
+            </div>
+
+            <div class="stat-content">
+
+                <span class="stat-label">
+                    Alpa
+                </span>
+
+                <strong class="stat-value">
+                    {{ total_alpa }}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="stat-icon persen">
+                %
+            </div>
+
+            <div class="stat-content">
+
+                <span class="stat-label">
+                    Kehadiran
+                </span>
+
+                <strong class="stat-value">
+                    {{ persentase_kehadiran }}%
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =====================================================
+         REKAP
+         ===================================================== -->
+
+    <div class="rekap-card">
+
+
+        <div class="rekap-section-header">
+
+            <div class="month-title">
+
+                <div class="month-icon">
+                    📅
+                </div>
+
+                <div>
+
+                    <h2 class="rekap-section-title">
+                        Rekap Presensi Guru
+                    </h2>
+
+                    <p class="rekap-section-description">
+
+                        {{ nama_bulan }}
+
+                        ·
+
+                        {{ tanggal_mulai|date:"d/m/Y" }}
+
+                        –
+
+                        {{ tanggal_sampai|date:"d/m/Y" }}
+
+                        ·
+
+                        {{ jumlah_hari }} hari
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TABLE
+             ================================================= -->
+
+        <div class="table-wrapper">
+
+            <table class="rekap-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th class="no-column">
+                            No
+                        </th>
+
+                        <th class="name-column">
+                            Nama Guru
+                        </th>
+
+                        <th class="gender-column">
+                            Jenis Kelamin
+                        </th>
+
+
+                        {% for tanggal in tanggal_list %}
+
+                            <th
+                                class="day-column"
+                                title="{{ tanggal|date:'d/m/Y' }}"
+                            >
+                                {{ tanggal|date:"d" }}
+                            </th>
+
+                        {% endfor %}
+
+
+                        <th class="percent-column">
+                            Persentase
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                    {% for data in rekap_bulanan_guru %}
+
+                    <tr>
+
+
+                        <td class="no-column text-center">
+
+                            {{ forloop.counter }}
+
+                        </td>
+
+
+                        <td
+                            class="name-column"
+                            title="{{ data.guru.nama }}"
+                        >
+
+                            <strong class="guru-name">
+
+                                {{ data.guru.nama }}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td class="gender-column">
+
+                            {% if data.guru.jenis_kelamin == "L" %}
+
+                                <span class="gender-text">
+                                    Laki-laki
+                                </span>
+
+                            {% elif data.guru.jenis_kelamin == "P" %}
+
+                                <span class="gender-text">
+                                    Perempuan
+                                </span>
+
+                            {% else %}
+
+                                <span class="gender-text">
+                                    -
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+
+                        {% for tanggal in tanggal_list %}
+
+                            <td class="day-column">
+
+                                {% with status=data.hari|get_item:tanggal %}
+
+
+                                    {% if status == "Hadir" %}
+
+                                        <span
+                                            class="day-status day-hadir"
+                                            title="Hadir - {{ tanggal|date:'d/m/Y' }}"
+                                        >
+                                            H
+                                        </span>
+
+
+                                    {% elif status == "Izin" %}
+
+                                        <span
+                                            class="day-status day-izin"
+                                            title="Izin - {{ tanggal|date:'d/m/Y' }}"
+                                        >
+                                            I
+                                        </span>
+
+
+                                    {% elif status == "Sakit" %}
+
+                                        <span
+                                            class="day-status day-sakit"
+                                            title="Sakit - {{ tanggal|date:'d/m/Y' }}"
+                                        >
+                                            S
+                                        </span>
+
+
+                                    {% elif status == "Alpa" %}
+
+                                        <span
+                                            class="day-status day-alpa"
+                                            title="Alpa - {{ tanggal|date:'d/m/Y' }}"
+                                        >
+                                            A
+                                        </span>
+
+
+                                    {% else %}
+
+                                        <span
+                                            class="day-status day-empty"
+                                            title="Belum ada data - {{ tanggal|date:'d/m/Y' }}"
+                                        >
+                                            –
+                                        </span>
+
+                                    {% endif %}
+
+
+                                {% endwith %}
+
+                            </td>
+
+                        {% endfor %}
+
+
+                        <td class="percent-column">
+
+                            <div class="percent-wrapper">
+
+                                <span class="percent-number">
+
+                                    {{ data.persentase }}%
+
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="{{ jumlah_hari|add:'4' }}"
+                            class="empty-state"
+                        >
+
+                            <span class="empty-icon">
+                                👨‍🏫
+                            </span>
+
+                            Belum ada data guru.
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =================================================
+             LEGEND
+             ================================================= -->
+
+        <div class="legend">
+
+
+            <div class="legend-item">
+
+                <span class="legend-box legend-hadir">
+                    H
+                </span>
+
+                Hadir
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-box legend-izin">
+                    I
+                </span>
+
+                Izin
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-box legend-sakit">
+                    S
+                </span>
+
+                Sakit
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-box legend-alpa">
+                    A
+                </span>
+
+                Alpa
+
+            </div>
+
+
+            <div class="legend-item">
+
+                <span class="legend-box legend-empty">
+                    –
+                </span>
+
+                Belum ada data
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}
