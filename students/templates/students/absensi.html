@@ -6,13 +6,26 @@
 Presensi Siswa
 {% endblock %}
 
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'students/absensi.css' %}">
+
+<link
+    rel="stylesheet"
+    href="{% static 'students/absensi.css' %}"
+>
+
 {% endblock %}
+
 
 {% block content %}
 
+
+<!-- =====================================================
+     POPUP NOTIFIKASI
+====================================================== -->
+
 {% if messages %}
+
 <div class="popup-container">
 
     {% for message in messages %}
@@ -27,7 +40,9 @@ Presensi Siswa
 
             <div class="popup-content">
 
-                <strong>Presensi Berhasil</strong>
+                <strong>
+                    Presensi Berhasil
+                </strong>
 
                 <span>
                     {{ message }}
@@ -50,13 +65,28 @@ Presensi Siswa
     {% endfor %}
 
 </div>
+
 {% endif %}
 
+
+<!-- =====================================================
+     HEADER HALAMAN
+====================================================== -->
+
 <div class="page-header">
+
     <div>
-        <h1>Presensi Siswa</h1>
-        <p>Catat kehadiran siswa dengan cepat menggunakan barcode.</p>
+
+        <h1>
+            Presensi Siswa
+        </h1>
+
+        <p>
+            Catat kehadiran siswa dengan cepat menggunakan barcode.
+        </p>
+
     </div>
+
 </div>
 
 
@@ -70,19 +100,29 @@ Presensi Siswa
     <div class="table-card attendance-filter-card">
 
         <div class="attendance-filter-title">
+
             <div>
-                <h3>Pengaturan Presensi</h3>
+
+                <h3>
+                    Pengaturan Presensi
+                </h3>
+
                 <p>
                     Pilih tanggal dan kelas sebelum melakukan absensi.
                 </p>
+
             </div>
+
         </div>
+
 
         <form method="get">
 
             <div class="attendance-filter-grid">
 
+
                 <!-- TANGGAL -->
+
                 <div class="attendance-filter">
 
                     <label for="tanggal">
@@ -100,6 +140,7 @@ Presensi Siswa
 
 
                 <!-- KELAS -->
+
                 <div class="attendance-filter">
 
                     <label for="kelas">
@@ -123,7 +164,9 @@ Presensi Siswa
                                 selected
                             {% endif %}
                         >
+
                             {{ kelas.nama }}
+
                         </option>
 
                         {% endfor %}
@@ -134,6 +177,7 @@ Presensi Siswa
 
 
                 <!-- TOMBOL -->
+
                 <div class="attendance-filter-action">
 
                     <button
@@ -145,14 +189,16 @@ Presensi Siswa
 
                 </div>
 
+
             </div>
 
         </form>
 
     </div>
 
+
     <!-- =====================================================
-     SCAN BARCODE
+         SCAN BARCODE
     ===================================================== -->
 
     <div class="scanner-simple">
@@ -169,7 +215,7 @@ Presensi Siswa
 
 
     <!-- =====================================================
-        MODAL KAMERA
+         MODAL KAMERA
     ===================================================== -->
 
     <div
@@ -203,7 +249,10 @@ Presensi Siswa
             ></div>
 
 
-            <p class="scanner-status" id="scannerStatus">
+            <p
+                class="scanner-status"
+                id="scannerStatus"
+            >
                 Arahkan kamera ke barcode NIM siswa.
             </p>
 
@@ -211,7 +260,7 @@ Presensi Siswa
 
     </div>
 
-    
+
     <!-- =================================================
          FORM ABSENSI
     ================================================== -->
@@ -225,6 +274,7 @@ Presensi Siswa
 
 
         <!-- TANGGAL -->
+
         <input
             type="hidden"
             name="tanggal"
@@ -233,6 +283,7 @@ Presensi Siswa
 
 
         <!-- KELAS -->
+
         <input
             type="hidden"
             name="kelas"
@@ -249,24 +300,89 @@ Presensi Siswa
 
             <div class="attendance-list-header">
 
-                <div>
+                <div class="attendance-list-title">
 
                     <h3>
                         Daftar Siswa
                     </h3>
 
-                    <p>
+
+                    <!--
+                        TANGGAL DATA
+                    -->
+
+                    <p class="tanggal-data">
+
+                        Data yang ditampilkan untuk tanggal
+
+                        <strong>
+
+                            {% if tanggal|slice:"5:7" == "01" %}
+                                {{ tanggal|slice:"8:10" }} Januari {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "02" %}
+                                {{ tanggal|slice:"8:10" }} Februari {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "03" %}
+                                {{ tanggal|slice:"8:10" }} Maret {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "04" %}
+                                {{ tanggal|slice:"8:10" }} April {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "05" %}
+                                {{ tanggal|slice:"8:10" }} Mei {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "06" %}
+                                {{ tanggal|slice:"8:10" }} Juni {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "07" %}
+                                {{ tanggal|slice:"8:10" }} Juli {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "08" %}
+                                {{ tanggal|slice:"8:10" }} Agustus {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "09" %}
+                                {{ tanggal|slice:"8:10" }} September {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "10" %}
+                                {{ tanggal|slice:"8:10" }} Oktober {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "11" %}
+                                {{ tanggal|slice:"8:10" }} November {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "12" %}
+                                {{ tanggal|slice:"8:10" }} Desember {{ tanggal|slice:"0:4" }}
+
+                            {% else %}
+                                {{ tanggal }}
+
+                            {% endif %}
+
+                        </strong>
+
+                    </p>
+
+
+                    <!-- JUMLAH SISWA -->
+
+                    <p class="jumlah-siswa">
 
                         {% if students %}
+
                             {{ students|length }} siswa
+
                         {% else %}
+
                             Belum ada siswa
+
                         {% endif %}
 
                     </p>
 
                 </div>
 
+
+                <!-- COUNTER -->
 
                 {% if students %}
 
@@ -283,7 +399,6 @@ Presensi Siswa
                 {% endif %}
 
             </div>
-
 
 
             <!-- =================================================
@@ -340,13 +455,16 @@ Presensi Siswa
                             data-nim="{{ student.nim }}"
                         >
 
+
                             <!-- NOMOR -->
+
                             <td>
                                 {{ forloop.counter }}
                             </td>
 
 
                             <!-- NAMA -->
+
                             <td>
 
                                 <strong>
@@ -357,6 +475,7 @@ Presensi Siswa
 
 
                             <!-- NIM -->
+
                             <td>
 
                                 <span class="student-nim">
@@ -367,18 +486,24 @@ Presensi Siswa
 
 
                             <!-- KELAS -->
+
                             <td>
 
                                 {% if student.kelas %}
+
                                     {{ student.kelas.nama }}
+
                                 {% else %}
+
                                     -
+
                                 {% endif %}
 
                             </td>
 
 
                             <!-- STATUS -->
+
                             <td>
 
                                 <select
@@ -386,7 +511,9 @@ Presensi Siswa
                                     class="attendance-status"
                                 >
 
+
                                     <!-- HADIR -->
+
                                     <option
                                         value="Hadir"
                                         {% if student.absensi_hari_ini and student.absensi_hari_ini.status == "Hadir" %}
@@ -398,6 +525,7 @@ Presensi Siswa
 
 
                                     <!-- IZIN -->
+
                                     <option
                                         value="Izin"
                                         {% if student.absensi_hari_ini and student.absensi_hari_ini.status == "Izin" %}
@@ -409,6 +537,7 @@ Presensi Siswa
 
 
                                     <!-- SAKIT -->
+
                                     <option
                                         value="Sakit"
                                         {% if student.absensi_hari_ini and student.absensi_hari_ini.status == "Sakit" %}
@@ -420,6 +549,7 @@ Presensi Siswa
 
 
                                     <!-- ALPA -->
+
                                     <option
                                         value="Alpa"
                                         {% if not student.absensi_hari_ini or student.absensi_hari_ini.status == "Alpa" %}
@@ -435,6 +565,7 @@ Presensi Siswa
 
 
                             <!-- KETERANGAN -->
+
                             <td>
 
                                 <input
@@ -472,7 +603,6 @@ Presensi Siswa
             </div>
 
 
-
             <!-- =================================================
                  TOMBOL SIMPAN
             ================================================== -->
@@ -492,12 +622,12 @@ Presensi Siswa
 
             {% endif %}
 
+
         </div>
 
     </form>
 
 </div>
-
 
 
 <!-- =====================================================
@@ -506,15 +636,29 @@ Presensi Siswa
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
+
 <script>
+
 document.addEventListener("DOMContentLoaded", function () {
 
-    const btnMulaiScan = document.getElementById("btnMulaiScan");
-    const scannerModal = document.getElementById("scannerModal");
-    const btnTutupScanner = document.getElementById("btnTutupScanner");
-    const scannerStatus = document.getElementById("scannerStatus");
-    const scannerReader = document.getElementById("reader");
-    const hadirCounter = document.getElementById("hadir-counter");
+    const btnMulaiScan =
+        document.getElementById("btnMulaiScan");
+
+    const scannerModal =
+        document.getElementById("scannerModal");
+
+    const btnTutupScanner =
+        document.getElementById("btnTutupScanner");
+
+    const scannerStatus =
+        document.getElementById("scannerStatus");
+
+    const scannerReader =
+        document.getElementById("reader");
+
+    const hadirCounter =
+        document.getElementById("hadir-counter");
+
 
     let scanner = null;
     let scannerRunning = false;
@@ -539,9 +683,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             });
 
+
         if (hadirCounter) {
-            hadirCounter.textContent = jumlahHadir;
+
+            hadirCounter.textContent =
+                jumlahHadir;
+
         }
+
     }
 
 
@@ -553,21 +702,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
         nim = String(nim || "").trim();
 
+
         if (!nim || scanProcessing) {
             return;
         }
 
-        const rows = document.querySelectorAll(".student-row");
+
+        const rows =
+            document.querySelectorAll(".student-row");
+
 
         let rowDitemukan = null;
+
 
         rows.forEach(function (row) {
 
             const studentNim =
                 String(row.dataset.nim || "").trim();
 
+
             if (studentNim === nim) {
+
                 rowDitemukan = row;
+
             }
 
         });
@@ -579,6 +736,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "NIM " + nim + " tidak ditemukan.";
 
             return;
+
         }
 
 
@@ -608,6 +766,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ".attendance-status"
             );
 
+
         if (statusSelect) {
 
             statusSelect.value = "Hadir";
@@ -620,6 +779,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 )
             );
+
         }
 
 
@@ -630,16 +790,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 ".attendance-note"
             );
 
+
         if (noteInput) {
+
             noteInput.value = "";
+
         }
 
 
         /* Scroll ke siswa */
 
         rowDitemukan.scrollIntoView({
+
             behavior: "smooth",
+
             block: "center"
+
         });
 
 
@@ -648,10 +814,18 @@ document.addEventListener("DOMContentLoaded", function () {
         updateHadirCounter();
 
 
-        scannerStatus.textContent =
-            "✓ " + rowDitemukan.querySelector(
+        /* Status scanner */
+
+        const namaSiswa =
+            rowDitemukan.querySelector(
                 "td:nth-child(2)"
-            ).innerText.trim() + " - Hadir";
+            );
+
+
+        scannerStatus.textContent =
+            "✓ " +
+            namaSiswa.innerText.trim() +
+            " - Hadir";
 
 
         /* Tutup kamera */
@@ -660,28 +834,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
             setTimeout(function () {
 
-                rowDitemukan.classList.remove("scanned");
+                rowDitemukan.classList.remove(
+                    "scanned"
+                );
+
                 scanProcessing = false;
 
             }, 1500);
 
         });
+
     }
 
 
     /* =====================================================
        TUTUP SCANNER
-       - Modal langsung disembunyikan
-       - Kamera dihentikan
-       - Reader dibersihkan
     ====================================================== */
 
     async function tutupScanner() {
 
-        /* Tutup tampilan modal SEGERA */
+
+        /* Tutup modal segera */
 
         if (scannerModal) {
-            scannerModal.style.display = "none";
+
+            scannerModal.style.display =
+                "none";
+
         }
 
 
@@ -689,15 +868,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (scanner) {
 
-            const scannerToStop = scanner;
+            const scannerToStop =
+                scanner;
 
             scanner = null;
+
             scannerRunning = false;
+
 
             try {
 
                 if (scannerToStop.isScanning) {
+
                     await scannerToStop.stop();
+
                 }
 
             } catch (error) {
@@ -722,19 +906,28 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
             }
+
         }
 
 
-        /* Pastikan area kamera kosong */
+        /* Kosongkan reader */
 
         if (scannerReader) {
+
             scannerReader.innerHTML = "";
+
         }
 
+
+        /* Reset status */
+
         if (scannerStatus) {
+
             scannerStatus.textContent =
                 "Arahkan kamera ke barcode NIM siswa.";
+
         }
+
     }
 
 
@@ -744,19 +937,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function mulaiScanner() {
 
+
         if (!scannerModal || !scannerReader) {
             return;
         }
 
 
-        /* Jangan buka dua scanner sekaligus */
+        /* Jangan buka scanner dua kali */
 
         if (scannerRunning) {
             return;
         }
 
 
-        scannerModal.style.display = "flex";
+        scannerModal.style.display =
+            "flex";
+
 
         scannerStatus.textContent =
             "Membuka kamera...";
@@ -767,9 +963,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
 
-            scanner = new Html5Qrcode(
-                "reader"
-            );
+            scanner =
+                new Html5Qrcode("reader");
 
 
             await scanner.start(
@@ -786,10 +981,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         height: 150
                     },
 
-                    rememberLastUsedCamera: true,
+                    rememberLastUsedCamera:
+                        true,
 
-                    aspectRatio: 1.777778
+                    aspectRatio:
+                        1.777778
                 },
+
 
                 function (decodedText) {
 
@@ -799,19 +997,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 },
 
+
                 function () {
 
                     /*
-                     * Error scan sementara diabaikan.
-                     * Kamera tetap berjalan sampai barcode terbaca
-                     * atau tombol Close ditekan.
+                     * Error scan sementara
+                     * diabaikan.
                      */
 
                 }
+
             );
 
 
             scannerRunning = true;
+
 
             scannerStatus.textContent =
                 "Arahkan kamera ke barcode NIM siswa.";
@@ -824,14 +1024,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 error
             );
 
-            scannerRunning = false;
 
+            scannerRunning = false;
             scanner = null;
+
 
             scannerStatus.textContent =
                 "Kamera tidak dapat dibuka. Pastikan izin kamera diberikan dan gunakan HTTPS.";
 
         }
+
     }
 
 
@@ -879,7 +1081,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       KLIK DI LUAR MODAL = CLOSE
+       KLIK DI LUAR MODAL
     ====================================================== */
 
     if (scannerModal) {
@@ -906,7 +1108,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* =====================================================
-       TOMBOL ESC = CLOSE
+       TOMBOL ESC
     ====================================================== */
 
     document.addEventListener(
@@ -952,38 +1154,115 @@ document.addEventListener("DOMContentLoaded", function () {
     updateHadirCounter();
 
 });
+
 </script>
 
 
+<!-- =====================================================
+     CSS TAMBAHAN
+====================================================== -->
+
 <style>
+
+
+/* =====================================================
+   HEADER DAFTAR SISWA
+===================================================== */
+
+.attendance-list-title {
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 3px;
+
+}
+
+
+.attendance-list-title h3 {
+
+    margin: 0;
+
+}
+
+
+.tanggal-data {
+
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+
+}
+
+
+.tanggal-data strong {
+
+    color: #334155;
+
+    font-weight: 600;
+
+}
+
+
+.jumlah-siswa {
+
+    margin: 4px 0 0;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+
+}
+
 
 /* =====================================================
    TOMBOL MULAI SCAN
 ===================================================== */
 
 .scanner-simple {
+
     display: flex;
+
     justify-content: flex-end;
+
     margin: 0 0 15px;
+
 }
 
+
 .btn-mulai-scan {
+
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
 
     height: 38px;
+
     padding: 0 15px;
 
     border: 1px solid #4f46e5;
+
     border-radius: 8px;
 
     background: #4f46e5;
+
     color: #ffffff;
 
     font-family: inherit;
+
     font-size: 13px;
+
     font-weight: 600;
+
     line-height: 1;
 
     cursor: pointer;
@@ -1001,10 +1280,14 @@ document.addEventListener("DOMContentLoaded", function () {
         border-color 0.2s ease,
         transform 0.2s ease,
         box-shadow 0.2s ease;
+
 }
 
+
 .btn-mulai-scan:hover {
+
     background: #4338ca;
+
     border-color: #4338ca;
 
     transform: translateY(-1px);
@@ -1016,10 +1299,14 @@ document.addEventListener("DOMContentLoaded", function () {
             229,
             0.22
         );
+
 }
 
+
 .btn-mulai-scan:active {
+
     transform: translateY(0);
+
 }
 
 
@@ -1028,11 +1315,15 @@ document.addEventListener("DOMContentLoaded", function () {
 ===================================================== */
 
 .scanner-modal {
+
     position: fixed;
+
     inset: 0;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     padding: 20px;
@@ -1046,6 +1337,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
     z-index: 99999;
+
 }
 
 
@@ -1054,9 +1346,11 @@ document.addEventListener("DOMContentLoaded", function () {
 ===================================================== */
 
 .scanner-modal-content {
+
     position: relative;
 
     width: 100%;
+
     max-width: 520px;
 
     padding: 18px;
@@ -1064,6 +1358,7 @@ document.addEventListener("DOMContentLoaded", function () {
     background: #ffffff;
 
     border: 1px solid #e2e8f0;
+
     border-radius: 14px;
 
     box-shadow:
@@ -1074,6 +1369,7 @@ document.addEventListener("DOMContentLoaded", function () {
             0,
             0.28
         );
+
 }
 
 
@@ -1082,8 +1378,11 @@ document.addEventListener("DOMContentLoaded", function () {
 ===================================================== */
 
 .scanner-modal-header {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
 
     gap: 15px;
@@ -1093,7 +1392,9 @@ document.addEventListener("DOMContentLoaded", function () {
     color: #111827;
 
     font-size: 16px;
+
     font-weight: 700;
+
 }
 
 
@@ -1102,25 +1403,33 @@ document.addEventListener("DOMContentLoaded", function () {
 ===================================================== */
 
 .btn-tutup-scanner {
+
     display: inline-flex;
 
     align-items: center;
+
     justify-content: center;
 
     width: 36px;
+
     height: 36px;
 
     padding: 0;
 
     border: 1px solid #e2e8f0;
+
     border-radius: 8px;
 
     background: #f8fafc;
+
     color: #334155;
 
     font-family: Arial, sans-serif;
+
     font-size: 24px;
+
     font-weight: 400;
+
     line-height: 1;
 
     cursor: pointer;
@@ -1129,12 +1438,18 @@ document.addEventListener("DOMContentLoaded", function () {
         background 0.2s ease,
         color 0.2s ease,
         border-color 0.2s ease;
+
 }
 
+
 .btn-tutup-scanner:hover {
+
     background: #fee2e2;
+
     border-color: #fecaca;
+
     color: #dc2626;
+
 }
 
 
@@ -1143,7 +1458,9 @@ document.addEventListener("DOMContentLoaded", function () {
 ===================================================== */
 
 .scanner-reader {
+
     width: 100%;
+
     min-height: 280px;
 
     overflow: hidden;
@@ -1151,21 +1468,22 @@ document.addEventListener("DOMContentLoaded", function () {
     border-radius: 10px;
 
     background: #000000;
+
 }
 
+
 .scanner-reader video {
+
     display: block;
 
     width: 100% !important;
+
     max-width: 100% !important;
 
     height: auto !important;
 
     border-radius: 10px;
-}
 
-.scanner-reader__dashboard {
-    font-family: inherit;
 }
 
 
@@ -1174,14 +1492,17 @@ document.addEventListener("DOMContentLoaded", function () {
 ===================================================== */
 
 .scanner-status {
+
     margin: 12px 0 0;
 
     color: #64748b;
 
     font-size: 12px;
+
     line-height: 1.5;
 
     text-align: center;
+
 }
 
 
@@ -1190,10 +1511,12 @@ document.addEventListener("DOMContentLoaded", function () {
 ===================================================== */
 
 .scanned td {
+
     background: #dcfce7 !important;
 
     transition:
         background 0.3s ease;
+
 }
 
 
@@ -1205,7 +1528,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     .scanner-simple,
     .scanner-modal {
+
         display: none !important;
+
     }
 
 }
@@ -1218,190 +1543,346 @@ document.addEventListener("DOMContentLoaded", function () {
 @media (max-width: 600px) {
 
     .scanner-simple {
+
         justify-content: flex-start;
+
     }
 
+
     .btn-mulai-scan {
+
         height: 38px;
+
         padding: 0 14px;
 
         font-size: 12px;
+
     }
+
 
     .scanner-modal {
+
         padding: 10px;
+
     }
+
 
     .scanner-modal-content {
+
         padding: 12px;
+
         border-radius: 12px;
+
     }
+
 
     .scanner-reader {
+
         min-height: 240px;
+
     }
+
 
     .scanner-status {
+
         font-size: 11px;
+
     }
+
+
+    .tanggal-data {
+
+        font-size: 12px;
+
+    }
+
 }
 
-</style>
 
-<style>
-/* ================================
+/* =====================================================
    POPUP NOTIFIKASI
-   ================================ */
+===================================================== */
 
 .popup-container {
+
     position: fixed;
+
     top: 25px;
+
     right: 25px;
+
     z-index: 99999;
+
 }
 
+
 .popup-notification {
+
     width: 380px;
+
     background: #ffffff;
+
     border-radius: 12px;
+
     padding: 16px 18px;
 
     display: flex;
+
     align-items: center;
+
     gap: 13px;
 
     border-left: 5px solid #22c55e;
 
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    box-shadow:
+        0 10px 30px
+        rgba(
+            0,
+            0,
+            0,
+            0.15
+        );
 
-    animation: popupMasuk 0.35s ease;
+    animation:
+        popupMasuk
+        0.35s ease;
+
 }
 
+
 .popup-icon {
+
     width: 40px;
+
     height: 40px;
+
     min-width: 40px;
 
     border-radius: 50%;
+
     background: #dcfce7;
+
     color: #16a34a;
 
     display: flex;
+
     align-items: center;
+
     justify-content: center;
 
     font-size: 22px;
+
     font-weight: bold;
+
 }
+
 
 .popup-content {
+
     flex: 1;
+
 }
+
 
 .popup-content strong {
+
     display: block;
+
     color: #166534;
+
     font-size: 15px;
+
     margin-bottom: 4px;
+
 }
+
 
 .popup-content span {
+
     display: block;
+
     color: #64748b;
+
     font-size: 13px;
+
 }
 
+
 .popup-close {
+
     border: none;
+
     background: transparent;
+
     color: #94a3b8;
 
     font-size: 22px;
+
     cursor: pointer;
+
 }
+
 
 .popup-close:hover {
+
     color: #334155;
+
 }
+
 
 @keyframes popupMasuk {
+
     from {
+
         opacity: 0;
-        transform: translateX(40px);
+
+        transform:
+            translateX(40px);
+
     }
 
     to {
+
         opacity: 1;
-        transform: translateX(0);
+
+        transform:
+            translateX(0);
+
     }
+
 }
+
 
 @keyframes popupKeluar {
+
     from {
+
         opacity: 1;
-        transform: translateX(0);
+
+        transform:
+            translateX(0);
+
     }
 
     to {
+
         opacity: 0;
-        transform: translateX(40px);
+
+        transform:
+            translateX(40px);
+
     }
+
 }
+
 
 .popup-hide {
-    animation: popupKeluar 0.3s ease forwards;
+
+    animation:
+        popupKeluar
+        0.3s ease
+        forwards;
+
 }
 
-
-/* ================================
-   MOBILE
-   ================================ */
 
 @media (max-width: 600px) {
 
     .popup-container {
+
         top: 15px;
+
         left: 15px;
+
         right: 15px;
+
     }
+
 
     .popup-notification {
+
         width: auto;
+
     }
+
 }
+
 </style>
 
-<script>
-function closePopup(button) {
-    const popup = button.closest('.popup-notification');
 
-    popup.classList.add('popup-hide');
+<!-- =====================================================
+     POPUP SCRIPT
+====================================================== -->
+
+<script>
+
+function closePopup(button) {
+
+    const popup =
+        button.closest(
+            ".popup-notification"
+        );
+
+
+    if (!popup) {
+        return;
+    }
+
+
+    popup.classList.add(
+        "popup-hide"
+    );
+
 
     setTimeout(function () {
+
         popup.remove();
+
     }, 300);
+
 }
 
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-    const popups = document.querySelectorAll('.popup-notification');
+        const popups =
+            document.querySelectorAll(
+                ".popup-notification"
+            );
 
-    popups.forEach(function (popup) {
 
-        setTimeout(function () {
+        popups.forEach(
+            function (popup) {
 
-            popup.classList.add('popup-hide');
+                setTimeout(
+                    function () {
 
-            setTimeout(function () {
-                popup.remove();
-            }, 300);
+                        popup.classList.add(
+                            "popup-hide"
+                        );
 
-        }, 4000);
 
-    });
+                        setTimeout(
+                            function () {
 
-});
+                                popup.remove();
+
+                            },
+                            300
+                        );
+
+                    },
+                    4000
+                );
+
+            }
+        );
+
+    }
+);
+
 </script>
 
 

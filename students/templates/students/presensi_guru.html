@@ -21,7 +21,9 @@ Input Presensi Guru
 
             <div class="popup-content">
 
-                <strong>Presensi Berhasil</strong>
+                <strong>
+                    Presensi Berhasil
+                </strong>
 
                 <span>
                     {{ message }}
@@ -33,6 +35,7 @@ Input Presensi Guru
                 type="button"
                 class="popup-close"
                 onclick="closePopup(this)"
+                aria-label="Tutup"
             >
                 ×
             </button>
@@ -46,6 +49,7 @@ Input Presensi Guru
 </div>
 {% endif %}
 
+
 <div class="presensi-guru-page">
 
     <!-- =====================================================
@@ -55,11 +59,15 @@ Input Presensi Guru
     <div class="page-header">
 
         <div>
-            <h1>Input Presensi Guru</h1>
+
+            <h1>
+                Input Presensi Guru
+            </h1>
 
             <p>
                 Catat kehadiran guru
             </p>
+
         </div>
 
     </div>
@@ -92,6 +100,7 @@ Input Presensi Guru
 
             </div>
 
+
             <div class="presensi-filter-button">
 
                 <button
@@ -109,7 +118,7 @@ Input Presensi Guru
 
 
     <!-- =====================================================
-         FORM PRESENSI
+         FORM PRESENSI GURU
          ===================================================== -->
 
     <form method="post">
@@ -125,31 +134,96 @@ Input Presensi Guru
 
         <div class="presensi-guru-card">
 
-            <!-- HEADER -->
+
+            <!-- =================================================
+                 HEADER CARD
+                 ================================================= -->
 
             <div class="presensi-guru-card-header">
 
-                <div>
+                <div class="presensi-guru-title">
 
                     <h2>
                         Daftar Guru
                     </h2>
 
-                    <p>
-                        Atur status presensi guru pada tanggal
-                        yang dipilih.
+
+                    <p class="tanggal-data">
+
+                        Data yang ditampilkan untuk tanggal
+
+                        <strong>
+
+                            {% if tanggal|slice:"5:7" == "01" %}
+                                {{ tanggal|slice:"8:10" }} Januari {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "02" %}
+                                {{ tanggal|slice:"8:10" }} Februari {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "03" %}
+                                {{ tanggal|slice:"8:10" }} Maret {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "04" %}
+                                {{ tanggal|slice:"8:10" }} April {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "05" %}
+                                {{ tanggal|slice:"8:10" }} Mei {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "06" %}
+                                {{ tanggal|slice:"8:10" }} Juni {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "07" %}
+                                {{ tanggal|slice:"8:10" }} Juli {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "08" %}
+                                {{ tanggal|slice:"8:10" }} Agustus {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "09" %}
+                                {{ tanggal|slice:"8:10" }} September {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "10" %}
+                                {{ tanggal|slice:"8:10" }} Oktober {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "11" %}
+                                {{ tanggal|slice:"8:10" }} November {{ tanggal|slice:"0:4" }}
+
+                            {% elif tanggal|slice:"5:7" == "12" %}
+                                {{ tanggal|slice:"8:10" }} Desember {{ tanggal|slice:"0:4" }}
+
+                            {% else %}
+                                {{ tanggal }}
+                            {% endif %}
+
+                        </strong>
+
+                    </p>
+
+
+                    <p class="jumlah-guru">
+
+                        {% if gurus %}
+                            {{ gurus|length }} guru
+                        {% else %}
+                            Belum ada guru
+                        {% endif %}
+
                     </p>
 
                 </div>
 
+
+                <!-- =================================================
+                     GURU HADIR
+                     ================================================= -->
+
                 <div class="presensi-total">
 
                     <span>
-                        Total Guru
+                        Guru Hadir
                     </span>
 
-                    <strong>
-                        {{ gurus|length }}
+                    <strong id="jumlah-guru-hadir">
+                        0
                     </strong>
 
                 </div>
@@ -157,7 +231,9 @@ Input Presensi Guru
             </div>
 
 
-            <!-- TABLE -->
+            <!-- =================================================
+                 TABLE
+                 ================================================= -->
 
             <div class="presensi-guru-table-wrapper">
 
@@ -191,6 +267,7 @@ Input Presensi Guru
 
                     </thead>
 
+
                     <tbody>
 
                         {% for guru in gurus %}
@@ -203,21 +280,30 @@ Input Presensi Guru
                                 {{ forloop.counter }}
                             </td>
 
+
                             <td class="guru-name">
                                 {{ guru.nama }}
                             </td>
 
+
                             <td class="guru-jk">
 
                                 {% if guru.jenis_kelamin == 'L' %}
+
                                     Laki-laki
+
                                 {% elif guru.jenis_kelamin == 'P' %}
+
                                     Perempuan
+
                                 {% else %}
+
                                     -
+
                                 {% endif %}
 
                             </td>
+
 
                             <td>
 
@@ -236,6 +322,7 @@ Input Presensi Guru
                                         Alpa
                                     </option>
 
+
                                     <option
                                         value="Hadir"
                                         {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Hadir' %}
@@ -245,6 +332,7 @@ Input Presensi Guru
                                         Hadir
                                     </option>
 
+
                                     <option
                                         value="Izin"
                                         {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Izin' %}
@@ -253,6 +341,7 @@ Input Presensi Guru
                                     >
                                         Izin
                                     </option>
+
 
                                     <option
                                         value="Sakit"
@@ -266,6 +355,7 @@ Input Presensi Guru
                                 </select>
 
                             </td>
+
 
                             <td>
 
@@ -289,9 +379,7 @@ Input Presensi Guru
                                 colspan="5"
                                 class="presensi-empty"
                             >
-
                                 Belum ada data guru.
-
                             </td>
 
                         </tr>
@@ -305,7 +393,9 @@ Input Presensi Guru
             </div>
 
 
-            <!-- FOOTER -->
+            <!-- =================================================
+                 FOOTER
+                 ================================================= -->
 
             {% if gurus %}
 
@@ -313,12 +403,54 @@ Input Presensi Guru
 
                 <div class="presensi-info">
 
-                    Tanggal:
+                    Data presensi guru untuk
+
                     <strong>
-                        {{ tanggal }}
+
+                        {% if tanggal|slice:"5:7" == "01" %}
+                            {{ tanggal|slice:"8:10" }} Januari {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "02" %}
+                            {{ tanggal|slice:"8:10" }} Februari {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "03" %}
+                            {{ tanggal|slice:"8:10" }} Maret {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "04" %}
+                            {{ tanggal|slice:"8:10" }} April {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "05" %}
+                            {{ tanggal|slice:"8:10" }} Mei {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "06" %}
+                            {{ tanggal|slice:"8:10" }} Juni {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "07" %}
+                            {{ tanggal|slice:"8:10" }} Juli {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "08" %}
+                            {{ tanggal|slice:"8:10" }} Agustus {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "09" %}
+                            {{ tanggal|slice:"8:10" }} September {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "10" %}
+                            {{ tanggal|slice:"8:10" }} Oktober {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "11" %}
+                            {{ tanggal|slice:"8:10" }} November {{ tanggal|slice:"0:4" }}
+
+                        {% elif tanggal|slice:"5:7" == "12" %}
+                            {{ tanggal|slice:"8:10" }} Desember {{ tanggal|slice:"0:4" }}
+
+                        {% else %}
+                            {{ tanggal }}
+                        {% endif %}
+
                     </strong>
 
                 </div>
+
 
                 <button
                     type="submit"
@@ -338,6 +470,10 @@ Input Presensi Guru
 </div>
 
 
+<!-- =========================================================
+     CSS HALAMAN
+     ========================================================= -->
+
 <style>
 
 /* =========================================================
@@ -355,24 +491,16 @@ Input Presensi Guru
 
 .presensi-filter-card {
     background: #ffffff;
-
     border: 1px solid #e2e8f0;
-
     border-radius: 12px;
-
     padding: 20px 24px;
-
     margin-bottom: 20px;
-
-    box-shadow:
-        0 2px 7px rgba(15, 23, 42, 0.035);
+    box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
 }
 
 .presensi-filter-form {
     display: flex;
-
     align-items: flex-end;
-
     gap: 15px;
 }
 
@@ -382,35 +510,22 @@ Input Presensi Guru
 
 .presensi-filter-group label {
     display: block;
-
     margin-bottom: 7px;
-
     font-size: 13px;
-
     font-weight: 600;
-
     color: #475569;
 }
 
 .presensi-filter-group input {
     width: 100%;
-
     height: 42px;
-
     padding: 0 12px;
-
     box-sizing: border-box;
-
     border: 1px solid #dbe2ea;
-
     border-radius: 8px;
-
     background: #ffffff;
-
     color: #334155;
-
     font-size: 14px;
-
     outline: none;
 }
 
@@ -420,22 +535,15 @@ Input Presensi Guru
 
 .btn-tampilkan-presensi {
     height: 42px;
-
     padding: 0 20px;
-
     border: none;
-
     border-radius: 8px;
-
     background: #2563eb;
-
     color: #ffffff;
-
     font-size: 13px;
-
     font-weight: 600;
-
     cursor: pointer;
+    transition: background 0.15s ease;
 }
 
 .btn-tampilkan-presensi:hover {
@@ -449,17 +557,11 @@ Input Presensi Guru
 
 .presensi-guru-card {
     width: 100%;
-
     background: #ffffff;
-
     border: 1px solid #e2e8f0;
-
     border-radius: 13px;
-
     overflow: hidden;
-
-    box-shadow:
-        0 2px 8px rgba(15, 23, 42, 0.035);
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
 }
 
 
@@ -469,73 +571,72 @@ Input Presensi Guru
 
 .presensi-guru-card-header {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     padding: 24px 26px;
-
     border-bottom: 1px solid #e5e7eb;
 }
 
+.presensi-guru-title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+}
+
 .presensi-guru-card-header h2 {
-    margin: 0 0 6px;
-
+    margin: 0 0 2px;
     color: #1e293b;
-
     font-size: 19px;
-
     font-weight: 700;
 }
 
-.presensi-guru-card-header p {
+.tanggal-data {
     margin: 0;
-
     color: #64748b;
-
     font-size: 13px;
+    line-height: 1.5;
+}
+
+.tanggal-data strong {
+    color: #334155;
+    font-weight: 600;
+}
+
+.jumlah-guru {
+    margin: 3px 0 0;
+    color: #94a3b8;
+    font-size: 12px;
 }
 
 
 /* =========================================================
-   TOTAL
+   GURU HADIR
    ========================================================= */
 
 .presensi-total {
     display: flex;
-
     align-items: center;
-
     gap: 10px;
 }
 
 .presensi-total span {
     color: #64748b;
-
     font-size: 13px;
 }
 
 .presensi-total strong {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     min-width: 34px;
-
     height: 34px;
-
     padding: 0 8px;
-
     border-radius: 8px;
-
     background: #eff6ff;
-
     color: #2563eb;
-
     font-size: 14px;
+    font-weight: 700;
 }
 
 
@@ -545,41 +646,31 @@ Input Presensi Guru
 
 .presensi-guru-table-wrapper {
     width: 100%;
-
     overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .presensi-guru-table {
     width: 100%;
-
     min-width: 900px;
-
     border-collapse: collapse;
-
     table-layout: fixed;
 }
 
 .presensi-guru-table thead th {
     height: 48px;
-
     padding: 0 18px;
-
     background: #ffffff;
-
     border-bottom: 1px solid #e2e8f0;
-
     color: #64748b;
-
     font-size: 12px;
-
     font-weight: 700;
-
     text-align: left;
 }
 
 .presensi-guru-table tbody tr {
     height: 64px;
-
     transition: background 0.15s ease;
 }
 
@@ -589,9 +680,7 @@ Input Presensi Guru
 
 .presensi-guru-table tbody td {
     padding: 8px 18px;
-
     border-bottom: 1px solid #edf0f4;
-
     vertical-align: middle;
 }
 
@@ -626,26 +715,22 @@ Input Presensi Guru
 
 
 /* =========================================================
-   DATA
+   DATA GURU
    ========================================================= */
 
 .presensi-guru-table tbody .col-no {
     color: #94a3b8;
-
     font-size: 13px;
 }
 
 .guru-name {
     color: #111827;
-
     font-size: 14px;
-
     font-weight: 600;
 }
 
 .guru-jk {
     color: #475569;
-
     font-size: 13px;
 }
 
@@ -656,23 +741,14 @@ Input Presensi Guru
 
 .status-select {
     width: 130px;
-
     height: 38px;
-
     padding: 0 10px;
-
     border: 1px solid #dbe2ea;
-
     border-radius: 7px;
-
     background: #ffffff;
-
     color: #334155;
-
     font-size: 13px;
-
     outline: none;
-
     cursor: pointer;
 }
 
@@ -687,21 +763,14 @@ Input Presensi Guru
 
 .keterangan-input {
     width: 100%;
-
     height: 38px;
-
     box-sizing: border-box;
-
     padding: 0 11px;
-
     border: 1px solid #dbe2ea;
-
     border-radius: 7px;
-
+    background: #ffffff;
     color: #334155;
-
     font-size: 13px;
-
     outline: none;
 }
 
@@ -720,49 +789,35 @@ Input Presensi Guru
 
 .presensi-guru-footer {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     padding: 18px 24px;
-
     border-top: 1px solid #e5e7eb;
-
     background: #ffffff;
 }
 
 .presensi-info {
     color: #64748b;
-
     font-size: 13px;
 }
 
 .presensi-info strong {
     color: #334155;
+    font-weight: 600;
 }
 
 .btn-simpan-presensi {
     height: 42px;
-
     padding: 0 22px;
-
     border: none;
-
     border-radius: 8px;
-
     background: #2563eb;
-
     color: #ffffff;
-
     font-size: 13px;
-
     font-weight: 600;
-
     cursor: pointer;
-
-    box-shadow:
-        0 3px 8px rgba(37, 99, 235, 0.18);
+    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
+    transition: background 0.15s ease;
 }
 
 .btn-simpan-presensi:hover {
@@ -771,69 +826,21 @@ Input Presensi Guru
 
 
 /* =========================================================
-   KOSONG
+   DATA KOSONG
    ========================================================= */
 
 .presensi-empty {
     padding: 55px 20px !important;
-
     text-align: center;
-
     color: #94a3b8;
-
     font-size: 14px;
 }
 
 
 /* =========================================================
-   RESPONSIVE
+   POPUP NOTIFIKASI
    ========================================================= */
 
-@media (max-width: 768px) {
-
-    .presensi-filter-form {
-        flex-direction: column;
-
-        align-items: stretch;
-    }
-
-    .presensi-filter-group {
-        width: 100%;
-    }
-
-    .presensi-filter-button {
-        width: 100%;
-    }
-
-    .btn-tampilkan-presensi {
-        width: 100%;
-    }
-
-    .presensi-guru-card-header {
-        align-items: flex-start;
-
-        gap: 15px;
-
-        flex-direction: column;
-    }
-
-    .presensi-guru-footer {
-        align-items: stretch;
-
-        gap: 15px;
-
-        flex-direction: column;
-    }
-
-    .btn-simpan-presensi {
-        width: 100%;
-    }
-
-}
-
-</style>
-
-<style>
 .popup-container {
     position: fixed;
     top: 25px;
@@ -846,15 +853,11 @@ Input Presensi Guru
     background: #ffffff;
     border-radius: 12px;
     padding: 16px 18px;
-
     display: flex;
     align-items: center;
     gap: 13px;
-
     border-left: 5px solid #22c55e;
-
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-
     animation: popupMasuk 0.35s ease;
 }
 
@@ -862,16 +865,12 @@ Input Presensi Guru
     width: 40px;
     height: 40px;
     min-width: 40px;
-
     border-radius: 50%;
-
     background: #dcfce7;
     color: #16a34a;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     font-size: 22px;
     font-weight: bold;
 }
@@ -891,22 +890,30 @@ Input Presensi Guru
     display: block;
     color: #64748b;
     font-size: 13px;
+    line-height: 1.5;
 }
 
 .popup-close {
     border: none;
     background: transparent;
     color: #94a3b8;
-
     font-size: 22px;
+    line-height: 1;
     cursor: pointer;
+    padding: 2px;
 }
 
 .popup-close:hover {
     color: #334155;
 }
 
+
+/* =========================================================
+   ANIMASI POPUP
+   ========================================================= */
+
 @keyframes popupMasuk {
+
     from {
         opacity: 0;
         transform: translateX(40px);
@@ -916,9 +923,11 @@ Input Presensi Guru
         opacity: 1;
         transform: translateX(0);
     }
+
 }
 
 @keyframes popupKeluar {
+
     from {
         opacity: 1;
         transform: translateX(0);
@@ -928,13 +937,84 @@ Input Presensi Guru
         opacity: 0;
         transform: translateX(40px);
     }
+
 }
 
 .popup-hide {
     animation: popupKeluar 0.3s ease forwards;
 }
 
-@media (max-width: 600px) {
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .presensi-filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .presensi-filter-group {
+        width: 100%;
+    }
+
+    .presensi-filter-button {
+        width: 100%;
+    }
+
+    .btn-tampilkan-presensi {
+        width: 100%;
+    }
+
+    .presensi-guru-card-header {
+        align-items: flex-start;
+        gap: 15px;
+        flex-direction: column;
+    }
+
+    .presensi-total {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .presensi-guru-footer {
+        align-items: stretch;
+        gap: 15px;
+        flex-direction: column;
+    }
+
+    .btn-simpan-presensi {
+        width: 100%;
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE KECIL
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+    .presensi-filter-card {
+        padding: 16px;
+    }
+
+    .presensi-guru-card-header {
+        padding: 20px 16px;
+    }
+
+    .presensi-guru-table thead th,
+    .presensi-guru-table tbody td {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+
+    .presensi-guru-footer {
+        padding: 16px;
+    }
 
     .popup-container {
         top: 15px;
@@ -945,43 +1025,151 @@ Input Presensi Guru
     .popup-notification {
         width: auto;
     }
+
 }
+
 </style>
 
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
 <script>
-function closePopup(button) {
 
-    const popup = button.closest('.popup-notification');
+/* =========================================================
+   HITUNG JUMLAH GURU HADIR
+   ========================================================= */
 
-    popup.classList.add('popup-hide');
+function updateJumlahGuruHadir() {
 
-    setTimeout(function () {
-        popup.remove();
-    }, 300);
-}
+    const statusSelects =
+        document.querySelectorAll(".status-select");
 
+    let jumlahHadir = 0;
 
-document.addEventListener('DOMContentLoaded', function () {
+    statusSelects.forEach(function (select) {
 
-    const popups = document.querySelectorAll(
-        '.popup-notification'
-    );
-
-    popups.forEach(function (popup) {
-
-        setTimeout(function () {
-
-            popup.classList.add('popup-hide');
-
-            setTimeout(function () {
-                popup.remove();
-            }, 300);
-
-        }, 4000);
+        if (select.value === "Hadir") {
+            jumlahHadir++;
+        }
 
     });
 
-});
+
+    const jumlahGuruHadir =
+        document.getElementById("jumlah-guru-hadir");
+
+
+    if (jumlahGuruHadir) {
+
+        jumlahGuruHadir.textContent =
+            jumlahHadir;
+
+    }
+
+}
+
+
+/* =========================================================
+   TUTUP POPUP
+   ========================================================= */
+
+function closePopup(button) {
+
+    const popup =
+        button.closest(".popup-notification");
+
+
+    if (!popup) {
+        return;
+    }
+
+
+    popup.classList.add("popup-hide");
+
+
+    setTimeout(function () {
+
+        popup.remove();
+
+    }, 300);
+
+}
+
+
+/* =========================================================
+   SAAT HALAMAN SELESAI DIMUAT
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        /* ==============================================
+           HITUNG GURU HADIR SAAT HALAMAN DIBUKA
+           ============================================== */
+
+        updateJumlahGuruHadir();
+
+
+        /* ==============================================
+           UPDATE JUMLAH SAAT STATUS DIUBAH
+           ============================================== */
+
+        const statusSelects =
+            document.querySelectorAll(".status-select");
+
+
+        statusSelects.forEach(function (select) {
+
+            select.addEventListener(
+                "change",
+                function () {
+
+                    updateJumlahGuruHadir();
+
+                }
+            );
+
+        });
+
+
+        /* ==============================================
+           POPUP NOTIFIKASI
+           ============================================== */
+
+        const popups =
+            document.querySelectorAll(
+                ".popup-notification"
+            );
+
+
+        popups.forEach(function (popup) {
+
+            setTimeout(function () {
+
+                popup.classList.add(
+                    "popup-hide"
+                );
+
+
+                setTimeout(function () {
+
+                    if (popup) {
+                        popup.remove();
+                    }
+
+                }, 300);
+
+            }, 4000);
+
+        });
+
+    }
+);
+
 </script>
 
 {% endblock %}

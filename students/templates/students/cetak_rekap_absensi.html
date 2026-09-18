@@ -1,809 +1,1375 @@
+{% load static %}
 {% load rekap_tags %}
 
 <!DOCTYPE html>
-
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Rekap Absensi Siswa</title>
+    <title>Rekap Presensi Siswa</title>
 
-<style>
-    * {
-        box-sizing: border-box;
-    }
+    <style>
 
-    @page {
-        size: A4 landscape;
-        margin: 15mm;
-    }
+        * {
+            box-sizing: border-box;
+        }
 
-    body {
-        margin: 0;
-        padding: 20px;
-        background: #f1f5f9;
-        color: #1e293b;
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 13px;
-    }
 
-    .print-container {
-        width: 100%;
-        max-width: 1100px;
-        margin: 0 auto;
-        padding: 25px;
-        background: #ffffff;
-    }
+        @page {
+            size: A4 landscape;
+            margin: 12mm;
+        }
 
-    /* =========================
-       TOMBOL
-    ========================= */
-
-    .print-actions {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-
-    .print-button,
-    .back-button {
-        border: none;
-        border-radius: 6px;
-        padding: 10px 20px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .print-button {
-        background: #2563eb;
-        color: white;
-    }
-
-    .back-button {
-        background: #e2e8f0;
-        color: #1e293b;
-    }
-
-    /* =========================
-       HEADER
-    ========================= */
-
-    .header {
-        text-align: center;
-        border-bottom: 2px solid #1e293b;
-        padding-bottom: 12px;
-        margin-bottom: 15px;
-    }
-
-    .header h1 {
-        margin: 0 0 5px;
-        font-size: 22px;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .header h2 {
-        margin: 0 0 5px;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    .header p {
-        margin: 3px 0;
-        color: #64748b;
-        font-size: 12px;
-    }
-
-    /* =========================
-       INFORMASI
-    ========================= */
-
-    .info-box {
-        display: flex;
-        gap: 30px;
-        margin-bottom: 18px;
-        padding: 10px 14px;
-        border: 1px solid #cbd5e1;
-        background: #f8fafc;
-    }
-
-    .info-item {
-        flex: 1;
-    }
-
-    .info-label {
-        display: block;
-        margin-bottom: 4px;
-        color: #64748b;
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .info-value {
-        font-size: 13px;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    /* =========================
-       RINGKASAN
-    ========================= */
-
-    .summary {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 8px;
-        margin-bottom: 18px;
-    }
-
-    .summary-item {
-        padding: 9px;
-        text-align: center;
-        border: 1px solid #cbd5e1;
-        background: #ffffff;
-    }
-
-    .summary-label {
-        display: block;
-        margin-bottom: 4px;
-        color: #64748b;
-        font-size: 10px;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .summary-value {
-        display: block;
-        font-size: 16px;
-        font-weight: 700;
-        color: #0f172a;
-    }
-
-    /* =========================
-       TABEL
-    ========================= */
-
-    .table-wrapper {
-        width: 100%;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed;
-    }
-
-    th,
-    td {
-        border: 1px solid #475569;
-        padding: 8px 7px;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    thead th {
-        background: #e2e8f0;
-        color: #0f172a;
-        font-size: 12px;
-        font-weight: 700;
-    }
-
-    tbody td {
-        font-size: 12px;
-        height: 32px;
-    }
-
-    tbody tr:nth-child(even) {
-        background: #f8fafc;
-    }
-
-    .no-column {
-        width: 50px;
-    }
-
-    .nama-column {
-        width: 35%;
-        text-align: left;
-    }
-
-    .kelas-column {
-        width: 100px;
-    }
-
-    .status-column {
-        width: 70px;
-    }
-
-    .percentage-column {
-        width: 110px;
-    }
-
-    .student-name {
-        text-align: left;
-        font-weight: 600;
-    }
-
-    .status {
-        font-weight: 700;
-    }
-
-    .percentage {
-        font-weight: 700;
-    }
-
-    /* =========================
-       KETERANGAN
-    ========================= */
-
-    .legend {
-        margin-top: 14px;
-        padding: 9px 12px;
-        border: 1px solid #cbd5e1;
-        background: #f8fafc;
-        font-size: 11px;
-    }
-
-    .legend-title {
-        margin-bottom: 5px;
-        font-weight: 700;
-    }
-
-    .legend span {
-        margin-right: 18px;
-    }
-
-    /* =========================
-       TANDA TANGAN
-    ========================= */
-
-    .signature-wrapper {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 35px;
-    }
-
-    .signature {
-        width: 240px;
-        text-align: center;
-        font-size: 11px;
-    }
-
-    .signature-date {
-        margin-bottom: 50px;
-    }
-
-    .signature-name {
-        font-weight: 700;
-        text-decoration: underline;
-    }
-
-    /* =========================
-       DATA KOSONG
-    ========================= */
-
-    .empty-data {
-        padding: 25px !important;
-        color: #64748b;
-        font-style: italic;
-    }
-
-    /* =========================
-       PRINT
-    ========================= */
-
-    @media print {
 
         body {
-            padding: 0;
+
             margin: 0;
-            background: white;
-            font-size: 11px;
-        }
+            padding: 20px;
 
-        .print-container {
-            max-width: none;
-            padding: 0;
-            margin: 0;
-        }
+            background: #f1f5f9;
 
-        .print-actions {
-            display: none !important;
-        }
+            color: #1e293b;
 
-        .header {
-            margin-bottom: 12px;
-        }
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
 
-        .header h1 {
-            font-size: 19px;
-        }
-
-        .header h2 {
-            font-size: 14px;
-        }
-
-        .header p {
-            font-size: 10px;
-        }
-
-        .info-box {
-            margin-bottom: 12px;
-            padding: 7px 10px;
-        }
-
-        .info-label {
-            font-size: 8px;
-        }
-
-        .info-value {
-            font-size: 10px;
-        }
-
-        .summary {
-            margin-bottom: 12px;
-        }
-
-        .summary-item {
-            padding: 6px;
-        }
-
-        .summary-label {
-            font-size: 8px;
-        }
-
-        .summary-value {
             font-size: 13px;
         }
 
+
+        .print-container {
+
+            width: 100%;
+
+            max-width: 1100px;
+
+            margin: 0 auto;
+
+            padding: 25px;
+
+            background: #ffffff;
+        }
+
+
+
+        /* =====================================================
+           TOMBOL
+        ====================================================== */
+
+        .print-actions {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 10px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .print-button,
+        .back-button {
+
+            border: none;
+
+            border-radius: 6px;
+
+            padding: 10px 20px;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+        }
+
+
+        .print-button {
+
+            background: #2563eb;
+
+            color: white;
+        }
+
+
+        .back-button {
+
+            background: #e2e8f0;
+
+            color: #1e293b;
+        }
+
+
+
+        /* =====================================================
+           KOP MADRASAH
+        ====================================================== */
+
+        .rapot-header {
+
+            display: flex;
+
+            align-items: center;
+
+            width: 100%;
+
+            min-height: 100px;
+
+            position: relative;
+        }
+
+
+        .rapot-logo {
+
+            width: 110px;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+        }
+
+
+        .rapot-logo img {
+
+            width: 85px;
+
+            height: 85px;
+
+            object-fit: contain;
+        }
+
+
+        .rapot-header-text {
+
+            flex: 1;
+
+            text-align: center;
+
+            padding-right: 110px;
+        }
+
+
+        .pondok-name {
+
+            font-size: 17px;
+
+            font-weight: 700;
+
+            line-height: 1.25;
+
+            text-transform: uppercase;
+        }
+
+
+        .madrasah-name {
+
+            margin-top: 3px;
+
+            font-size: 15px;
+
+            font-weight: 700;
+
+            line-height: 1.3;
+
+            text-transform: uppercase;
+        }
+
+
+        .address {
+
+            margin-top: 5px;
+
+            font-size: 11px;
+
+            line-height: 1.4;
+        }
+
+
+        .contact {
+
+            margin-top: 2px;
+
+            font-size: 10px;
+
+            line-height: 1.4;
+        }
+
+
+        .rapot-line {
+
+            width: 100%;
+
+            border-top: 3px solid #111827;
+
+            border-bottom: 1px solid #111827;
+
+            height: 5px;
+
+            margin-top: 8px;
+
+            margin-bottom: 15px;
+        }
+
+
+
+        /* =====================================================
+           JUDUL
+        ====================================================== */
+
+        .document-title {
+
+            text-align: center;
+
+            margin-bottom: 15px;
+        }
+
+
+        .document-title h1 {
+
+            margin: 0;
+
+            font-size: 19px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+
+            color: #111827;
+        }
+
+
+        .document-title h2 {
+
+            margin: 4px 0 0;
+
+            font-size: 14px;
+
+            font-weight: 600;
+
+            color: #1e293b;
+        }
+
+
+        .document-title p {
+
+            margin: 4px 0 0;
+
+            font-size: 11px;
+
+            color: #475569;
+        }
+
+
+
+        /* =====================================================
+           INFORMASI
+        ====================================================== */
+
+        .info-box {
+
+            display: flex;
+
+            gap: 20px;
+
+            margin-bottom: 15px;
+
+            padding: 9px 12px;
+
+            border: 1px solid #94a3b8;
+
+            background: #f8fafc;
+        }
+
+
+        .info-item {
+
+            flex: 1;
+        }
+
+
+        .info-label {
+
+            display: block;
+
+            margin-bottom: 3px;
+
+            color: #475569;
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+        }
+
+
+        .info-value {
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            color: #0f172a;
+        }
+
+
+
+        /* =====================================================
+           RINGKASAN
+        ====================================================== */
+
+        .summary {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(5, 1fr);
+
+            gap: 7px;
+
+            margin-bottom: 15px;
+        }
+
+
+        .summary-item {
+
+            padding: 7px;
+
+            text-align: center;
+
+            border: 1px solid #94a3b8;
+
+            background: #ffffff;
+        }
+
+
+        .summary-label {
+
+            display: block;
+
+            margin-bottom: 3px;
+
+            color: #475569;
+
+            font-size: 9px;
+
+            font-weight: 700;
+
+            text-transform: uppercase;
+        }
+
+
+        .summary-value {
+
+            display: block;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            color: #111827;
+        }
+
+
+
+        /* =====================================================
+           TABEL
+        ====================================================== */
+
+        .table-wrapper {
+
+            width: 100%;
+        }
+
+
+        table {
+
+            width: 100%;
+
+            border-collapse: collapse;
+
+            table-layout: fixed;
+        }
+
+
         th,
         td {
+
+            border: 1px solid #334155;
+
             padding: 6px 5px;
-            border-color: #334155;
+
+            text-align: center;
+
+            vertical-align: middle;
         }
+
 
         thead th {
-            font-size: 10px;
+
+            background: #e2e8f0;
+
+            color: #111827;
+
+            font-size: 11px;
+
+            font-weight: 700;
         }
 
+
         tbody td {
+
             font-size: 10px;
+
             height: 27px;
         }
 
-        .nama-column {
-            width: 40%;
+
+        tbody tr:nth-child(even) {
+
+            background: #f8fafc;
         }
+
+
+        .no-column {
+
+            width: 45px;
+        }
+
+
+        .nama-column {
+
+            width: 38%;
+
+            text-align: left;
+        }
+
 
         .kelas-column {
-            width: 80px;
+
+            width: 85px;
         }
 
+
         .status-column {
+
             width: 60px;
         }
 
+
         .percentage-column {
+
             width: 90px;
         }
 
+
+        .student-name {
+
+            text-align: left;
+
+            font-weight: 600;
+        }
+
+
+        .status {
+
+            font-weight: 700;
+        }
+
+
+        .percentage {
+
+            font-weight: 700;
+        }
+
+
+
+        /* =====================================================
+           KETERANGAN
+        ====================================================== */
+
         .legend {
+
             margin-top: 10px;
-            padding: 6px 8px;
+
+            padding: 7px 10px;
+
+            border: 1px solid #94a3b8;
+
+            background: #f8fafc;
+
             font-size: 9px;
         }
 
+
+        .legend-title {
+
+            margin-bottom: 4px;
+
+            font-weight: 700;
+        }
+
+
+        .legend span {
+
+            margin-right: 18px;
+        }
+
+
+
+        /* =====================================================
+           TANDA TANGAN
+        ====================================================== */
+
         .signature-wrapper {
+
+            display: flex;
+
+            justify-content: flex-end;
+
             margin-top: 25px;
         }
 
-        tr {
-            page-break-inside: avoid;
+
+        .signature {
+
+            width: 240px;
+
+            text-align: center;
+
+            font-size: 10px;
         }
 
-        thead {
-            display: table-header-group;
+
+        .signature p {
+
+            margin: 3px 0;
         }
-    }
-</style>
+
+
+        .signature-date {
+
+            margin-bottom: 8px;
+        }
+
+
+        .signature-space {
+
+            height: 40px;
+        }
+
+
+        .signature-name {
+
+            font-weight: 700;
+
+            text-decoration: underline;
+        }
+
+
+
+        /* =====================================================
+           DATA KOSONG
+        ====================================================== */
+
+        .empty-data {
+
+            padding: 25px !important;
+
+            color: #64748b;
+
+            font-style: italic;
+        }
+
+
+
+        /* =====================================================
+           PRINT
+        ====================================================== */
+
+        @media print {
+
+            body {
+
+                padding: 0;
+
+                margin: 0;
+
+                background: white;
+
+                font-size: 10px;
+            }
+
+
+            .print-container {
+
+                max-width: none;
+
+                padding: 0;
+
+                margin: 0;
+            }
+
+
+            .print-actions {
+
+                display: none !important;
+            }
+
+
+            .rapot-header {
+
+                min-height: 90px;
+            }
+
+
+            .rapot-logo {
+
+                width: 95px;
+            }
+
+
+            .rapot-logo img {
+
+                width: 75px;
+
+                height: 75px;
+            }
+
+
+            .rapot-header-text {
+
+                padding-right: 95px;
+            }
+
+
+            .pondok-name {
+
+                font-size: 15px;
+            }
+
+
+            .madrasah-name {
+
+                font-size: 13px;
+            }
+
+
+            .address {
+
+                font-size: 9px;
+            }
+
+
+            .contact {
+
+                font-size: 8px;
+            }
+
+
+            .rapot-line {
+
+                margin-top: 5px;
+
+                margin-bottom: 12px;
+            }
+
+
+            .document-title {
+
+                margin-bottom: 12px;
+            }
+
+
+            .document-title h1 {
+
+                font-size: 17px;
+            }
+
+
+            .document-title h2 {
+
+                font-size: 12px;
+            }
+
+
+            .document-title p {
+
+                font-size: 9px;
+            }
+
+
+            .info-box {
+
+                margin-bottom: 10px;
+
+                padding: 6px 8px;
+            }
+
+
+            .info-label {
+
+                font-size: 8px;
+            }
+
+
+            .info-value {
+
+                font-size: 9px;
+            }
+
+
+            .summary {
+
+                margin-bottom: 10px;
+            }
+
+
+            .summary-item {
+
+                padding: 5px;
+            }
+
+
+            .summary-label {
+
+                font-size: 8px;
+            }
+
+
+            .summary-value {
+
+                font-size: 12px;
+            }
+
+
+            th,
+            td {
+
+                padding: 5px 4px;
+
+                border-color: #1e293b;
+            }
+
+
+            thead th {
+
+                font-size: 9px;
+            }
+
+
+            tbody td {
+
+                font-size: 9px;
+
+                height: 24px;
+            }
+
+
+            .legend {
+
+                margin-top: 8px;
+
+                padding: 5px 7px;
+
+                font-size: 8px;
+            }
+
+
+            .signature-wrapper {
+
+                margin-top: 20px;
+            }
+
+
+            .signature {
+
+                font-size: 9px;
+            }
+
+
+            .signature-space {
+
+                height: 35px;
+            }
+
+
+            tr {
+
+                page-break-inside: avoid;
+            }
+
+
+            thead {
+
+                display: table-header-group;
+            }
+
+        }
+
+    </style>
 
 </head>
 
+
 <body>
+
 
 <div class="print-container">
 
-<!-- =========================
-     TOMBOL
-========================= -->
 
-<div class="print-actions">
+    <!-- =====================================================
+         TOMBOL
+    ====================================================== -->
 
-    <button
-        type="button"
-        class="print-button"
-        onclick="window.print()"
-    >
-        🖨️ Cetak
-    </button>
+    <div class="print-actions">
 
-    <button
-        type="button"
-        class="back-button"
-        onclick="window.close()"
-    >
-        ✕ Tutup
-    </button>
-
-</div>
+        <button
+            type="button"
+            class="print-button"
+            onclick="window.print()"
+        >
+            🖨️ Cetak
+        </button>
 
 
-<!-- =========================
-     HEADER
-========================= -->
-
-<div class="header">
-
-    <h1>
-        Rekap Absensi Siswa
-    </h1>
-
-    <h2>
-        {% if nama_bulan %}
-            {{ nama_bulan }}
-        {% else %}
-            Rekap Kehadiran Siswa
-        {% endif %}
-    </h2>
-
-    <p>
-        Laporan Rekap Kehadiran Siswa
-    </p>
-
-</div>
-
-
-<!-- =========================
-     INFORMASI
-========================= -->
-
-<div class="info-box">
-
-    <div class="info-item">
-
-        <span class="info-label">
-            Periode
-        </span>
-
-        <span class="info-value">
-
-            {{ tanggal_mulai|date:"d F Y" }}
-
-            &nbsp;–&nbsp;
-
-            {{ tanggal_sampai|date:"d F Y" }}
-
-        </span>
+        <button
+            type="button"
+            class="back-button"
+            onclick="window.close()"
+        >
+            ✕ Tutup
+        </button>
 
     </div>
 
 
-    <div class="info-item">
 
-        <span class="info-label">
-            Kelas
-        </span>
+    <!-- =====================================================
+         KOP MADRASAH
+    ====================================================== -->
 
-        <span class="info-value">
+    <div class="rapot-header">
 
-            {% if kelas_obj %}
-                {{ kelas_obj.nama }}
+
+        <div class="rapot-logo">
+
+            <img
+                src="{% static 'students/logo-madin.jpeg' %}"
+                alt="Logo Madrasah"
+            >
+
+        </div>
+
+
+        <div class="rapot-header-text">
+
+
+            <div class="pondok-name">
+
+                PONDOK PESANTREN KEDUNGLO
+                AL MUNADHHDHOROH
+
+            </div>
+
+
+            <div class="madrasah-name">
+
+                MADRASAH DINIYAH TAKMILIYAH
+                ‘ULYA WAHIDIYAH
+
+            </div>
+
+
+            <div class="address">
+
+                Jl. KH. Wahid Hasyim Bandar Lor
+                Kecamatan Mojoroto Kota Kediri
+                Jawa Timur
+
+            </div>
+
+
+            <div class="contact">
+
+                Telp. (0354) 771018 - 774511
+                Kode Pos 64114
+
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    <div class="rapot-line"></div>
+
+
+
+    <!-- =====================================================
+         JUDUL DOKUMEN
+    ====================================================== -->
+
+    <div class="document-title">
+
+
+        <h1>
+
+            REKAP ABSENSI SISWA
+
+        </h1>
+
+
+        <h2>
+
+            {% if nama_bulan %}
+
+                {{ nama_bulan }}
+
             {% else %}
-                Semua Kelas
+
+                Rekap Kehadiran Siswa
+
             {% endif %}
 
-        </span>
+        </h2>
+
+
+        <p>
+
+            Laporan Rekap Kehadiran Siswa
+
+        </p>
+
 
     </div>
 
 
-    <div class="info-item">
 
-        <span class="info-label">
-            Jumlah Hari
-        </span>
+    <!-- =====================================================
+         INFORMASI
+    ====================================================== -->
 
-        <span class="info-value">
-            {{ jumlah_hari }} Hari
-        </span>
+    <div class="info-box">
+
+
+        <div class="info-item">
+
+            <span class="info-label">
+                Periode
+            </span>
+
+
+            <span class="info-value">
+
+                {{ tanggal_mulai|date:"d F Y" }}
+
+                &nbsp;–&nbsp;
+
+                {{ tanggal_sampai|date:"d F Y" }}
+
+            </span>
+
+        </div>
+
+
+
+        <div class="info-item">
+
+            <span class="info-label">
+                Kelas
+            </span>
+
+
+            <span class="info-value">
+
+                {% if kelas_obj %}
+
+                    {{ kelas_obj.nama }}
+
+                {% else %}
+
+                    Semua Kelas
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+
+
+        <div class="info-item">
+
+            <span class="info-label">
+                Jumlah Hari
+            </span>
+
+
+            <span class="info-value">
+
+                {{ jumlah_hari }} Hari
+
+            </span>
+
+        </div>
+
 
     </div>
 
-</div>
 
 
-<!-- =========================
-     RINGKASAN
-========================= -->
+    <!-- =====================================================
+         RINGKASAN
+    ====================================================== -->
 
-<div class="summary">
+    <div class="summary">
 
-    <div class="summary-item">
 
-        <span class="summary-label">
-            Hadir
-        </span>
+        <div class="summary-item">
 
-        <span class="summary-value">
-            {{ total_hadir }}
-        </span>
+            <span class="summary-label">
+                Hadir
+            </span>
+
+            <span class="summary-value">
+                {{ total_hadir }}
+            </span>
+
+        </div>
+
+
+
+        <div class="summary-item">
+
+            <span class="summary-label">
+                Alpa
+            </span>
+
+            <span class="summary-value">
+                {{ total_alpa }}
+            </span>
+
+        </div>
+
+
+
+        <div class="summary-item">
+
+            <span class="summary-label">
+                Izin
+            </span>
+
+            <span class="summary-value">
+                {{ total_izin }}
+            </span>
+
+        </div>
+
+
+
+        <div class="summary-item">
+
+            <span class="summary-label">
+                Sakit
+            </span>
+
+            <span class="summary-value">
+                {{ total_sakit }}
+            </span>
+
+        </div>
+
+
+
+        <div class="summary-item">
+
+            <span class="summary-label">
+                Kehadiran
+            </span>
+
+            <span class="summary-value">
+                {{ persentase_kehadiran }}%
+            </span>
+
+        </div>
+
 
     </div>
 
 
-    <div class="summary-item">
 
-        <span class="summary-label">
-            Alpa
-        </span>
+    <!-- =====================================================
+         TABEL REKAP
+    ====================================================== -->
 
-        <span class="summary-value">
-            {{ total_alpa }}
-        </span>
-
-    </div>
+    <div class="table-wrapper">
 
 
-    <div class="summary-item">
-
-        <span class="summary-label">
-            Izin
-        </span>
-
-        <span class="summary-value">
-            {{ total_izin }}
-        </span>
-
-    </div>
+        <table>
 
 
-    <div class="summary-item">
-
-        <span class="summary-label">
-            Sakit
-        </span>
-
-        <span class="summary-value">
-            {{ total_sakit }}
-        </span>
-
-    </div>
-
-
-    <div class="summary-item">
-
-        <span class="summary-label">
-            Kehadiran
-        </span>
-
-        <span class="summary-value">
-            {{ persentase_kehadiran }}%
-        </span>
-
-    </div>
-
-</div>
-
-
-<!-- =========================
-     TABEL REKAP
-     NO | NAMA | KELAS | H | A | I | S | PERSENTASE
-========================= -->
-
-<div class="table-wrapper">
-
-    <table>
-
-        <thead>
-
-            <tr>
-
-                <th class="no-column">
-                    No
-                </th>
-
-                <th class="nama-column">
-                    Nama
-                </th>
-
-                <th class="kelas-column">
-                    Kelas
-                </th>
-
-                <th class="status-column">
-                    H
-                </th>
-
-                <th class="status-column">
-                    A
-                </th>
-
-                <th class="status-column">
-                    I
-                </th>
-
-                <th class="status-column">
-                    S
-                </th>
-
-                <th class="percentage-column">
-                    Persentase
-                </th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            {% for data in rekap_bulanan_siswa %}
+            <thead>
 
                 <tr>
 
-                    <!-- NO -->
-
-                    <td>
-                        {{ forloop.counter }}
-                    </td>
+                    <th class="no-column">
+                        No
+                    </th>
 
 
-                    <!-- NAMA -->
-
-                    <td class="student-name">
-                        {{ data.student.nama }}
-                    </td>
+                    <th class="nama-column">
+                        Nama
+                    </th>
 
 
-                    <!-- KELAS -->
-
-                    <td>
-
-                        {% if data.student.kelas %}
-                            {{ data.student.kelas.nama }}
-                        {% else %}
-                            -
-                        {% endif %}
-
-                    </td>
+                    <th class="kelas-column">
+                        Kelas
+                    </th>
 
 
-                    <!-- HADIR -->
-
-                    <td class="status">
-                        {{ data.hadir }}
-                    </td>
+                    <th class="status-column">
+                        H
+                    </th>
 
 
-                    <!-- ALPA -->
-
-                    <td class="status">
-                        {{ data.alpa }}
-                    </td>
+                    <th class="status-column">
+                        A
+                    </th>
 
 
-                    <!-- IZIN -->
-
-                    <td class="status">
-                        {{ data.izin }}
-                    </td>
+                    <th class="status-column">
+                        I
+                    </th>
 
 
-                    <!-- SAKIT -->
-
-                    <td class="status">
-                        {{ data.sakit }}
-                    </td>
+                    <th class="status-column">
+                        S
+                    </th>
 
 
-                    <!-- PERSENTASE -->
-
-                    <td class="percentage">
-                        {{ data.persentase }}%
-                    </td>
+                    <th class="percentage-column">
+                        Persentase
+                    </th>
 
                 </tr>
 
-            {% empty %}
-
-                <tr>
-
-                    <td
-                        colspan="8"
-                        class="empty-data"
-                    >
-                        Tidak ada data siswa untuk ditampilkan.
-                    </td>
-
-                </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-</div>
+            </thead>
 
 
-<!-- =========================
-     KETERANGAN
-========================= -->
 
-<div class="legend">
+            <tbody>
 
-    <div class="legend-title">
-        Keterangan:
+
+                {% for data in rekap_bulanan_siswa %}
+
+
+                    <tr>
+
+
+                        <td>
+
+                            {{ forloop.counter }}
+
+                        </td>
+
+
+
+                        <td class="student-name">
+
+                            {{ data.student.nama }}
+
+                        </td>
+
+
+
+                        <td>
+
+                            {% if data.student.kelas %}
+
+                                {{ data.student.kelas.nama }}
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+
+
+                        <td class="status">
+
+                            {{ data.hadir }}
+
+                        </td>
+
+
+
+                        <td class="status">
+
+                            {{ data.alpa }}
+
+                        </td>
+
+
+
+                        <td class="status">
+
+                            {{ data.izin }}
+
+                        </td>
+
+
+
+                        <td class="status">
+
+                            {{ data.sakit }}
+
+                        </td>
+
+
+
+                        <td class="percentage">
+
+                            {{ data.persentase }}%
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% empty %}
+
+
+                    <tr>
+
+                        <td
+                            colspan="8"
+                            class="empty-data"
+                        >
+
+                            Tidak ada data siswa untuk ditampilkan.
+
+                        </td>
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+
     </div>
 
-    <span>
-        <strong>H</strong> = Hadir
-    </span>
-
-    <span>
-        <strong>A</strong> = Alpa
-    </span>
-
-    <span>
-        <strong>I</strong> = Izin
-    </span>
-
-    <span>
-        <strong>S</strong> = Sakit
-    </span>
-
-</div>
 
 
-<!-- =========================
-     TANDA TANGAN
-========================= -->
+    <!-- =====================================================
+         KETERANGAN
+    ====================================================== -->
 
-<div class="signature-wrapper">
+    <div class="legend">
 
-    <div class="signature">
 
-                <p>
-                    Kediri,
-                    {% now "d F Y" %}
-                </p>
+        <div class="legend-title">
 
-                <p>
-                    Mengetahui,
-                </p>
+            Keterangan:
 
-                <p>
-                    Kepala Madrasah
-                </p>
+        </div>
 
-                <br>
 
-                </br>
+        <span>
+            <strong>H</strong> = Hadir
+        </span>
 
-                <div class="signature-space"></div>
 
-                <strong>
-                    Nur Wachid, M.Pd
-                </strong>
+        <span>
+            <strong>A</strong> = Alpa
+        </span>
+
+
+        <span>
+            <strong>I</strong> = Izin
+        </span>
+
+
+        <span>
+            <strong>S</strong> = Sakit
+        </span>
+
 
     </div>
 
-</div>
+
+
+    <!-- =====================================================
+         TANDA TANGAN
+    ====================================================== -->
+
+    <div class="signature-wrapper">
+
+
+        <div class="signature">
+
+
+            <p>
+
+                Kediri,
+                {% now "d F Y" %}
+
+            </p>
+
+
+            <p>
+
+                Mengetahui,
+
+            </p>
+
+
+            <p>
+
+                Kepala Madrasah
+
+            </p>
+
+
+            <div class="signature-space"></div>
+
+
+            <strong class="signature-name">
+
+                Nur Wachid, M.Pd
+
+            </strong>
+
+
+        </div>
+
+
+    </div>
+
 
 </div>
+
 
 </body>
+
 </html>
