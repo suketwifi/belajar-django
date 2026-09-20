@@ -1,0 +1,265 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+
+Pilih Tahun Ajaran
+
+{% endblock %}
+
+{% block content %}
+
+<div class="tahun-ajaran-page">
+
+
+<div class="tahun-ajaran-card">
+
+    <div class="tahun-ajaran-header">
+
+        <h1>Pilih Tahun Ajaran</h1>
+
+        <p>
+            Pilih tahun ajaran yang akan digunakan
+            pada sistem.
+        </p>
+
+    </div>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <div class="tahun-ajaran-list">
+
+            {% for tahun in tahun_ajarans %}
+
+            <label class="tahun-ajaran-option">
+
+                <input
+                    type="radio"
+                    name="tahun_ajaran_id"
+                    value="{{ tahun.id }}"
+                    {% if tahun_ajaran_aktif %}
+                        {% if tahun.id == tahun_ajaran_aktif.id %}
+                            checked
+                        {% endif %}
+                    {% endif %}
+                    required
+                >
+
+                <div class="tahun-ajaran-option-content">
+
+                    <div class="tahun-ajaran-name">
+                        {{ tahun.nama }}
+                    </div>
+
+                    {% if tahun.aktif %}
+
+                    <span class="tahun-ajaran-status">
+                        Tahun Aktif
+                    </span>
+
+                    {% endif %}
+
+                </div>
+
+            </label>
+
+            {% empty %}
+
+            <div class="tahun-ajaran-empty">
+                Belum ada data tahun ajaran.
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="tahun-ajaran-actions">
+
+            <a
+                href="{% url 'dashboard' %}"
+                class="btn-batal-tahun"
+            >
+                Batal
+            </a>
+
+            <button
+                type="submit"
+                class="btn-simpan-tahun"
+            >
+                Gunakan Tahun Ajaran
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+</div>
+
+<style>
+
+.tahun-ajaran-page {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 30px 20px;
+}
+
+.tahun-ajaran-card {
+    width: 100%;
+    max-width: 650px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow:
+        0 8px 25px
+        rgba(15, 23, 42, 0.08);
+}
+
+.tahun-ajaran-header {
+    margin-bottom: 24px;
+}
+
+.tahun-ajaran-header h1 {
+    margin: 0 0 6px;
+    font-size: 24px;
+    color: #1e293b;
+}
+
+.tahun-ajaran-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+.tahun-ajaran-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tahun-ajaran-option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.tahun-ajaran-option:hover {
+    border-color: #2563eb;
+    background: #f8fafc;
+}
+
+.tahun-ajaran-option input {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.tahun-ajaran-option-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+}
+
+.tahun-ajaran-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.tahun-ajaran-status {
+    padding: 4px 9px;
+    border-radius: 20px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.tahun-ajaran-empty {
+    padding: 25px;
+    text-align: center;
+    color: #64748b;
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+.tahun-ajaran-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.btn-batal-tahun,
+.btn-simpan-tahun {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.btn-batal-tahun {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.btn-batal-tahun:hover {
+    background: #e2e8f0;
+}
+
+.btn-simpan-tahun {
+    border: none;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn-simpan-tahun:hover {
+    background: #1d4ed8;
+}
+
+@media (max-width: 600px) {
+
+    .tahun-ajaran-page {
+        padding: 15px 10px;
+    }
+
+    .tahun-ajaran-card {
+        padding: 20px;
+    }
+
+    .tahun-ajaran-option-content {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .tahun-ajaran-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-batal-tahun,
+    .btn-simpan-tahun {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+{% endblock %}

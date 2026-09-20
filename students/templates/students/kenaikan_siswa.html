@@ -1,0 +1,402 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Kenaikan Siswa
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+
+
+<div>
+
+    <h1>Kenaikan Siswa</h1>
+
+    <p>
+        Kelola kenaikan siswa ke tahun ajaran dan kelas berikutnya.
+    </p>
+
+</div>
+
+
+</div>
+
+<!-- =========================================================
+     FILTER SISWA
+========================================================= -->
+
+<form method="get" class="student-filter">
+
+
+<div class="filter-item">
+
+    <label>
+        Tahun Ajaran
+    </label>
+
+    <select name="tahun_ajaran">
+
+        <option value="">
+            Semua Tahun Ajaran
+        </option>
+
+        {% for tahun in tahun_ajarans %}
+
+            <option
+                value="{{ tahun.id }}"
+                {% if tahun_id == tahun.id|stringformat:"s" %}
+                    selected
+                {% endif %}
+            >
+
+                {{ tahun.nama }}
+
+            </option>
+
+        {% endfor %}
+
+    </select>
+
+</div>
+
+
+<div class="filter-item">
+
+    <label>
+        Kelas
+    </label>
+
+    <select name="kelas">
+
+        <option value="">
+            Semua Kelas
+        </option>
+
+        {% for kelas in kelass %}
+
+            <option
+                value="{{ kelas.id }}"
+                {% if kelas_id == kelas.id|stringformat:"s" %}
+                    selected
+                {% endif %}
+            >
+
+                {{ kelas.nama }}
+
+            </option>
+
+        {% endfor %}
+
+    </select>
+
+</div>
+
+
+<div class="filter-buttons">
+
+    <button
+        type="submit"
+        class="btn-filter"
+    >
+        Tampilkan
+    </button>
+
+    <a
+        href="{% url 'kenaikan_siswa' %}"
+        class="btn-reset"
+    >
+        Reset
+    </a>
+
+</div>
+
+
+</form>
+
+<!-- =========================================================
+     PROSES KENAIKAN
+========================================================= -->
+
+<form method="post">
+
+
+{% csrf_token %}
+
+<div class="table-card">
+
+    <div class="table-header">
+
+        <div>
+
+            <h2>
+                Daftar Siswa
+            </h2>
+
+        </div>
+
+    </div>
+
+
+    <!-- TAHUN TUJUAN -->
+
+    <div
+        class="filter-item"
+        style="margin-bottom: 20px;"
+    >
+
+        <label>
+            Tahun Ajaran Tujuan
+        </label>
+
+        <select
+            name="tahun_tujuan"
+            required
+            style="
+                width: auto;
+                min-width: 180px;
+            "
+        >
+
+            <option value="">
+                Pilih Tahun Ajaran Tujuan
+            </option>
+
+            {% for tahun in tahun_ajarans %}
+
+                <option value="{{ tahun.id }}">
+
+                    {{ tahun.nama }}
+
+                </option>
+
+            {% endfor %}
+
+        </select>
+
+    </div>
+
+
+    <!-- TABEL -->
+
+    <div class="table-container">
+
+        <table class="student-table">
+
+            <thead>
+
+                <tr>
+
+                    <th style="width: 45px;">
+
+                        <input
+                            type="checkbox"
+                            id="checkAll"
+                        >
+
+                    </th>
+
+                    <th style="width: 60px;">
+                        No
+                    </th>
+
+                    <th>
+                        NIM
+                    </th>
+
+                    <th>
+                        Nama Siswa
+                    </th>
+
+                    <th>
+                        Kelas Sekarang
+                    </th>
+
+                    <th>
+                        Kelas Tujuan
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for student in siswa %}
+
+                <tr>
+
+                    <td>
+
+                        <input
+                            type="checkbox"
+                            name="students"
+                            value="{{ student.id }}"
+                            class="student-checkbox"
+                        >
+
+                    </td>
+
+
+                    <td>
+
+                        {{ forloop.counter }}
+
+                    </td>
+
+
+                    <td>
+
+                        {{ student.nim }}
+
+                    </td>
+
+
+                    <td>
+
+                        <strong>
+                            {{ student.nama }}
+                        </strong>
+
+                    </td>
+
+
+                    <td>
+
+                        {% if student.kelas %}
+
+                            <span class="class-badge">
+
+                                {{ student.kelas.nama }}
+
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-muted">
+
+                                -
+
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <select
+                            name="kelas_tujuan_{{ student.id }}"
+                            style="
+                                width: auto;
+                                min-width: 120px;
+                                height: 38px;
+                                padding: 0 10px;
+                                border: 1px solid #cbd5e1;
+                                border-radius: 8px;
+                                background: #ffffff;
+                                color: #1e293b;
+                                font-size: 13px;
+                            "
+                        >
+
+                            <option value="">
+                                Pilih Kelas
+                            </option>
+
+                            {% for kelas in kelass %}
+
+                                <option value="{{ kelas.id }}">
+
+                                    {{ kelas.nama }}
+
+                                </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="empty"
+                    >
+
+                        Belum ada siswa.
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- TOMBOL PROSES -->
+
+    <div
+        style="
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+        "
+    >
+
+        <button
+            type="submit"
+            class="btn-add"
+        >
+
+            Proses Kenaikan
+
+        </button>
+
+    </div>
+
+</div>
+
+
+</form>
+
+<script>
+
+const checkAll =
+    document.getElementById("checkAll");
+
+if (checkAll) {
+
+    checkAll.addEventListener(
+        "change",
+        function () {
+
+            document
+                .querySelectorAll(".student-checkbox")
+                .forEach(function (checkbox) {
+
+                    checkbox.checked =
+                        checkAll.checked;
+
+                });
+
+        }
+    );
+
+}
+
+</script>
+
+{% endblock %}

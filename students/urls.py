@@ -29,7 +29,6 @@ urlpatterns = [
         name='logout'
     ),
 
-
     # =====================================================
     # DASHBOARD
     # =====================================================
@@ -40,6 +39,11 @@ urlpatterns = [
         name='dashboard'
     ),
 
+    path(
+        'tahun-ajaran/pilih/',
+        views.pilih_tahun_ajaran,
+        name='pilih_tahun_ajaran'
+    ),
 
     # =====================================================
     # DATA SISWA
@@ -70,9 +74,9 @@ urlpatterns = [
     ),
 
     path(
-    'students/download-format/',
-    login_required(views.download_format_siswa),
-    name='download_format_siswa'
+        'students/download-format/',
+        login_required(views.download_format_siswa),
+        name='download_format_siswa'
     ),
 
     path(
@@ -93,15 +97,20 @@ urlpatterns = [
         name='student_delete'
     ),
 
+    path(
+        'students/<int:id>/histori/<int:riwayat_id>/delete/',
+        login_required(views.hapus_histori_pendidikan),
+        name='hapus_histori_pendidikan'
+    ),
 
     # =====================================================
-    # ABSENSI
+    # PRESENSI SISWA
     # =====================================================
 
     path(
-    'presensi-siswa/',
-    views.absensi,
-    name='presensi_siswa'
+        'presensi-siswa/',
+        views.absensi,
+        name='presensi_siswa'
     ),
 
     path(
@@ -116,7 +125,6 @@ urlpatterns = [
         name='cetak_rekap_absensi'
     ),
 
-
     # =====================================================
     # KELAS
     # =====================================================
@@ -126,19 +134,6 @@ urlpatterns = [
         login_required(views.data_kelas),
         name='data_kelas'
     ),
-
-    path(
-        'kelas/tambah/',
-        login_required(views.tambah_kelas),
-        name='tambah_kelas'
-    ),
-
-    path(
-        'kelas/<int:id>/edit/',
-        login_required(views.edit_kelas),
-        name='edit_kelas'
-    ),
-
 
     # =====================================================
     # MATA PELAJARAN
@@ -162,6 +157,11 @@ urlpatterns = [
         name='edit_mata_pelajaran'
     ),
 
+    path(
+        'mata-pelajaran/salin/',
+        login_required(views.salin_mata_pelajaran),
+        name='salin_mata_pelajaran'
+    ),
 
     # =====================================================
     # PENILAIAN
@@ -172,7 +172,6 @@ urlpatterns = [
         login_required(views.penilaian),
         name='penilaian'
     ),
-
 
     # =====================================================
     # RAPOT
@@ -185,49 +184,60 @@ urlpatterns = [
     ),
 
     path(
-    'rapot/cetak/<int:id>/',
-    login_required(views.cetak_rapot_siswa),
-    name='cetak_rapot_siswa'
+        'rapot/cetak/<int:id>/',
+        login_required(views.cetak_rapot_siswa),
+        name='cetak_rapot_siswa'
     ),
+
+    # =====================================================
+    # DATA GURU
+    # =====================================================
 
     path(
-    'guru/',
-    views.data_guru,
-    name='data_guru'
+        'guru/',
+        login_required(views.data_guru),
+        name='data_guru'
     ),
 
-    path(
-        'guru/tambah/',
-        views.tambah_guru,
-        name='tambah_guru'
-    ),
-
-    path(
-        'guru/<int:id>/edit/',
-        views.edit_guru,
-        name='edit_guru'
-    ),
-
-    # =========================================================
+    # =====================================================
     # PRESENSI GURU
-    # =========================================================
+    # =====================================================
 
     path(
         'presensi-guru/',
-        views.presensi_guru,
+        login_required(views.presensi_guru),
         name='presensi_guru'
     ),
 
     path(
         'presensi-guru/rekap/',
-        views.rekap_presensi_guru,
+        login_required(views.rekap_presensi_guru),
         name='rekap_presensi_guru'
     ),
 
     path(
         'presensi-guru/rekap/cetak/',
-        views.cetak_rekap_presensi_guru,
+        login_required(views.cetak_rekap_presensi_guru),
         name='cetak_rekap_presensi_guru'
     ),
 
+    # =====================================================
+    # KENAIKAN SISWA
+    # =====================================================
+
+    path(
+        'kenaikan-siswa/',
+        login_required(views.kenaikan_siswa),
+        name='kenaikan_siswa'
+    ),
+
+    # =====================================================
+    # TAHUN AJARAN
+    # =====================================================
+
+    path(
+        'tahun-ajaran/',
+        login_required(views.tahun_ajaran),
+        name='tahun_ajaran'
+    ),
 ]

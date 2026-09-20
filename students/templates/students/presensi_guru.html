@@ -1,409 +1,162 @@
 {% extends "students/base.html" %}
 
 {% block title %}
+
 Input Presensi Guru
+
 {% endblock %}
 
 {% block content %}
 
 {% if messages %}
+
 <div class="popup-container">
 
-    {% for message in messages %}
 
-        {% if 'presensi_guru' in message.tags %}
+{% for message in messages %}
 
-        <div class="popup-notification">
+    {% if 'presensi_guru' in message.tags %}
 
-            <div class="popup-icon">
-                ✓
-            </div>
+    <div class="popup-notification">
 
-            <div class="popup-content">
+        <div class="popup-icon">
+            ✓
+        </div>
 
-                <strong>
-                    Presensi Berhasil
-                </strong>
+        <div class="popup-content">
 
-                <span>
-                    {{ message }}
-                </span>
+            <strong>
+                Presensi Berhasil
+            </strong>
 
-            </div>
+            <span>
+                {{ message }}
+            </span>
+
+        </div>
+
+        <button
+            type="button"
+            class="popup-close"
+            onclick="closePopup(this)"
+            aria-label="Tutup"
+        >
+            ×
+        </button>
+
+    </div>
+
+    {% endif %}
+
+{% endfor %}
+
+
+</div>
+
+{% endif %}
+
+<div class="presensi-guru-page">
+
+
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Input Presensi Guru
+        </h1>
+
+        <p>
+            Catat kehadiran guru
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     FILTER TANGGAL
+     ===================================================== -->
+
+<div class="presensi-filter-card">
+
+    <form
+        method="get"
+        class="presensi-filter-form"
+    >
+
+        <div class="presensi-filter-group">
+
+            <label for="tanggal">
+                Tanggal Presensi
+            </label>
+
+            <input
+                type="date"
+                name="tanggal"
+                id="tanggal"
+                value="{{ tanggal }}"
+                required
+            >
+
+        </div>
+
+
+        <div class="presensi-filter-button">
 
             <button
-                type="button"
-                class="popup-close"
-                onclick="closePopup(this)"
-                aria-label="Tutup"
+                type="submit"
+                class="btn-tampilkan-presensi"
             >
-                ×
+                Tampilkan
             </button>
 
         </div>
 
-        {% endif %}
-
-    {% endfor %}
+    </form>
 
 </div>
-{% endif %}
 
 
-<div class="presensi-guru-page">
+<!-- =====================================================
+     FORM PRESENSI GURU
+     ===================================================== -->
 
-    <!-- =====================================================
-         HEADER
-         ===================================================== -->
+<form method="post">
 
-    <div class="page-header">
+    {% csrf_token %}
 
-        <div>
+    <input
+        type="hidden"
+        name="tanggal"
+        value="{{ tanggal }}"
+    >
 
-            <h1>
-                Input Presensi Guru
-            </h1>
 
-            <p>
-                Catat kehadiran guru
-            </p>
+    <div class="presensi-guru-card">
 
-        </div>
 
-    </div>
+        <!-- =================================================
+             HEADER CARD
+             ================================================= -->
 
+        <div class="presensi-guru-card-header">
 
-    <!-- =====================================================
-         FILTER TANGGAL
-         ===================================================== -->
+            <div class="presensi-guru-title">
 
-    <div class="presensi-filter-card">
+                <h2>
+                    Daftar Guru
+                </h2>
 
-        <form
-            method="get"
-            class="presensi-filter-form"
-        >
 
-            <div class="presensi-filter-group">
+                <p class="tanggal-data">
 
-                <label for="tanggal">
-                    Tanggal Presensi
-                </label>
-
-                <input
-                    type="date"
-                    name="tanggal"
-                    id="tanggal"
-                    value="{{ tanggal }}"
-                    required
-                >
-
-            </div>
-
-
-            <div class="presensi-filter-button">
-
-                <button
-                    type="submit"
-                    class="btn-tampilkan-presensi"
-                >
-                    Tampilkan
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-
-    <!-- =====================================================
-         FORM PRESENSI GURU
-         ===================================================== -->
-
-    <form method="post">
-
-        {% csrf_token %}
-
-        <input
-            type="hidden"
-            name="tanggal"
-            value="{{ tanggal }}"
-        >
-
-
-        <div class="presensi-guru-card">
-
-
-            <!-- =================================================
-                 HEADER CARD
-                 ================================================= -->
-
-            <div class="presensi-guru-card-header">
-
-                <div class="presensi-guru-title">
-
-                    <h2>
-                        Daftar Guru
-                    </h2>
-
-
-                    <p class="tanggal-data">
-
-                        Data yang ditampilkan untuk tanggal
-
-                        <strong>
-
-                            {% if tanggal|slice:"5:7" == "01" %}
-                                {{ tanggal|slice:"8:10" }} Januari {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "02" %}
-                                {{ tanggal|slice:"8:10" }} Februari {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "03" %}
-                                {{ tanggal|slice:"8:10" }} Maret {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "04" %}
-                                {{ tanggal|slice:"8:10" }} April {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "05" %}
-                                {{ tanggal|slice:"8:10" }} Mei {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "06" %}
-                                {{ tanggal|slice:"8:10" }} Juni {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "07" %}
-                                {{ tanggal|slice:"8:10" }} Juli {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "08" %}
-                                {{ tanggal|slice:"8:10" }} Agustus {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "09" %}
-                                {{ tanggal|slice:"8:10" }} September {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "10" %}
-                                {{ tanggal|slice:"8:10" }} Oktober {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "11" %}
-                                {{ tanggal|slice:"8:10" }} November {{ tanggal|slice:"0:4" }}
-
-                            {% elif tanggal|slice:"5:7" == "12" %}
-                                {{ tanggal|slice:"8:10" }} Desember {{ tanggal|slice:"0:4" }}
-
-                            {% else %}
-                                {{ tanggal }}
-                            {% endif %}
-
-                        </strong>
-
-                    </p>
-
-
-                    <p class="jumlah-guru">
-
-                        {% if gurus %}
-                            {{ gurus|length }} guru
-                        {% else %}
-                            Belum ada guru
-                        {% endif %}
-
-                    </p>
-
-                </div>
-
-
-                <!-- =================================================
-                     GURU HADIR
-                     ================================================= -->
-
-                <div class="presensi-total">
-
-                    <span>
-                        Guru Hadir
-                    </span>
-
-                    <strong id="jumlah-guru-hadir">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 TABLE
-                 ================================================= -->
-
-            <div class="presensi-guru-table-wrapper">
-
-                <table class="presensi-guru-table">
-
-                    <thead>
-
-                        <tr>
-
-                            <th class="col-no">
-                                NO
-                            </th>
-
-                            <th class="col-nama">
-                                NAMA GURU
-                            </th>
-
-                            <th class="col-jk">
-                                JENIS KELAMIN
-                            </th>
-
-                            <th class="col-status">
-                                STATUS
-                            </th>
-
-                            <th class="col-keterangan">
-                                KETERANGAN
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        {% for guru in gurus %}
-
-                        <tr
-                            data-guru-id="{{ guru.id }}"
-                        >
-
-                            <td class="col-no">
-                                {{ forloop.counter }}
-                            </td>
-
-
-                            <td class="guru-name">
-                                {{ guru.nama }}
-                            </td>
-
-
-                            <td class="guru-jk">
-
-                                {% if guru.jenis_kelamin == 'L' %}
-
-                                    Laki-laki
-
-                                {% elif guru.jenis_kelamin == 'P' %}
-
-                                    Perempuan
-
-                                {% else %}
-
-                                    -
-
-                                {% endif %}
-
-                            </td>
-
-
-                            <td>
-
-                                <select
-                                    name="status_{{ guru.id }}"
-                                    class="status-select"
-                                    data-guru-id="{{ guru.id }}"
-                                >
-
-                                    <option
-                                        value="Alpa"
-                                        {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Alpa' %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        Alpa
-                                    </option>
-
-
-                                    <option
-                                        value="Hadir"
-                                        {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Hadir' %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        Hadir
-                                    </option>
-
-
-                                    <option
-                                        value="Izin"
-                                        {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Izin' %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        Izin
-                                    </option>
-
-
-                                    <option
-                                        value="Sakit"
-                                        {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Sakit' %}
-                                            selected
-                                        {% endif %}
-                                    >
-                                        Sakit
-                                    </option>
-
-                                </select>
-
-                            </td>
-
-
-                            <td>
-
-                                <input
-                                    type="text"
-                                    name="keterangan_{{ guru.id }}"
-                                    class="keterangan-input"
-                                    value="{% if guru.presensi_hari_ini %}{{ guru.presensi_hari_ini.keterangan }}{% endif %}"
-                                    placeholder="Keterangan..."
-                                >
-
-                            </td>
-
-                        </tr>
-
-                        {% empty %}
-
-                        <tr>
-
-                            <td
-                                colspan="5"
-                                class="presensi-empty"
-                            >
-                                Belum ada data guru.
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-            <!-- =================================================
-                 FOOTER
-                 ================================================= -->
-
-            {% if gurus %}
-
-            <div class="presensi-guru-footer">
-
-                <div class="presensi-info">
-
-                    Data presensi guru untuk
+                    Data yang ditampilkan untuk tanggal
 
                     <strong>
 
@@ -449,26 +202,275 @@ Input Presensi Guru
 
                     </strong>
 
-                </div>
+                </p>
 
 
-                <button
-                    type="submit"
-                    class="btn-simpan-presensi"
-                >
-                    Simpan Presensi
-                </button>
+                <p class="jumlah-guru">
+
+                    {% if gurus %}
+                        {{ gurus|length }} guru
+                    {% else %}
+                        Belum ada guru
+                    {% endif %}
+
+                </p>
 
             </div>
 
-            {% endif %}
+
+            <!-- =================================================
+                 GURU HADIR
+                 ================================================= -->
+
+            <div class="presensi-total">
+
+                <span>
+                    Guru Hadir
+                </span>
+
+                <strong id="jumlah-guru-hadir">
+                    0
+                </strong>
+
+            </div>
 
         </div>
 
-    </form>
+
+        <!-- =================================================
+             TABLE
+             ================================================= -->
+
+        <div class="presensi-guru-table-wrapper">
+
+            <table class="presensi-guru-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th class="col-no">
+                            NO
+                        </th>
+
+                        <th class="col-nama">
+                            NAMA GURU
+                        </th>
+
+                        <th class="col-jk">
+                            JENIS KELAMIN
+                        </th>
+
+                        <th class="col-status">
+                            STATUS
+                        </th>
+
+                        <th class="col-keterangan">
+                            KETERANGAN
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for guru in gurus %}
+
+                    <tr
+                        data-guru-id="{{ guru.id }}"
+                    >
+
+                        <td class="col-no">
+                            {{ forloop.counter }}
+                        </td>
+
+
+                        <td class="guru-name">
+                            {{ guru.nama }}
+                        </td>
+
+
+                        <td class="guru-jk">
+
+                            {% if guru.jenis_kelamin == 'L' %}
+                                Laki-laki
+
+                            {% elif guru.jenis_kelamin == 'P' %}
+                                Perempuan
+
+                            {% else %}
+                                -
+                            {% endif %}
+
+                        </td>
+
+
+                        <td>
+
+                            <select
+                                name="status_{{ guru.id }}"
+                                class="status-select"
+                                data-guru-id="{{ guru.id }}"
+                            >
+
+                                <option
+                                    value="Alpa"
+                                    {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Alpa' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Alpa
+                                </option>
+
+
+                                <option
+                                    value="Hadir"
+                                    {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Hadir' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Hadir
+                                </option>
+
+
+                                <option
+                                    value="Izin"
+                                    {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Izin' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Izin
+                                </option>
+
+
+                                <option
+                                    value="Sakit"
+                                    {% if guru.presensi_hari_ini and guru.presensi_hari_ini.status == 'Sakit' %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Sakit
+                                </option>
+
+                            </select>
+
+                        </td>
+
+
+                        <td>
+
+                            <input
+                                type="text"
+                                name="keterangan_{{ guru.id }}"
+                                class="keterangan-input"
+                                value="{% if guru.presensi_hari_ini %}{{ guru.presensi_hari_ini.keterangan }}{% endif %}"
+                                placeholder="Keterangan..."
+                            >
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="5"
+                            class="presensi-empty"
+                        >
+                            Belum ada data guru.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        <!-- =================================================
+             FOOTER
+             ================================================= -->
+
+        {% if gurus %}
+
+        <div class="presensi-guru-footer">
+
+            <div class="presensi-info">
+
+                Data presensi guru untuk
+
+                <strong>
+
+                    {% if tanggal|slice:"5:7" == "01" %}
+                        {{ tanggal|slice:"8:10" }} Januari {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "02" %}
+                        {{ tanggal|slice:"8:10" }} Februari {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "03" %}
+                        {{ tanggal|slice:"8:10" }} Maret {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "04" %}
+                        {{ tanggal|slice:"8:10" }} April {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "05" %}
+                        {{ tanggal|slice:"8:10" }} Mei {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "06" %}
+                        {{ tanggal|slice:"8:10" }} Juni {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "07" %}
+                        {{ tanggal|slice:"8:10" }} Juli {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "08" %}
+                        {{ tanggal|slice:"8:10" }} Agustus {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "09" %}
+                        {{ tanggal|slice:"8:10" }} September {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "10" %}
+                        {{ tanggal|slice:"8:10" }} Oktober {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "11" %}
+                        {{ tanggal|slice:"8:10" }} November {{ tanggal|slice:"0:4" }}
+
+                    {% elif tanggal|slice:"5:7" == "12" %}
+                        {{ tanggal|slice:"8:10" }} Desember {{ tanggal|slice:"0:4" }}
+
+                    {% else %}
+                        {{ tanggal }}
+                    {% endif %}
+
+                </strong>
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="btn-simpan-presensi"
+            >
+                Simpan Presensi
+            </button>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</form>
+
 
 </div>
-
 
 <!-- =========================================================
      CSS HALAMAN
@@ -1029,7 +1031,6 @@ Input Presensi Guru
 }
 
 </style>
-
 
 <!-- =========================================================
      JAVASCRIPT

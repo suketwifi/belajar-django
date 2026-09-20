@@ -6,25 +6,48 @@
 Penilaian Siswa
 {% endblock %}
 
-
 {% block content %}
 
 <div class="penilaian-page">
 
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
+```
+<!-- =====================================================
+     HEADER
+====================================================== -->
 
-    <div class="page-header penilaian-page-header">
+<div class="page-header penilaian-page-header">
+
+    <div>
+
+        <h1>
+            Penilaian Siswa
+        </h1>
+
+        <p>
+            Kelola nilai harian dan nilai ujian siswa
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     FILTER
+====================================================== -->
+
+<div class="penilaian-card filter-card">
+
+    <div class="penilaian-card-header">
 
         <div>
 
-            <h1>
-                Penilaian Siswa
-            </h1>
+            <h2>
+                Filter Penilaian
+            </h2>
 
             <p>
-                Kelola nilai harian dan nilai ujian siswa
+                Pilih tahun ajaran, kelas, dan cari siswa
             </p>
 
         </div>
@@ -32,526 +55,510 @@ Penilaian Siswa
     </div>
 
 
-    <!-- =====================================================
-         FILTER
-    ====================================================== -->
+    <form
+        method="get"
+        class="penilaian-filter"
+    >
 
-    <div class="penilaian-card filter-card">
+        <!-- TAHUN AJARAN -->
 
-        <div class="penilaian-card-header">
+        <div class="filter-group">
 
-            <div>
+            <label for="tahun_ajaran">
+                Tahun Ajaran
+            </label>
 
-                <h2>
-                    Filter Penilaian
-                </h2>
+            <select
+                name="tahun_ajaran"
+                id="tahun_ajaran"
+            >
 
-                <p>
-                    Pilih tahun ajaran, kelas, dan cari siswa
-                </p>
+                <option value="">
+                    -- Pilih Tahun Ajaran --
+                </option>
 
-            </div>
+                {% for tahun in tahun_ajarans %}
+
+                    <option
+                        value="{{ tahun.id }}"
+                        {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ tahun.nama }}
+
+                        {% if tahun.aktif %}
+                            (Aktif)
+                        {% endif %}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
 
         </div>
 
 
-        <form
-            method="get"
-            class="penilaian-filter"
-        >
+        <!-- KELAS -->
 
-            <!-- TAHUN AJARAN -->
+        <div class="filter-group">
 
-            <div class="filter-group">
+            <label for="kelas">
+                Kelas
+            </label>
 
-                <label for="tahun_ajaran">
-                    Tahun Ajaran
-                </label>
+            <select
+                name="kelas"
+                id="kelas"
+            >
 
-                <select
-                    name="tahun_ajaran"
-                    id="tahun_ajaran"
-                >
+                <option value="">
+                    -- Pilih Kelas --
+                </option>
 
-                    <option value="">
-                        -- Pilih Tahun Ajaran --
+                {% for kelas in kelass %}
+
+                    <option
+                        value="{{ kelas.id }}"
+                        {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ kelas.nama }}
                     </option>
 
-                    {% for tahun in tahun_ajarans %}
+                {% endfor %}
 
-                        <option
-                            value="{{ tahun.id }}"
-                            {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ tahun.nama }}
+            </select>
 
-                            {% if tahun.aktif %}
-                                (Aktif)
-                            {% endif %}
-
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
-            </div>
+        </div>
 
 
-            <!-- KELAS -->
+        <!-- PENCARIAN SISWA -->
 
-            <div class="filter-group">
+        <div class="filter-group">
 
-                <label for="kelas">
-                    Kelas
-                </label>
+            <label for="search">
+                Cari Siswa
+            </label>
 
-                <select
-                    name="kelas"
-                    id="kelas"
-                >
+            <input
+                type="text"
+                name="search"
+                id="search"
+                value="{{ search }}"
+                placeholder="Ketik nama atau NIM..."
+            >
 
-                    <option value="">
-                        -- Pilih Kelas --
-                    </option>
-
-                    {% for kelas in kelass %}
-
-                        <option
-                            value="{{ kelas.id }}"
-                            {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ kelas.nama }}
-                        </option>
-
-                    {% endfor %}
-
-                </select>
-
-            </div>
+        </div>
 
 
-            <!-- PENCARIAN SISWA -->
+        <!-- TOMBOL -->
 
-            <div class="filter-group">
+        <div class="filter-action">
 
-                <label for="search">
-                    Cari Siswa
-                </label>
+            <button
+                type="submit"
+                class="btn-filter"
+            >
+                Tampilkan
+            </button>
 
-                <input
-                    type="text"
-                    name="search"
-                    id="search"
-                    value="{{ search }}"
-                    placeholder="Ketik nama atau NIM..."
-                >
+            <a
+                href="{% url 'penilaian' %}"
+                class="btn-reset"
+            >
+                Reset
+            </a>
 
-            </div>
+        </div>
+
+    </form>
+
+</div>
 
 
-            <!-- TOMBOL -->
+<!-- =====================================================
+     INFORMASI
+====================================================== -->
 
-            <div class="filter-action">
+{% if tahun_ajaran_id and kelas_id %}
 
-                <button
-                    type="submit"
-                    class="btn-filter"
-                >
-                    Tampilkan
-                </button>
+    <div class="penilaian-info">
 
-                <a
-                    href="{% url 'penilaian' %}"
-                    class="btn-reset"
-                >
-                    Reset
-                </a>
+        <div class="info-check">
+            ✓
+        </div>
 
-            </div>
+        <div class="info-content">
 
-        </form>
+            <strong>
+                Data Penilaian
+            </strong>
+
+            <span>
+                Menampilkan siswa aktif dan mata pelajaran
+                yang berlaku untuk kelas yang dipilih.
+            </span>
+
+        </div>
 
     </div>
 
-
-    <!-- =====================================================
-         INFORMASI
-    ====================================================== -->
-
-    {% if tahun_ajaran_id and kelas_id %}
-
-        <div class="penilaian-info">
-
-            <div class="info-check">
-                ✓
-            </div>
-
-            <div class="info-content">
-
-                <strong>
-                    Data Penilaian
-                </strong>
-
-                <span>
-                    Menampilkan siswa aktif dan mata pelajaran
-                    yang berlaku untuk kelas yang dipilih.
-                </span>
-
-            </div>
-
-        </div>
-
-    {% endif %}
+{% endif %}
 
 
-    <!-- =====================================================
-         DATA PENILAIAN
-    ====================================================== -->
+<!-- =====================================================
+     DATA PENILAIAN
+====================================================== -->
 
-    {% if tahun_ajaran_id and kelas_id %}
+{% if tahun_ajaran_id and kelas_id %}
 
-        {% if students and mata_pelajarans %}
+    {% if students and mata_pelajarans %}
 
-            <form
-                method="post"
-                id="form-penilaian"
+        <form
+            method="post"
+            id="form-penilaian"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- FILTER TERSEMBUNYI -->
+
+            <input
+                type="hidden"
+                name="tahun_ajaran"
+                value="{{ tahun_ajaran_id }}"
             >
 
-                {% csrf_token %}
+            <input
+                type="hidden"
+                name="kelas"
+                value="{{ kelas_id }}"
+            >
 
+            <input
+                type="hidden"
+                name="search"
+                value="{{ search }}"
+            >
 
-                <!-- FILTER TERSEMBUNYI -->
 
-                <input
-                    type="hidden"
-                    name="tahun_ajaran"
-                    value="{{ tahun_ajaran_id }}"
-                >
+            <div class="penilaian-card">
 
-                <input
-                    type="hidden"
-                    name="kelas"
-                    value="{{ kelas_id }}"
-                >
 
-                <input
-                    type="hidden"
-                    name="search"
-                    value="{{ search }}"
-                >
+                <!-- HEADER DAFTAR NILAI -->
 
+                <div class="penilaian-card-header">
 
-                <div class="penilaian-card">
+                    <div>
 
-                    <!-- HEADER DAFTAR NILAI -->
+                        <h2>
+                            Daftar Nilai
+                        </h2>
 
-                    <div class="penilaian-card-header">
+                        <p>
 
-                        <div>
+                            {{ students|length }}
+                            siswa
 
-                            <h2>
-                                Daftar Nilai
-                            </h2>
-
-                            <p>
-
-                                {{ students|length }}
-                                siswa
-
-                                <span class="separator">
-                                    ·
-                                </span>
-
-                                {{ mata_pelajarans|length }}
-                                mata pelajaran
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- =================================================
-                         TABLE
-                    ================================================== -->
-
-                    <div class="table-wrapper">
-
-                        <table class="penilaian-table">
-
-                            <thead>
-
-                                <tr>
-
-                                    <th
-                                        rowspan="2"
-                                        class="col-no"
-                                    >
-                                        No
-                                    </th>
-
-
-                                    <th
-                                        rowspan="2"
-                                        class="col-student"
-                                    >
-                                        Siswa
-                                    </th>
-
-
-                                    {% for mapel in mata_pelajarans %}
-
-                                        <th
-                                            colspan="3"
-                                            class="mapel-header"
-                                        >
-                                            {{ mapel.nama }}
-                                        </th>
-
-                                    {% endfor %}
-
-                                </tr>
-
-
-                                <tr>
-
-                                    {% for mapel in mata_pelajarans %}
-
-                                        <th class="nilai-header">
-                                            Harian
-                                        </th>
-
-                                        <th class="nilai-header">
-                                            Ujian
-                                        </th>
-
-                                        <th class="nilai-header">
-                                            Akhir
-                                        </th>
-
-                                    {% endfor %}
-
-                                </tr>
-
-                            </thead>
-
-
-                            <tbody>
-
-                                {% for student in students %}
-
-                                    {% with nilai_siswa=penilaian_data|get_item:student.id %}
-
-                                        <tr>
-
-                                            <!-- NO -->
-
-                                            <td class="col-no">
-                                                {{ forloop.counter }}
-                                            </td>
-
-
-                                            <!-- SISWA -->
-
-                                            <td class="student-cell">
-
-                                                <div class="student-name">
-                                                    {{ student.nama }}
-                                                </div>
-
-                                                <div class="student-nim">
-                                                    NIM: {{ student.nim }}
-                                                </div>
-
-                                            </td>
-
-
-                                            <!-- NILAI -->
-
-                                            {% for mapel in mata_pelajarans %}
-
-                                                {% with nilai=nilai_siswa|get_item:mapel.id %}
-
-                                                    <!-- HARIAN -->
-
-                                                    <td class="nilai-cell">
-
-                                                        <input
-                                                            type="number"
-                                                            class="nilai-input"
-                                                            name="nilai_harian_{{ student.id }}_{{ mapel.id }}"
-                                                            value="{% if nilai %}{{ nilai.nilai_harian|default_if_none:'' }}{% endif %}"
-                                                            min="0"
-                                                            max="100"
-                                                            step="1"
-                                                            placeholder="-"
-                                                            data-student="{{ student.id }}"
-                                                            data-mapel="{{ mapel.id }}"
-                                                        >
-
-                                                    </td>
-
-
-                                                    <!-- UJIAN -->
-
-                                                    <td class="nilai-cell">
-
-                                                        <input
-                                                            type="number"
-                                                            class="nilai-input"
-                                                            name="nilai_ujian_{{ student.id }}_{{ mapel.id }}"
-                                                            value="{% if nilai %}{{ nilai.nilai_ujian|default_if_none:'' }}{% endif %}"
-                                                            min="0"
-                                                            max="100"
-                                                            step="1"
-                                                            placeholder="-"
-                                                            data-student="{{ student.id }}"
-                                                            data-mapel="{{ mapel.id }}"
-                                                        >
-
-                                                    </td>
-
-
-                                                    <!-- AKHIR -->
-
-                                                    <td class="nilai-cell nilai-akhir-cell">
-
-                                                        <span
-                                                            class="nilai-akhir"
-                                                            id="akhir-{{ student.id }}-{{ mapel.id }}"
-                                                        >
-
-                                                            {% if nilai and nilai.nilai_akhir is not None %}
-
-                                                                {{ nilai.nilai_akhir }}
-
-                                                            {% else %}
-
-                                                                -
-
-                                                            {% endif %}
-
-                                                        </span>
-
-                                                    </td>
-
-                                                {% endwith %}
-
-                                            {% endfor %}
-
-                                        </tr>
-
-                                    {% endwith %}
-
-                                {% empty %}
-
-                                    <tr>
-
-                                        <td
-                                            colspan="100%"
-                                            class="empty-cell"
-                                        >
-
-                                            <strong>
-                                                Belum ada siswa
-                                            </strong>
-
-                                            <span>
-                                                Tidak ada siswa aktif
-                                                yang sesuai dengan filter.
-                                            </span>
-
-                                        </td>
-
-                                    </tr>
-
-                                {% endfor %}
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-
-                    <!-- =================================================
-                         FOOTER
-                    ================================================== -->
-
-                    <div class="penilaian-footer">
-
-                        <div class="nilai-keterangan">
-
-                            <span>
-                                <b>H</b> = Nilai Harian
+                            <span class="separator">
+                                ·
                             </span>
 
-                            <span>
-                                <b>U</b> = Nilai Ujian
-                            </span>
+                            {{ mata_pelajarans|length }}
+                            mata pelajaran
 
-                            <span>
-                                <b>Akhir</b> = Rata-rata H + U
-                            </span>
-
-                        </div>
-
-
-                        <button
-                            type="submit"
-                            class="btn-save"
-                        >
-                            Simpan Semua Nilai
-                        </button>
+                        </p>
 
                     </div>
 
                 </div>
 
-            </form>
 
-        {% else %}
+                <!-- =================================================
+                     TABLE
+                ================================================== -->
 
-            <div class="penilaian-empty">
+                <div class="table-wrapper">
 
-                <h3>
-                    Belum ada data penilaian
-                </h3>
+                    <table class="penilaian-table">
 
-                <p>
-                    Tidak ditemukan siswa atau mata pelajaran
-                    yang sesuai dengan pilihan tersebut.
-                </p>
+                        <thead>
+
+                            <tr>
+
+                                <th
+                                    rowspan="2"
+                                    class="col-no"
+                                >
+                                    No
+                                </th>
+
+
+                                <th
+                                    rowspan="2"
+                                    class="col-student"
+                                >
+                                    Siswa
+                                </th>
+
+
+                                {% for mapel in mata_pelajarans %}
+
+                                    <th
+                                        colspan="3"
+                                        class="mapel-header"
+                                    >
+                                        {{ mapel.nama }}
+                                    </th>
+
+                                {% endfor %}
+
+                            </tr>
+
+
+                            <tr>
+
+                                {% for mapel in mata_pelajarans %}
+
+                                    <th class="nilai-header">
+                                        Harian
+                                    </th>
+
+                                    <th class="nilai-header">
+                                        Ujian
+                                    </th>
+
+                                    <th class="nilai-header">
+                                        Akhir
+                                    </th>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody>
+
+                            {% for student in students %}
+
+                                {% with nilai_siswa=penilaian_data|get_item:student.id %}
+
+                                    <tr>
+
+
+                                        <!-- NO -->
+
+                                        <td class="col-no">
+                                            {{ forloop.counter }}
+                                        </td>
+
+
+                                        <!-- SISWA -->
+
+                                        <td class="student-cell">
+
+                                            <div class="student-name">
+                                                {{ student.nama }}
+                                            </div>
+
+                                            <div class="student-nim">
+                                                NIM: {{ student.nim }}
+                                            </div>
+
+                                        </td>
+
+
+                                        <!-- NILAI -->
+
+                                        {% for mapel in mata_pelajarans %}
+
+                                            {% with nilai=nilai_siswa|get_item:mapel.id %}
+
+
+                                                <!-- HARIAN -->
+
+                                                <td class="nilai-cell">
+
+                                                    <input
+                                                        type="number"
+                                                        class="nilai-input"
+                                                        name="nilai_harian_{{ student.id }}_{{ mapel.id }}"
+                                                        value="{% if nilai %}{{ nilai.nilai_harian|default_if_none:'' }}{% endif %}"
+                                                        min="0"
+                                                        max="100"
+                                                        step="1"
+                                                        placeholder="-"
+                                                        data-student="{{ student.id }}"
+                                                        data-mapel="{{ mapel.id }}"
+                                                    >
+
+                                                </td>
+
+
+                                                <!-- UJIAN -->
+
+                                                <td class="nilai-cell">
+
+                                                    <input
+                                                        type="number"
+                                                        class="nilai-input"
+                                                        name="nilai_ujian_{{ student.id }}_{{ mapel.id }}"
+                                                        value="{% if nilai %}{{ nilai.nilai_ujian|default_if_none:'' }}{% endif %}"
+                                                        min="0"
+                                                        max="100"
+                                                        step="1"
+                                                        placeholder="-"
+                                                        data-student="{{ student.id }}"
+                                                        data-mapel="{{ mapel.id }}"
+                                                    >
+
+                                                </td>
+
+
+                                                <!-- AKHIR -->
+
+                                                <td class="nilai-cell nilai-akhir-cell">
+
+                                                    <span
+                                                        class="nilai-akhir"
+                                                        id="akhir-{{ student.id }}-{{ mapel.id }}"
+                                                    >
+
+                                                        {% if nilai and nilai.nilai_akhir is not None %}
+
+                                                            {{ nilai.nilai_akhir }}
+
+                                                        {% else %}
+
+                                                            -
+
+                                                        {% endif %}
+
+                                                    </span>
+
+                                                </td>
+
+
+                                            {% endwith %}
+
+                                        {% endfor %}
+
+                                    </tr>
+
+                                {% endwith %}
+
+
+                            {% empty %}
+
+                                <tr>
+
+                                    <td
+                                        colspan="100%"
+                                        class="empty-cell"
+                                    >
+
+                                        <strong>
+                                            Belum ada siswa
+                                        </strong>
+
+                                        <span>
+                                            Tidak ada siswa aktif
+                                            yang sesuai dengan filter.
+                                        </span>
+
+                                    </td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- =================================================
+                     FOOTER
+                ================================================== -->
+
+                <div class="penilaian-footer">
+
+                    <div class="nilai-keterangan">
+
+                        <span>
+                            <b>H</b> = Nilai Harian
+                        </span>
+
+                        <span>
+                            <b>U</b> = Nilai Ujian
+                        </span>
+
+                        <span>
+                            <b>Akhir</b> = Harian 60% + Ujian 40%
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn-save"
+                    >
+                        Simpan Semua Nilai
+                    </button>
+
+                </div>
 
             </div>
 
-        {% endif %}
+        </form>
+
 
     {% else %}
 
         <div class="penilaian-empty">
 
             <h3>
-                Pilih Tahun Ajaran dan Kelas
+                Belum ada data penilaian
             </h3>
 
             <p>
-                Silakan pilih tahun ajaran dan kelas terlebih dahulu
-                untuk menampilkan tabel penilaian.
+                Tidak ditemukan siswa atau mata pelajaran
+                yang sesuai dengan pilihan tersebut.
             </p>
 
         </div>
 
     {% endif %}
 
-</div>
 
+{% else %}
+
+    <div class="penilaian-empty">
+
+        <h3>
+            Pilih Tahun Ajaran dan Kelas
+        </h3>
+
+        <p>
+            Silakan pilih tahun ajaran dan kelas terlebih dahulu
+            untuk menampilkan tabel penilaian.
+        </p>
+
+    </div>
+
+{% endif %}
+```
+
+</div>
 
 <!-- =========================================================
      JAVASCRIPT NILAI AKHIR
@@ -562,6 +569,7 @@ Penilaian Siswa
 document.addEventListener(
     'DOMContentLoaded',
     function () {
+
 
         function hitungNilaiAkhir(
             studentId,
@@ -615,6 +623,7 @@ document.addEventListener(
                 );
 
                 return;
+
             }
 
 
@@ -638,17 +647,18 @@ document.addEventListener(
                 );
 
                 return;
+
             }
 
 
-            const rataRata =
+            const nilaiAkhir =
                 Math.round(
-                    (h + u) / 2
+                    (h * 0.60) + (u * 0.40)
                 );
 
 
             akhir.textContent =
-                rataRata;
+                nilaiAkhir;
 
 
             akhir.classList.remove(
@@ -693,12 +703,13 @@ document.addEventListener(
             );
 
     }
+
 );
 
 </script>
 
-
 <style>
+
 
 /* =========================================================
    PAGE
@@ -719,21 +730,15 @@ document.addEventListener(
 
 .penilaian-page-header h1 {
     margin: 0;
-
     color: #111827;
-
     font-size: 28px;
-
     font-weight: 700;
-
     line-height: 1.3;
 }
 
 .penilaian-page-header p {
     margin: 7px 0 0;
-
     color: #6b7280;
-
     font-size: 14px;
 }
 
@@ -744,19 +749,14 @@ document.addEventListener(
 
 .penilaian-card {
     width: 100%;
-
     margin-bottom: 20px;
-
     background: #ffffff;
-
     border: 1px solid #e5e7eb;
-
     border-radius: 12px;
-
     overflow: hidden;
-
     box-shadow:
-        0 2px 8px rgba(15, 23, 42, 0.05);
+        0 2px 8px
+        rgba(15, 23, 42, 0.05);
 }
 
 
@@ -766,41 +766,29 @@ document.addEventListener(
 
 .penilaian-card-header {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 20px;
-
     padding: 20px 22px;
-
     background: #fafafa;
-
     border-bottom: 1px solid #e5e7eb;
 }
 
 .penilaian-card-header h2 {
     margin: 0;
-
     color: #111827;
-
     font-size: 17px;
-
     font-weight: 600;
 }
 
 .penilaian-card-header p {
     margin: 5px 0 0;
-
     color: #6b7280;
-
     font-size: 13px;
 }
 
 .separator {
     margin: 0 4px;
-
     color: #9ca3af;
 }
 
@@ -811,17 +799,13 @@ document.addEventListener(
 
 .penilaian-filter {
     display: grid;
-
     grid-template-columns:
         minmax(180px, 1fr)
         minmax(180px, 1fr)
         minmax(220px, 1.4fr)
         auto;
-
     gap: 14px;
-
     align-items: end;
-
     padding: 22px;
 }
 
@@ -831,38 +815,24 @@ document.addEventListener(
 
 .filter-group label {
     display: block;
-
     margin-bottom: 7px;
-
     color: #374151;
-
     font-size: 13px;
-
     font-weight: 600;
 }
 
 .filter-group select,
 .filter-group input {
     display: block;
-
     width: 100%;
-
     height: 42px;
-
     padding: 0 12px;
-
     box-sizing: border-box;
-
     border: 1px solid #cbd5e1;
-
     border-radius: 8px;
-
     background: #ffffff;
-
     color: #111827;
-
     font-size: 13px;
-
     outline: none;
 }
 
@@ -878,9 +848,9 @@ document.addEventListener(
 .filter-group select:focus,
 .filter-group input:focus {
     border-color: #2563eb;
-
     box-shadow:
-        0 0 0 3px rgba(
+        0 0 0 3px
+        rgba(
             37,
             99,
             235,
@@ -895,64 +865,45 @@ document.addEventListener(
 
 .filter-action {
     display: flex;
-
     align-items: center;
-
     gap: 8px;
 }
 
 .btn-filter,
 .btn-reset {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     height: 42px;
-
     padding: 0 16px;
-
     box-sizing: border-box;
-
     border-radius: 8px;
-
     font-size: 13px;
-
     font-weight: 600;
-
     text-decoration: none;
-
     white-space: nowrap;
-
     cursor: pointer;
 }
 
 .btn-filter {
     border: 1px solid #2563eb;
-
     background: #2563eb;
-
     color: #ffffff;
 }
 
 .btn-filter:hover {
     border-color: #1d4ed8;
-
     background: #1d4ed8;
 }
 
 .btn-reset {
     border: 1px solid #d1d5db;
-
     background: #ffffff;
-
     color: #475569;
 }
 
 .btn-reset:hover {
     background: #f8fafc;
-
     border-color: #9ca3af;
 }
 
@@ -963,65 +914,43 @@ document.addEventListener(
 
 .penilaian-info {
     display: flex;
-
     align-items: center;
-
     gap: 12px;
-
     margin-bottom: 20px;
-
     padding: 14px 17px;
-
     background: #f8fafc;
-
     border: 1px solid #e2e8f0;
-
     border-radius: 10px;
 }
 
 .info-check {
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     flex: 0 0 28px;
-
     width: 28px;
-
     height: 28px;
-
     border-radius: 50%;
-
     background: #e0f2fe;
-
     color: #0369a1;
-
     font-size: 14px;
-
     font-weight: 700;
 }
 
 .info-content {
     display: flex;
-
     flex-direction: column;
-
     gap: 3px;
 }
 
 .info-content strong {
     color: #1f2937;
-
     font-size: 13px;
-
     font-weight: 600;
 }
 
 .info-content span {
     color: #6b7280;
-
     font-size: 12px;
 }
 
@@ -1032,19 +961,14 @@ document.addEventListener(
 
 .table-wrapper {
     width: 100%;
-
     overflow-x: auto;
-
     -webkit-overflow-scrolling: touch;
 }
 
 .penilaian-table {
     width: 100%;
-
     min-width: 900px;
-
     border-collapse: collapse;
-
     table-layout: auto;
 }
 
@@ -1055,41 +979,29 @@ document.addEventListener(
 
 .penilaian-table thead th {
     background: #f8fafc;
-
     color: #374151;
-
     font-size: 12px;
-
     font-weight: 600;
-
     text-align: center;
-
     white-space: nowrap;
 }
 
 .penilaian-table thead tr:first-child th {
     height: 48px;
-
     padding: 8px 10px;
 }
 
 .penilaian-table thead tr:last-child th {
     height: 38px;
-
     padding: 5px 8px;
-
     color: #6b7280;
-
     font-size: 11px;
 }
 
 .penilaian-table tbody td {
     height: 64px;
-
     padding: 8px;
-
     background: #ffffff;
-
     vertical-align: middle;
 }
 
@@ -1104,11 +1016,8 @@ document.addEventListener(
 
 .col-no {
     width: 50px;
-
     min-width: 50px;
-
     text-align: center !important;
-
     color: #6b7280;
 }
 
@@ -1119,29 +1028,23 @@ document.addEventListener(
 
 .col-student {
     min-width: 190px;
-
     text-align: left !important;
 }
 
 .student-cell {
     min-width: 190px;
-
     text-align: left;
 }
 
 .student-name {
     color: #111827;
-
     font-size: 13px;
-
     font-weight: 600;
 }
 
 .student-nim {
     margin-top: 3px;
-
     color: #9ca3af;
-
     font-size: 11px;
 }
 
@@ -1152,17 +1055,13 @@ document.addEventListener(
 
 .mapel-header {
     min-width: 180px;
-
     color: #111827 !important;
-
     font-weight: 600 !important;
-
     border-left: 1px solid #e5e7eb;
 }
 
 .nilai-header {
     min-width: 70px;
-
     border-left: 1px solid #edf0f3;
 }
 
@@ -1173,37 +1072,23 @@ document.addEventListener(
 
 .nilai-cell {
     min-width: 70px;
-
     text-align: center;
-
     border-left: 1px solid #edf0f3;
 }
 
 .nilai-input {
     display: inline-block;
-
     width: 62px;
-
     height: 36px;
-
     padding: 0 7px;
-
     box-sizing: border-box;
-
     border: 1px solid #d1d5db;
-
     border-radius: 7px;
-
     background: #ffffff;
-
     color: #111827;
-
     font-size: 13px;
-
     font-weight: 500;
-
     text-align: center;
-
     outline: none;
 }
 
@@ -1213,9 +1098,9 @@ document.addEventListener(
 
 .nilai-input:focus {
     border-color: #2563eb;
-
     box-shadow:
-        0 0 0 3px rgba(
+        0 0 0 3px
+        rgba(
             37,
             99,
             235,
@@ -1238,31 +1123,20 @@ document.addEventListener(
 
 .nilai-akhir {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     min-width: 48px;
-
     height: 34px;
-
     padding: 0 9px;
-
     border-radius: 7px;
-
     background: #eff6ff;
-
     color: #1d4ed8;
-
     font-size: 14px;
-
     font-weight: 700;
 }
 
 .nilai-akhir.belum-lengkap {
     background: #f3f4f6;
-
     color: #9ca3af;
 }
 
@@ -1273,31 +1147,20 @@ document.addEventListener(
 
 .penilaian-footer {
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 20px;
-
     padding: 17px 22px;
-
     background: #fafafa;
-
     border-top: 1px solid #e5e7eb;
 }
 
 .nilai-keterangan {
     display: flex;
-
     align-items: center;
-
     flex-wrap: wrap;
-
     gap: 16px;
-
     color: #6b7280;
-
     font-size: 12px;
 }
 
@@ -1312,33 +1175,21 @@ document.addEventListener(
 
 .btn-save {
     display: inline-flex;
-
     align-items: center;
-
     justify-content: center;
-
     min-height: 42px;
-
     padding: 0 18px;
-
     border: 1px solid #2563eb;
-
     border-radius: 8px;
-
     background: #2563eb;
-
     color: #ffffff;
-
     font-size: 14px;
-
     font-weight: 600;
-
     cursor: pointer;
 }
 
 .btn-save:hover {
     background: #1d4ed8;
-
     border-color: #1d4ed8;
 }
 
@@ -1349,43 +1200,32 @@ document.addEventListener(
 
 .empty-cell {
     padding: 50px 20px !important;
-
     text-align: center !important;
 }
 
 .empty-cell strong {
     display: block;
-
     margin-bottom: 5px;
-
     color: #374151;
-
     font-size: 14px;
 }
 
 .empty-cell span {
     display: block;
-
     color: #9ca3af;
-
     font-size: 12px;
 }
 
 .penilaian-empty {
     padding: 55px 25px;
-
     margin-bottom: 20px;
-
     background: #ffffff;
-
     border: 1px solid #e5e7eb;
-
     border-radius: 12px;
-
     text-align: center;
-
     box-shadow:
-        0 2px 8px rgba(
+        0 2px 8px
+        rgba(
             15,
             23,
             42,
@@ -1395,23 +1235,16 @@ document.addEventListener(
 
 .penilaian-empty h3 {
     margin: 0;
-
     color: #374151;
-
     font-size: 16px;
-
     font-weight: 600;
 }
 
 .penilaian-empty p {
     max-width: 500px;
-
     margin: 8px auto 0;
-
     color: #9ca3af;
-
     font-size: 13px;
-
     line-height: 1.5;
 }
 
@@ -1447,7 +1280,6 @@ document.addEventListener(
 
     .penilaian-filter {
         grid-template-columns: 1fr;
-
         padding: 18px;
     }
 
@@ -1457,9 +1289,7 @@ document.addEventListener(
 
     .filter-action {
         grid-column: auto;
-
         width: 100%;
-
         flex-direction: column;
     }
 
@@ -1474,7 +1304,6 @@ document.addEventListener(
 
     .penilaian-footer {
         flex-direction: column;
-
         align-items: stretch;
     }
 

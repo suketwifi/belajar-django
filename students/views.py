@@ -8,6 +8,7 @@ from django.db.models import Q, Count, Case, When, IntegerField
 from django.db.models.functions import TruncMonth
 from django.http import HttpResponse
 from django.urls import reverse
+from django.db.models import OuterRef, Subquery
 
 from .models import (
     Student,
@@ -19,6 +20,7 @@ from .models import (
     TahunAjaran,
     MataPelajaran,
     Penilaian,
+    RiwayatKelasSiswa,
 )
 
 
@@ -46,37 +48,62 @@ def dashboard(request):
         context
     )
 
+def pilih_tahun_ajaran(request):
+
+    if request.method == 'POST':
+
+        tahun_ajaran_id = request.POST.get(
+            'tahun_ajaran_id'
+        )
+
+        tahun_ajaran = get_object_or_404(
+            TahunAjaran,
+            id=tahun_ajaran_id
+        )
+
+        request.session['tahun_ajaran_id'] = tahun_ajaran.id
+
+        next_url = request.POST.get('next')
+
+        if next_url:
+            return redirect(next_url)
+
+        return redirect('dashboard')
+
+    tahun_ajarans = (
+        TahunAjaran.objects
+        .all()
+        .order_by('-nama')
+    )
+
+    return render(
+        request,
+        'students/pilih_tahun_ajaran.html',
+        {
+            'tahun_ajarans': tahun_ajarans,
+        }
+    )
 
 # =========================================================
 # DATA SISWA
 # =========================================================
 
 def student_list(request):
+    search = request.GET.get('search', '').strip()
+    tahun_ajaran_id = request.GET.get('tahun_ajaran', '').strip()
+    kelas_id = request.GET.get('kelas', '').strip()
+    asrama_id = request.GET.get('asrama', '').strip()
+    status = request.GET.get('status', '').strip()
 
-    search = request.GET.get(
-        'search',
-        ''
-    ).strip()
+    # =====================================================
+    # RIWAYAT KELAS TERBARU SETIAP SISWA
+    # =====================================================
 
-    tahun_ajaran_id = request.GET.get(
-        'tahun_ajaran',
-        ''
-    ).strip()
-
-    kelas_id = request.GET.get(
-        'kelas',
-        ''
-    ).strip()
-
-    asrama_id = request.GET.get(
-        'asrama',
-        ''
-    ).strip()
-
-    status = request.GET.get(
-        'status',
-        ''
-    ).strip()
+    riwayat_terbaru = (
+        RiwayatKelasSiswa.objects
+        .filter(student=OuterRef('pk'))
+        .order_by('-created_at')
+    )
 
     students = (
         Student.objects
@@ -85,70 +112,73 @@ def student_list(request):
             'asrama_master',
             'tahun_ajaran'
         )
-        .all()
+        .annotate(
+            tahun_ajaran_terupdate=Subquery(
+                riwayat_terbaru.values('tahun_ajaran__nama')[:1]
+            ),
+            tahun_ajaran_terupdate_id=Subquery(
+                riwayat_terbaru.values('tahun_ajaran_id')[:1]
+            ),
+            kelas_terupdate=Subquery(
+                riwayat_terbaru.values('kelas__nama')[:1]
+            ),
+            kelas_terupdate_id=Subquery(
+                riwayat_terbaru.values('kelas_id')[:1]
+            ),
+        )
         .order_by('nama')
     )
 
-    # =========================================
-    # SEARCH NAMA / NIM
-    # =========================================
+    # =====================================================
+    # SEARCH
+    # =====================================================
 
     if search:
-
         students = students.filter(
             Q(nama__icontains=search) |
             Q(nim__icontains=search)
         )
 
-    # =========================================
-    # FILTER TAHUN AJARAN
-    # =========================================
+    # =====================================================
+    # FILTER TAHUN AJARAN TER-UPDATE
+    # =====================================================
 
     if tahun_ajaran_id:
-
         students = students.filter(
-            tahun_ajaran_id=tahun_ajaran_id
+            tahun_ajaran_terupdate_id=tahun_ajaran_id
         )
 
-    # =========================================
-    # FILTER KELAS
-    # =========================================
+    # =====================================================
+    # FILTER KELAS TER-UPDATE
+    # =====================================================
 
     if kelas_id:
-
         students = students.filter(
-            kelas_id=kelas_id
+            kelas_terupdate_id=kelas_id
         )
 
-    # =========================================
+    # =====================================================
     # FILTER ASRAMA
-    # =========================================
+    # =====================================================
 
     if asrama_id:
-
         students = students.filter(
             asrama_master_id=asrama_id
         )
 
-    # =========================================
+    # =====================================================
     # FILTER STATUS
-    # =========================================
+    # =====================================================
 
     if status == 'aktif':
-
-        students = students.filter(
-            status=True
-        )
+        students = students.filter(status=True)
 
     elif status == 'nonaktif':
+        students = students.filter(status=False)
 
-        students = students.filter(
-            status=False
-        )
-
-    # =========================================
-    # DATA DROPDOWN
-    # =========================================
+    # =====================================================
+    # DATA FILTER
+    # =====================================================
 
     tahun_ajarans = (
         TahunAjaran.objects
@@ -168,43 +198,21 @@ def student_list(request):
         .order_by('nama')
     )
 
-    # =========================================
-    # CONTEXT
-    # =========================================
-
     context = {
-
-        'students':
-            students,
-
-        'search':
-            search,
-
-        'tahun_ajarans':
-            tahun_ajarans,
-
-        'kelass':
-            kelass,
-
-        'asramas':
-            asramas,
-
-        'tahun_ajaran_id':
-            tahun_ajaran_id,
-
-        'kelas_id':
-            kelas_id,
-
-        'asrama_id':
-            asrama_id,
-
-        'status':
-            status,
+        'students': students,
+        'search': search,
+        'tahun_ajarans': tahun_ajarans,
+        'kelass': kelass,
+        'asramas': asramas,
+        'tahun_ajaran_id': tahun_ajaran_id,
+        'kelas_id': kelas_id,
+        'asrama_id': asrama_id,
+        'status': status,
     }
 
     return render(
         request,
-        'students/student_list.html',
+        'students/data_siswa.html',
         context
     )
 
@@ -218,11 +226,37 @@ def student_detail(request, id):
         id=id
     )
 
+    # =====================================================
+    # RIWAYAT KELAS SISWA
+    # =====================================================
+
+    riwayat_kelas = (
+        RiwayatKelasSiswa.objects
+        .filter(student=student)
+        .select_related('tahun_ajaran', 'kelas')
+        .order_by('created_at')
+    )
+
+    # Data pertama saat siswa masuk
+    riwayat_awal = riwayat_kelas.first()
+
+    # Data terbaru
+    riwayat_terbaru = riwayat_kelas.order_by('-created_at').first()
+
     return render(
         request,
         'students/student_detail.html',
         {
             'student': student,
+
+            # Tahun Ajaran & Kelas saat pertama masuk
+            'riwayat_awal': riwayat_awal,
+
+            # Tahun Ajaran & Kelas terbaru
+            'riwayat_terbaru': riwayat_terbaru,
+
+            # Semua riwayat jika nanti diperlukan
+            'riwayat_kelas': riwayat_kelas,
         }
     )
 
@@ -703,32 +737,55 @@ def student_edit(request, id):
 
 def student_delete(request, id):
 
+    if request.method != 'POST':
+        return redirect('student_list')
+
     student = get_object_or_404(
         Student,
         id=id
     )
 
-    if request.method == 'POST':
+    nama = student.nama
 
-        nama = student.nama
+    student.delete()
 
-        student.delete()
-
-        messages.success(
-            request,
-            f'Data siswa {nama} berhasil dihapus.'
-        )
-
-        return redirect('student_list')
-
-    return render(
+    messages.success(
         request,
-        'students/student_confirm_delete.html',
-        {
-            'student': student
-        }
+        f'Data siswa {nama} berhasil dihapus.'
     )
 
+    return redirect('student_list')
+
+def hapus_histori_pendidikan(request, id, riwayat_id):
+
+    if request.method != 'POST':
+        return redirect('student_detail', id=id)
+
+    student = get_object_or_404(
+        Student,
+        id=id
+    )
+
+    riwayat = get_object_or_404(
+        RiwayatKelasSiswa,
+        id=riwayat_id,
+        student=student
+    )
+
+    tahun_ajaran = riwayat.tahun_ajaran.nama
+    kelas = riwayat.kelas.nama
+
+    riwayat.delete()
+
+    messages.success(
+        request,
+        f'Histori pendidikan {tahun_ajaran} - Kelas {kelas} berhasil dihapus.'
+    )
+
+    return redirect(
+        'student_detail',
+        id=student.id
+    )
 
 # =========================================================
 # ABSENSI SISWA
@@ -2352,117 +2409,56 @@ def penilaian(request):
     ).strip()
 
     # =====================================================
-    # DEFAULT
+    # DATA AWAL
     # =====================================================
-
-    mata_pelajarans = MataPelajaran.objects.none()
 
     students = Student.objects.none()
+    mata_pelajarans = MataPelajaran.objects.none()
 
     # =====================================================
-    # GET DATA
+    # AMBIL DATA SISWA BERDASARKAN RIWAYAT
     # =====================================================
 
-    if tahun_ajaran_id:
+    if tahun_ajaran_id and kelas_id:
 
-        mata_pelajarans = (
-            MataPelajaran.objects
+        # -------------------------------------------------
+        # SISWA DIAMBIL DARI RIWAYAT KELAS
+        # -------------------------------------------------
+
+        student_ids = (
+            RiwayatKelasSiswa.objects
             .filter(
                 tahun_ajaran_id=tahun_ajaran_id,
-                aktif=True
+                kelas_id=kelas_id,
             )
-            .prefetch_related('kelas')
-            .order_by('nama')
+            .values_list(
+                'student_id',
+                flat=True
+            )
         )
-
-        if kelas_id:
-
-            # -------------------------------------------------
-            # MATA PELAJARAN SESUAI KELAS
-            # -------------------------------------------------
-
-            mata_pelajarans = (
-                mata_pelajarans
-                .filter(
-                    kelas__id=kelas_id
-                )
-                .distinct()
-            )
-
-            # -------------------------------------------------
-            # SISWA SESUAI TAHUN AJARAN + KELAS
-            # -------------------------------------------------
-
-            students = (
-                Student.objects
-                .select_related(
-                    'kelas',
-                    'tahun_ajaran'
-                )
-                .filter(
-                    status=True,
-                    kelas_id=kelas_id,
-                    tahun_ajaran_id=tahun_ajaran_id,
-                )
-                .order_by('nama')
-            )
-
-            # -------------------------------------------------
-            # PENCARIAN NAMA / NIM
-            # -------------------------------------------------
-
-            if search:
-
-                students = students.filter(
-                    Q(nama__icontains=search)
-                    |
-                    Q(nim__icontains=search)
-                )
-
-    # =====================================================
-    # POST - SIMPAN SEMUA NILAI
-    # =====================================================
-
-    if request.method == 'POST':
-
-        # -------------------------------------------------
-        # AMBIL FILTER DARI FORM
-        # -------------------------------------------------
-
-        tahun_ajaran_id = (
-            request.POST.get(
-                'tahun_ajaran'
-            )
-            or ''
-        ).strip()
-
-        kelas_id = (
-            request.POST.get(
-                'kelas'
-            )
-            or ''
-        ).strip()
-
-        search = (
-            request.POST.get(
-                'search'
-            )
-            or ''
-        ).strip()
-
-        # -------------------------------------------------
-        # SISWA
-        # -------------------------------------------------
 
         students = (
             Student.objects
+            .select_related(
+                'kelas',
+                'tahun_ajaran'
+            )
             .filter(
-                status=True,
-                kelas_id=kelas_id,
-                tahun_ajaran_id=tahun_ajaran_id,
+                id__in=student_ids
             )
             .order_by('nama')
         )
+
+        # -------------------------------------------------
+        # PENCARIAN SISWA
+        # -------------------------------------------------
+
+        if search:
+
+            students = students.filter(
+                Q(nama__icontains=search) |
+                Q(nim__icontains=search)
+            )
 
         # -------------------------------------------------
         # MATA PELAJARAN
@@ -2472,11 +2468,104 @@ def penilaian(request):
             MataPelajaran.objects
             .filter(
                 tahun_ajaran_id=tahun_ajaran_id,
+                kelas__id=kelas_id,
                 aktif=True,
-                kelas__id=kelas_id
             )
-            .distinct()
             .order_by('nama')
+            .distinct()
+        )
+
+    # =====================================================
+    # SIMPAN NILAI
+    # =====================================================
+
+    if request.method == 'POST':
+
+        tahun_ajaran_id = request.POST.get(
+            'tahun_ajaran',
+            ''
+        ).strip()
+
+        kelas_id = request.POST.get(
+            'kelas',
+            ''
+        ).strip()
+
+        search = request.POST.get(
+            'search',
+            ''
+        ).strip()
+
+        # -------------------------------------------------
+        # VALIDASI FILTER
+        # -------------------------------------------------
+
+        if not tahun_ajaran_id or not kelas_id:
+
+            messages.error(
+                request,
+                'Tahun ajaran dan kelas harus dipilih.'
+            )
+
+            return redirect('penilaian')
+
+        # -------------------------------------------------
+        # AMBIL TAHUN AJARAN
+        # -------------------------------------------------
+
+        tahun_ajaran = get_object_or_404(
+            TahunAjaran,
+            id=tahun_ajaran_id
+        )
+
+        # -------------------------------------------------
+        # AMBIL SISWA DARI RIWAYAT
+        # -------------------------------------------------
+
+        student_ids = (
+            RiwayatKelasSiswa.objects
+            .filter(
+                tahun_ajaran=tahun_ajaran,
+                kelas_id=kelas_id,
+            )
+            .values_list(
+                'student_id',
+                flat=True
+            )
+        )
+
+        students = (
+            Student.objects
+            .filter(
+                id__in=student_ids
+            )
+            .order_by('nama')
+        )
+
+        # -------------------------------------------------
+        # PENCARIAN
+        # -------------------------------------------------
+
+        if search:
+
+            students = students.filter(
+                Q(nama__icontains=search) |
+                Q(nim__icontains=search)
+            )
+
+        # -------------------------------------------------
+        # MATA PELAJARAN
+        # -------------------------------------------------
+
+        mata_pelajarans = (
+            MataPelajaran.objects
+            .filter(
+                tahun_ajaran=tahun_ajaran,
+                kelas__id=kelas_id,
+                aktif=True,
+            )
+            .order_by('nama')
+            .distinct()
         )
 
         # -------------------------------------------------
@@ -2487,113 +2576,105 @@ def penilaian(request):
 
             for mapel in mata_pelajarans:
 
-                # -----------------------------------------
-                # NILAI HARIAN
-                # -----------------------------------------
-
                 nilai_harian_raw = request.POST.get(
-                    f'nilai_harian_{student.id}_{mapel.id}'
-                )
-
-                # -----------------------------------------
-                # NILAI UJIAN
-                # -----------------------------------------
+                    f'nilai_harian_{student.id}_{mapel.id}',
+                    ''
+                ).strip()
 
                 nilai_ujian_raw = request.POST.get(
-                    f'nilai_ujian_{student.id}_{mapel.id}'
-                )
-
-                nilai_harian = None
-
-                nilai_ujian = None
-
-                # -----------------------------------------
-                # VALIDASI NILAI HARIAN
-                # -----------------------------------------
-
-                if nilai_harian_raw not in [
-                    None,
+                    f'nilai_ujian_{student.id}_{mapel.id}',
                     ''
-                ]:
+                ).strip()
+
+                # =========================================
+                # VALIDASI NILAI HARIAN
+                # =========================================
+
+                if nilai_harian_raw:
 
                     try:
-
                         nilai_harian = int(
                             nilai_harian_raw
                         )
 
-                        if (
-                            nilai_harian < 0
-                            or nilai_harian > 100
-                        ):
-
-                            messages.error(
-                                request,
-                                f'Nilai harian '
-                                f'{student.nama} - '
-                                f'{mapel.nama} '
-                                f'harus 0 sampai 100.'
-                            )
-
-                            continue
-
                     except ValueError:
 
                         messages.error(
                             request,
-                            f'Nilai harian '
-                            f'{student.nama} - '
-                            f'{mapel.nama} '
-                            f'tidak valid.'
+                            f'Nilai harian {student.nama} '
+                            f'untuk {mapel.nama} harus berupa angka.'
                         )
 
-                        continue
+                        return redirect(
+                            f'/penilaian/?tahun_ajaran={tahun_ajaran_id}'
+                            f'&kelas={kelas_id}'
+                            f'&search={search}'
+                        )
 
-                # -----------------------------------------
+                    if not 0 <= nilai_harian <= 100:
+
+                        messages.error(
+                            request,
+                            f'Nilai harian {student.nama} '
+                            f'untuk {mapel.nama} harus antara 0-100.'
+                        )
+
+                        return redirect(
+                            f'/penilaian/?tahun_ajaran={tahun_ajaran_id}'
+                            f'&kelas={kelas_id}'
+                            f'&search={search}'
+                        )
+
+                else:
+
+                    nilai_harian = None
+
+                # =========================================
                 # VALIDASI NILAI UJIAN
-                # -----------------------------------------
+                # =========================================
 
-                if nilai_ujian_raw not in [
-                    None,
-                    ''
-                ]:
+                if nilai_ujian_raw:
 
                     try:
-
                         nilai_ujian = int(
                             nilai_ujian_raw
                         )
 
-                        if (
-                            nilai_ujian < 0
-                            or nilai_ujian > 100
-                        ):
-
-                            messages.error(
-                                request,
-                                f'Nilai ujian '
-                                f'{student.nama} - '
-                                f'{mapel.nama} '
-                                f'harus 0 sampai 100.'
-                            )
-
-                            continue
-
                     except ValueError:
 
                         messages.error(
                             request,
-                            f'Nilai ujian '
-                            f'{student.nama} - '
-                            f'{mapel.nama} '
-                            f'tidak valid.'
+                            f'Nilai ujian {student.nama} '
+                            f'untuk {mapel.nama} harus berupa angka.'
                         )
 
-                        continue
+                        return redirect(
+                            f'/penilaian/?tahun_ajaran={tahun_ajaran_id}'
+                            f'&kelas={kelas_id}'
+                            f'&search={search}'
+                        )
 
-                # -----------------------------------------
-                # JIKA KOSONG -> HAPUS
-                # -----------------------------------------
+                    if not 0 <= nilai_ujian <= 100:
+
+                        messages.error(
+                            request,
+                            f'Nilai ujian {student.nama} '
+                            f'untuk {mapel.nama} harus antara 0-100.'
+                        )
+
+                        return redirect(
+                            f'/penilaian/?tahun_ajaran={tahun_ajaran_id}'
+                            f'&kelas={kelas_id}'
+                            f'&search={search}'
+                        )
+
+                else:
+
+                    nilai_ujian = None
+
+                # =========================================
+                # JIKA KEDUANYA KOSONG
+                # =========================================
 
                 if (
                     nilai_harian is None
@@ -2603,14 +2684,17 @@ def penilaian(request):
 
                     Penilaian.objects.filter(
                         student=student,
+                        tahun_ajaran=tahun_ajaran,
                         mata_pelajaran=mapel
                     ).delete()
 
                     continue
 
-                # -----------------------------------------
-                # HITUNG NILAI AKHIR
-                # -----------------------------------------
+                # =========================================
+                # NILAI AKHIR
+                # =========================================
+
+                nilai_akhir = None
 
                 if (
                     nilai_harian is not None
@@ -2619,23 +2703,18 @@ def penilaian(request):
                 ):
 
                     nilai_akhir = round(
-                        (
-                            nilai_harian
-                            +
-                            nilai_ujian
-                        ) / 2
+                        (nilai_harian * 0.60)
+                        +
+                        (nilai_ujian * 0.40)
                     )
 
-                else:
-
-                    nilai_akhir = None
-
-                # -----------------------------------------
-                # SIMPAN / UPDATE
-                # -----------------------------------------
+                # =========================================
+                # SIMPAN
+                # =========================================
 
                 Penilaian.objects.update_or_create(
                     student=student,
+                    tahun_ajaran=tahun_ajaran,
                     mata_pelajaran=mapel,
                     defaults={
                         'nilai_harian':
@@ -2649,63 +2728,55 @@ def penilaian(request):
                     }
                 )
 
+        # -------------------------------------------------
+        # BERHASIL
+        # -------------------------------------------------
+
         messages.success(
             request,
-            'Semua nilai berhasil disimpan.'
+            'Nilai berhasil disimpan.'
         )
 
-        # -------------------------------------------------
-        # KEMBALI KE HALAMAN PENILAIAN
-        # -------------------------------------------------
-
         return redirect(
-            f'/penilaian/'
-            f'?tahun_ajaran={tahun_ajaran_id}'
+            f'/penilaian/?tahun_ajaran={tahun_ajaran_id}'
             f'&kelas={kelas_id}'
             f'&search={search}'
         )
 
     # =====================================================
-    # AMBIL NILAI YANG SUDAH TERSIMPAN
-    # =====================================================
-
-    penilaians = (
-        Penilaian.objects
-        .filter(
-            student__in=students,
-            mata_pelajaran__in=mata_pelajarans
-        )
-        .select_related(
-            'student',
-            'mata_pelajaran'
-        )
-    )
-
-    # =====================================================
-    # BENTUK DICTIONARY
-    #
-    # penilaian_data[
-    #     student_id
-    # ][
-    #     mapel_id
-    # ] = nilai
+    # DATA NILAI YANG SUDAH ADA
     # =====================================================
 
     penilaian_data = {}
 
-    for nilai in penilaians:
+    if students.exists() and mata_pelajarans.exists():
 
-        if nilai.student_id not in penilaian_data:
+        penilaians = (
+            Penilaian.objects
+            .filter(
+                student__in=students,
+                tahun_ajaran_id=tahun_ajaran_id,
+                mata_pelajaran__in=mata_pelajarans,
+            )
+            .select_related(
+                'student',
+                'mata_pelajaran',
+                'tahun_ajaran',
+            )
+        )
+
+        for nilai in penilaians:
+
+            if nilai.student_id not in penilaian_data:
+                penilaian_data[
+                    nilai.student_id
+                ] = {}
 
             penilaian_data[
                 nilai.student_id
-            ] = {}
-
-        penilaian_data[
-            nilai.student_id
-        ][
-            nilai.mata_pelajaran_id
-        ] = nilai
+            ][
+                nilai.mata_pelajaran_id
+            ] = nilai
 
     # =====================================================
     # CONTEXT
@@ -3168,59 +3239,139 @@ def cetak_rekap_absensi(request):
 
 
 def data_kelas(request):
+
     kelass = Kelas.objects.all().order_by('nama')
 
-    context = {
-        'kelass': kelass,
-    }
-
-    return render(request, 'students/data_kelas.html', context)
-
-def tambah_kelas(request):
     if request.method == 'POST':
-        nama = request.POST.get('nama', '').strip()
 
-        if not nama:
-            messages.error(request, 'Nama kelas wajib diisi.')
-        elif Kelas.objects.filter(nama__iexact=nama).exists():
-            messages.error(request, 'Kelas tersebut sudah ada.')
-        else:
-            Kelas.objects.create(nama=nama)
-            messages.success(request, 'Kelas berhasil ditambahkan.')
-            return redirect('data_kelas')
+        aksi = request.POST.get('aksi')
 
-    return render(request, 'students/tambah_kelas.html')
+        # =====================================================
+        # TAMBAH KELAS
+        # =====================================================
 
-def edit_kelas(request, id):
-    kelas = get_object_or_404(Kelas, id=id)
+        if aksi == 'tambah':
 
-    if request.method == 'POST':
-        nama = request.POST.get('nama', '').strip()
+            nama = request.POST.get(
+                'nama',
+                ''
+            ).strip()
 
-        if not nama:
-            messages.error(request, 'Nama kelas wajib diisi.')
+            if not nama:
 
-        elif Kelas.objects.filter(
-            nama__iexact=nama
-        ).exclude(id=kelas.id).exists():
-            messages.error(request, 'Nama kelas tersebut sudah digunakan.')
+                messages.error(
+                    request,
+                    'Nama kelas wajib diisi.'
+                )
 
-        else:
-            kelas.nama = nama
-            kelas.save()
+            elif Kelas.objects.filter(
+                nama__iexact=nama
+            ).exists():
+
+                messages.error(
+                    request,
+                    'Kelas tersebut sudah ada.'
+                )
+
+            else:
+
+                Kelas.objects.create(
+                    nama=nama
+                )
+
+                messages.success(
+                    request,
+                    'Kelas berhasil ditambahkan.'
+                )
+
+
+        # =====================================================
+        # EDIT KELAS
+        # =====================================================
+
+        elif aksi == 'edit':
+
+            kelas_id = request.POST.get(
+                'kelas_id'
+            )
+
+            nama = request.POST.get(
+                'nama',
+                ''
+            ).strip()
+
+            kelas = get_object_or_404(
+                Kelas,
+                id=kelas_id
+            )
+
+            if not nama:
+
+                messages.error(
+                    request,
+                    'Nama kelas wajib diisi.'
+                )
+
+            elif Kelas.objects.filter(
+                nama__iexact=nama
+            ).exclude(
+                id=kelas.id
+            ).exists():
+
+                messages.error(
+                    request,
+                    'Nama kelas tersebut sudah digunakan.'
+                )
+
+            else:
+
+                kelas.nama = nama
+
+                kelas.save(
+                    update_fields=[
+                        'nama'
+                    ]
+                )
+
+                messages.success(
+                    request,
+                    'Data kelas berhasil diperbarui.'
+                )
+
+
+        # =====================================================
+        # HAPUS KELAS
+        # =====================================================
+
+        elif aksi == 'hapus':
+
+            kelas_id = request.POST.get(
+                'kelas_id'
+            )
+
+            kelas = get_object_or_404(
+                Kelas,
+                id=kelas_id
+            )
+
+            nama = kelas.nama
+
+            kelas.delete()
 
             messages.success(
                 request,
-                'Data kelas berhasil diperbarui.'
+                f'Kelas {nama} berhasil dihapus.'
             )
 
-            return redirect('data_kelas')
+        return redirect(
+            'data_kelas'
+        )
 
     return render(
         request,
-        'students/edit_kelas.html',
+        'students/data_kelas.html',
         {
-            'kelas': kelas
+            'kelass': kelass
         }
     )
 
@@ -3229,151 +3380,282 @@ def edit_kelas(request, id):
 # =========================================================
 
 def data_guru(request):
-    gurus = Guru.objects.all().order_by('nama')
 
-    context = {
-        'gurus': gurus,
-    }
+    gurus = (
+        Guru.objects
+        .all()
+        .order_by('nama')
+    )
+
+    if request.method == 'POST':
+
+        aksi = request.POST.get('aksi')
+
+        # =========================
+        # TAMBAH
+        # =========================
+
+        if aksi == 'tambah':
+
+            nama = request.POST.get(
+                'nama',
+                ''
+            ).strip()
+
+            jenis_kelamin = request.POST.get(
+                'jenis_kelamin',
+                ''
+            ).strip()
+
+            if not nama:
+
+                messages.error(
+                    request,
+                    'Nama guru wajib diisi.'
+                )
+
+            elif jenis_kelamin not in ['L', 'P']:
+
+                messages.error(
+                    request,
+                    'Jenis kelamin wajib dipilih.'
+                )
+
+            elif Guru.objects.filter(
+                nama__iexact=nama
+            ).exists():
+
+                messages.error(
+                    request,
+                    'Guru tersebut sudah ada.'
+                )
+
+            else:
+
+                Guru.objects.create(
+                    nama=nama,
+                    jenis_kelamin=jenis_kelamin
+                )
+
+                messages.success(
+                    request,
+                    'Data guru berhasil ditambahkan.'
+                )
+
+        # =========================
+        # EDIT
+        # =========================
+
+        elif aksi == 'edit':
+
+            guru_id = request.POST.get(
+                'guru_id'
+            )
+
+            nama = request.POST.get(
+                'nama',
+                ''
+            ).strip()
+
+            jenis_kelamin = request.POST.get(
+                'jenis_kelamin',
+                ''
+            ).strip()
+
+            guru = get_object_or_404(
+                Guru,
+                id=guru_id
+            )
+
+            if not nama:
+
+                messages.error(
+                    request,
+                    'Nama guru wajib diisi.'
+                )
+
+            elif jenis_kelamin not in ['L', 'P']:
+
+                messages.error(
+                    request,
+                    'Jenis kelamin wajib dipilih.'
+                )
+
+            elif Guru.objects.filter(
+                nama__iexact=nama
+            ).exclude(
+                id=guru.id
+            ).exists():
+
+                messages.error(
+                    request,
+                    'Nama guru tersebut sudah digunakan.'
+                )
+
+            else:
+
+                guru.nama = nama
+                guru.jenis_kelamin = jenis_kelamin
+
+                guru.save(
+                    update_fields=[
+                        'nama',
+                        'jenis_kelamin'
+                    ]
+                )
+
+                messages.success(
+                    request,
+                    'Data guru berhasil diperbarui.'
+                )
+
+        # =========================
+        # HAPUS
+        # =========================
+
+        elif aksi == 'hapus':
+
+            guru_id = request.POST.get(
+                'guru_id'
+            )
+
+            guru = get_object_or_404(
+                Guru,
+                id=guru_id
+            )
+
+            nama_guru = guru.nama
+
+            guru.delete()
+
+            messages.success(
+                request,
+                f'Data guru "{nama_guru}" berhasil dihapus.'
+            )
+
+        return redirect('data_guru')
 
     return render(
         request,
         'students/data_guru.html',
-        context
-    )
-
-
-def tambah_guru(request):
-
-    if request.method == 'POST':
-
-        nama = request.POST.get(
-            'nama',
-            ''
-        ).strip()
-
-        jenis_kelamin = request.POST.get(
-            'jenis_kelamin',
-            ''
-        ).strip()
-
-        if not nama:
-
-            messages.error(
-                request,
-                'Nama guru wajib diisi.'
-            )
-
-        elif jenis_kelamin not in ['L', 'P']:
-
-            messages.error(
-                request,
-                'Jenis kelamin wajib dipilih.'
-            )
-
-        elif Guru.objects.filter(
-            nama__iexact=nama
-        ).exists():
-
-            messages.error(
-                request,
-                'Guru tersebut sudah ada.'
-            )
-
-        else:
-
-            Guru.objects.create(
-                nama=nama,
-                jenis_kelamin=jenis_kelamin
-            )
-
-            messages.success(
-                request,
-                'Data guru berhasil ditambahkan.'
-            )
-
-            return redirect('data_guru')
-
-    return render(
-        request,
-        'students/tambah_guru.html'
-    )
-
-
-def edit_guru(request, id):
-
-    guru = get_object_or_404(
-        Guru,
-        id=id
-    )
-
-    if request.method == 'POST':
-
-        nama = request.POST.get(
-            'nama',
-            ''
-        ).strip()
-
-        jenis_kelamin = request.POST.get(
-            'jenis_kelamin',
-            ''
-        ).strip()
-
-        if not nama:
-
-            messages.error(
-                request,
-                'Nama guru wajib diisi.'
-            )
-
-        elif jenis_kelamin not in ['L', 'P']:
-
-            messages.error(
-                request,
-                'Jenis kelamin wajib dipilih.'
-            )
-
-        elif Guru.objects.filter(
-            nama__iexact=nama
-        ).exclude(
-            id=guru.id
-        ).exists():
-
-            messages.error(
-                request,
-                'Nama guru tersebut sudah digunakan.'
-            )
-
-        else:
-
-            guru.nama = nama
-            guru.jenis_kelamin = jenis_kelamin
-            guru.save()
-
-            messages.success(
-                request,
-                'Data guru berhasil diperbarui.'
-            )
-
-            return redirect('data_guru')
-
-    return render(
-        request,
-        'students/edit_guru.html',
         {
-            'guru': guru
+            'gurus': gurus,
         }
     )
 
 def data_mata_pelajaran(request):
+
+    # =====================================================
+    # DATA SEMUA TAHUN AJARAN
+    # =====================================================
+
+    tahun_ajarans = (
+        TahunAjaran.objects
+        .all()
+        .order_by('-nama')
+    )
+
+    # =====================================================
+    # TAHUN AJARAN TERPILIH
+    # =====================================================
+
+    tahun_ajaran_id = request.GET.get('tahun_ajaran')
+
+    if tahun_ajaran_id:
+        tahun_ajaran_aktif = (
+            TahunAjaran.objects
+            .filter(id=tahun_ajaran_id)
+            .first()
+        )
+    else:
+
+        # Ambil dari session
+        tahun_ajaran_session = request.session.get(
+            'tahun_ajaran_id'
+        )
+
+        if tahun_ajaran_session:
+            tahun_ajaran_aktif = (
+                TahunAjaran.objects
+                .filter(id=tahun_ajaran_session)
+                .first()
+            )
+        else:
+            # Jika session belum ada,
+            # gunakan tahun ajaran yang aktif
+            tahun_ajaran_aktif = (
+                TahunAjaran.objects
+                .filter(aktif=True)
+                .first()
+            )
+
+    # =====================================================
+    # SIMPAN PILIHAN KE SESSION
+    # =====================================================
+
+    if tahun_ajaran_aktif:
+        request.session['tahun_ajaran_id'] = (
+            tahun_ajaran_aktif.id
+        )
+
+    # =====================================================
+    # PROSES HAPUS
+    # =====================================================
+
+    if request.method == 'POST':
+
+        aksi = request.POST.get('aksi')
+
+        if aksi == 'hapus':
+
+            mapel_id = request.POST.get('mapel_id')
+
+            mapel = get_object_or_404(
+                MataPelajaran,
+                id=mapel_id
+            )
+
+            nama_mapel = mapel.nama
+
+            mapel.delete()
+
+            messages.success(
+                request,
+                f'Mata pelajaran "{nama_mapel}" berhasil dihapus.'
+            )
+
+            return redirect(
+                f"{request.path}?tahun_ajaran={tahun_ajaran_aktif.id}"
+                if tahun_ajaran_aktif
+                else request.path
+            )
+
+    # =====================================================
+    # DATA MATA PELAJARAN
+    # =====================================================
+
     mata_pelajarans = (
         MataPelajaran.objects
         .select_related('tahun_ajaran')
         .prefetch_related('kelas')
-        .order_by('tahun_ajaran__nama', 'nama')
     )
+
+    if tahun_ajaran_aktif:
+
+        mata_pelajarans = mata_pelajarans.filter(
+            tahun_ajaran=tahun_ajaran_aktif
+        )
+
+    mata_pelajarans = mata_pelajarans.order_by('nama')
+
+    # =====================================================
+    # CONTEXT
+    # =====================================================
 
     context = {
         'mata_pelajarans': mata_pelajarans,
+        'tahun_ajarans': tahun_ajarans,
+        'tahun_ajaran_aktif': tahun_ajaran_aktif,
     }
 
     return render(
@@ -3549,6 +3831,387 @@ def edit_mata_pelajaran(request, id):
         context
     )
 
+# =====================================================
+# SALIN MATA PELAJARAN KE TAHUN AJARAN
+# =====================================================
+
+def salin_mata_pelajaran(request):
+
+    # =====================================================
+    # HARUS POST
+    # =====================================================
+
+    if request.method != 'POST':
+        return redirect('data_mata_pelajaran')
+
+
+    # =====================================================
+    # AMBIL MAPEL YANG DIPILIH
+    # =====================================================
+
+    mapel_ids = request.POST.getlist('mapel_ids')
+
+
+    # =====================================================
+    # VALIDASI MAPEL
+    # =====================================================
+
+    if not mapel_ids:
+
+        messages.error(
+            request,
+            'Silakan pilih minimal satu mata pelajaran.'
+        )
+
+        return redirect('data_mata_pelajaran')
+
+
+    # =====================================================
+    # CEK TAHAP PROSES SALIN
+    # =====================================================
+
+    tahun_tujuan_id = request.POST.get(
+        'tahun_tujuan'
+    )
+
+
+    # =====================================================
+    # POST PERTAMA
+    # TAMPILKAN HALAMAN SALIN
+    # =====================================================
+
+    if not tahun_tujuan_id:
+
+        mata_pelajarans_dipilih = (
+            MataPelajaran.objects
+            .select_related('tahun_ajaran')
+            .prefetch_related('kelas')
+            .filter(
+                id__in=mapel_ids
+            )
+            .order_by('nama')
+        )
+
+        tahun_ajarans = (
+            TahunAjaran.objects
+            .all()
+            .order_by('-nama')
+        )
+
+        kelass = (
+            Kelas.objects
+            .all()
+            .order_by('nama')
+        )
+
+        context = {
+            'mata_pelajarans_dipilih':
+                mata_pelajarans_dipilih,
+
+            'tahun_ajarans':
+                tahun_ajarans,
+
+            'kelass':
+                kelass,
+        }
+
+        return render(
+            request,
+            'students/salin_mata_pelajaran.html',
+            context
+        )
+
+
+    # =====================================================
+    # AMBIL TAHUN TUJUAN
+    # =====================================================
+
+    try:
+
+        tahun_tujuan = (
+            TahunAjaran.objects.get(
+                id=tahun_tujuan_id
+            )
+        )
+
+    except TahunAjaran.DoesNotExist:
+
+        messages.error(
+            request,
+            'Tahun ajaran tujuan tidak ditemukan.'
+        )
+
+        return redirect(
+            'data_mata_pelajaran'
+        )
+
+
+    # =====================================================
+    # MODE KELAS
+    # =====================================================
+
+    kelas_mode = request.POST.get(
+        'kelas_mode',
+        'asal'
+    )
+
+    kelas_tujuan_ids = request.POST.getlist(
+        'kelas_tujuan'
+    )
+
+
+    # =====================================================
+    # VALIDASI MODE PILIH KELAS
+    # =====================================================
+
+    if (
+        kelas_mode == 'pilih'
+        and not kelas_tujuan_ids
+    ):
+
+        messages.error(
+            request,
+            'Silakan pilih minimal satu kelas tujuan.'
+        )
+
+        return redirect(
+            'data_mata_pelajaran'
+        )
+
+
+    # =====================================================
+    # AMBIL KELAS TUJUAN
+    # =====================================================
+
+    kelas_tujuan = (
+        Kelas.objects
+        .filter(
+            id__in=kelas_tujuan_ids
+        )
+        .order_by('nama')
+    )
+
+
+    # =====================================================
+    # AMBIL MAPEL ASAL
+    # =====================================================
+
+    mata_pelajarans_dipilih = (
+        MataPelajaran.objects
+        .select_related('tahun_ajaran')
+        .prefetch_related('kelas')
+        .filter(
+            id__in=mapel_ids
+        )
+        .order_by('nama')
+    )
+
+
+    # =====================================================
+    # CEK MAPEL
+    # =====================================================
+
+    if not mata_pelajarans_dipilih.exists():
+
+        messages.error(
+            request,
+            'Mata pelajaran yang dipilih tidak ditemukan.'
+        )
+
+        return redirect(
+            'data_mata_pelajaran'
+        )
+
+
+    # =====================================================
+    # HITUNG
+    # =====================================================
+
+    jumlah_dibuat = 0
+    jumlah_diperbarui = 0
+    jumlah_nilai_dihapus = 0
+
+
+    # =====================================================
+    # PROSES SALIN
+    # =====================================================
+
+    for mapel_asal in mata_pelajarans_dipilih:
+
+        # -------------------------------------------------
+        # JIKA TAHUN ASAL = TAHUN TUJUAN
+        # -------------------------------------------------
+
+        if (
+            mapel_asal.tahun_ajaran_id
+            ==
+            tahun_tujuan.id
+        ):
+            continue
+
+
+        # -------------------------------------------------
+        # CARI / BUAT MAPEL TUJUAN
+        # -------------------------------------------------
+
+        mapel_tujuan, dibuat = (
+            MataPelajaran.objects.get_or_create(
+
+                nama=mapel_asal.nama,
+
+                tahun_ajaran=tahun_tujuan,
+
+                defaults={
+                    'kitab':
+                        mapel_asal.kitab,
+
+                    'aktif':
+                        mapel_asal.aktif,
+                }
+            )
+        )
+
+
+        # -------------------------------------------------
+        # UPDATE DATA MAPEL
+        # -------------------------------------------------
+
+        mapel_tujuan.kitab = (
+            mapel_asal.kitab
+        )
+
+        mapel_tujuan.aktif = (
+            mapel_asal.aktif
+        )
+
+        mapel_tujuan.save()
+
+
+        # -------------------------------------------------
+        # HITUNG MAPEL
+        # -------------------------------------------------
+
+        if dibuat:
+
+            jumlah_dibuat += 1
+
+        else:
+
+            jumlah_diperbarui += 1
+
+
+        # -------------------------------------------------
+        # ATUR KELAS
+        # -------------------------------------------------
+
+        if kelas_mode == 'asal':
+
+            # Ikuti kelas dari mapel asal
+
+            kelas_asal = (
+                mapel_asal.kelas.all()
+            )
+
+            mapel_tujuan.kelas.set(
+                kelas_asal
+            )
+
+        else:
+
+            # Gunakan kelas yang dipilih
+
+            mapel_tujuan.kelas.set(
+                kelas_tujuan
+            )
+
+
+        # =================================================
+        # RESET NILAI TAHUN AJARAN TUJUAN
+        # =================================================
+        #
+        # PENTING:
+        # Hanya menghapus nilai pada tahun tujuan.
+        #
+        # Nilai tahun ajaran asal TIDAK disentuh.
+        #
+        # =================================================
+
+        nilai_lama = (
+            Penilaian.objects
+            .filter(
+                mata_pelajaran=mapel_tujuan,
+                tahun_ajaran=tahun_tujuan,
+            )
+        )
+
+
+        jumlah_nilai = nilai_lama.count()
+
+
+        if jumlah_nilai > 0:
+
+            nilai_lama.delete()
+
+            jumlah_nilai_dihapus += (
+                jumlah_nilai
+            )
+
+
+    # =====================================================
+    # TOTAL MAPEL
+    # =====================================================
+
+    total = (
+        jumlah_dibuat
+        +
+        jumlah_diperbarui
+    )
+
+
+    # =====================================================
+    # HASIL
+    # =====================================================
+
+    if total == 0:
+
+        messages.warning(
+            request,
+            'Tidak ada mata pelajaran yang disalin. '
+            'Kemungkinan mata pelajaran tersebut '
+            'sudah ada pada tahun ajaran tujuan.'
+        )
+
+    else:
+
+        pesan = (
+            f'Berhasil menyalin {total} '
+            f'mata pelajaran ke tahun ajaran '
+            f'{tahun_tujuan.nama}.'
+        )
+
+        if jumlah_nilai_dihapus > 0:
+
+            pesan += (
+                f' {jumlah_nilai_dihapus} '
+                f'data nilai tahun tujuan '
+                f'direset menjadi kosong.'
+            )
+
+        messages.success(
+            request,
+            pesan
+        )
+
+
+    # =====================================================
+    # KEMBALI
+    # =====================================================
+
+    return redirect(
+        'data_mata_pelajaran'
+    )
+
+
 # =========================================================
 # RAPOT
 # =========================================================
@@ -3572,7 +4235,7 @@ def rapot(request):
     )
 
     # =====================================================
-    # FILTER UTAMA
+    # FILTER
     # =====================================================
 
     tahun_ajaran_id = request.GET.get(
@@ -3584,10 +4247,6 @@ def rapot(request):
         'kelas',
         ''
     ).strip()
-
-    # =====================================================
-    # PENCARIAN SISWA
-    # =====================================================
 
     search = request.GET.get(
         'search',
@@ -3602,6 +4261,19 @@ def rapot(request):
 
     if tahun_ajaran_id and kelas_id:
 
+        # Ambil siswa berdasarkan RIWAYAT
+        student_ids = (
+            RiwayatKelasSiswa.objects
+            .filter(
+                tahun_ajaran_id=tahun_ajaran_id,
+                kelas_id=kelas_id,
+            )
+            .values_list(
+                'student_id',
+                flat=True
+            )
+        )
+
         students = (
             Student.objects
             .select_related(
@@ -3609,16 +4281,14 @@ def rapot(request):
                 'tahun_ajaran'
             )
             .filter(
-                status=True,
-                kelas_id=kelas_id,
-                tahun_ajaran_id=tahun_ajaran_id,
+                id__in=student_ids
             )
             .order_by('nama')
         )
 
-        # -------------------------------------------------
-        # CARI NAMA ATAU NIM
-        # -------------------------------------------------
+        # =================================================
+        # PENCARIAN
+        # =================================================
 
         if search:
 
@@ -3658,14 +4328,10 @@ def rapot(request):
         context
     )
 
-# =========================================================
-# CETAK RAPOT PER SISWA
-# =========================================================
-
 def cetak_rapot_siswa(request, id):
 
     # =====================================================
-    # AMBIL PARAMETER
+    # PARAMETER
     # =====================================================
 
     tahun_ajaran_id = request.GET.get(
@@ -3679,7 +4345,7 @@ def cetak_rapot_siswa(request, id):
     ).strip()
 
     # =====================================================
-    # AMBIL SISWA
+    # SISWA
     # =====================================================
 
     student = get_object_or_404(
@@ -3687,64 +4353,58 @@ def cetak_rapot_siswa(request, id):
             'kelas',
             'tahun_ajaran'
         ),
-        id=id,
-        status=True
+        id=id
     )
 
     # =====================================================
-    # PASTIKAN SESUAI TAHUN AJARAN
-    # DAN KELAS YANG DIPILIH
+    # RIWAYAT KELAS
     # =====================================================
 
-    if tahun_ajaran_id:
+    riwayat = None
 
-        if str(student.tahun_ajaran_id) != str(
-            tahun_ajaran_id
-        ):
-            messages.error(
-                request,
-                'Siswa tidak sesuai dengan tahun ajaran yang dipilih.'
+    if tahun_ajaran_id and kelas_id:
+
+        riwayat = (
+            RiwayatKelasSiswa.objects
+            .select_related(
+                'student',
+                'kelas',
+                'tahun_ajaran'
             )
-
-            return redirect('rapot')
-
-    if kelas_id:
-
-        if str(student.kelas_id) != str(
-            kelas_id
-        ):
-            messages.error(
-                request,
-                'Siswa tidak sesuai dengan kelas yang dipilih.'
-            )
-
-            return redirect('rapot')
-
-    # =====================================================
-    # TAHUN AJARAN
-    # =====================================================
-
-    tahun_ajaran = None
-
-    if tahun_ajaran_id:
-
-        tahun_ajaran = (
-            TahunAjaran.objects
             .filter(
-                id=tahun_ajaran_id
+                student=student,
+                tahun_ajaran_id=tahun_ajaran_id,
+                kelas_id=kelas_id,
             )
             .first()
         )
 
-    elif student.tahun_ajaran_id:
+        # -------------------------------------------------
+        # TIDAK ADA RIWAYAT
+        # -------------------------------------------------
+
+        if not riwayat:
+
+            messages.error(
+                request,
+                'Siswa tidak terdaftar pada kelas dan tahun ajaran yang dipilih.'
+            )
+
+            return redirect('rapot')
+
+    # =====================================================
+    # TAHUN AJARAN & KELAS
+    # =====================================================
+
+    if riwayat:
+
+        tahun_ajaran = riwayat.tahun_ajaran
+        kelas = riwayat.kelas
+
+    else:
 
         tahun_ajaran = student.tahun_ajaran
-
-    # =====================================================
-    # KELAS
-    # =====================================================
-
-    kelas = student.kelas
+        kelas = student.kelas
 
     # =====================================================
     # NILAI
@@ -3758,13 +4418,14 @@ def cetak_rapot_siswa(request, id):
             Penilaian.objects
             .filter(
                 student=student,
-                mata_pelajaran__tahun_ajaran=tahun_ajaran,
+                tahun_ajaran=tahun_ajaran,
                 mata_pelajaran__kelas=kelas,
                 mata_pelajaran__aktif=True,
             )
             .select_related(
                 'student',
                 'mata_pelajaran',
+                'tahun_ajaran',
             )
             .order_by(
                 'mata_pelajaran__nama'
@@ -3797,23 +4458,52 @@ def cetak_rapot_siswa(request, id):
         context
     )
 
+
 def import_siswa(request):
+
     if request.method != 'POST':
         return redirect('student_list')
+
+
+    # =====================================================
+    # FILE EXCEL
+    # =====================================================
 
     file = request.FILES.get('file')
 
     if not file:
-        messages.error(request, 'Silakan pilih file Excel.')
+
+        messages.error(
+            request,
+            'Silakan pilih file Excel.'
+        )
+
         return redirect('student_list')
+
 
     if not file.name.lower().endswith('.xlsx'):
-        messages.error(request, 'File harus berformat Excel .xlsx.')
+
+        messages.error(
+            request,
+            'File harus berformat Excel .xlsx.'
+        )
+
         return redirect('student_list')
 
+
     try:
-        workbook = openpyxl.load_workbook(file, data_only=True)
+
+        workbook = openpyxl.load_workbook(
+            file,
+            data_only=True
+        )
+
         sheet = workbook.active
+
+
+        # =================================================
+        # HEADER EXCEL
+        # =================================================
 
         headers = [
             cell.value
@@ -3821,189 +4511,523 @@ def import_siswa(request):
         ]
 
         headers = [
-            str(header).strip() if header is not None else ''
+            str(header).strip()
+            if header is not None
+            else ''
             for header in headers
         ]
 
+
+        # =================================================
+        # FORMAT HEADER BARU
+        # =================================================
+
         required_headers = [
             'Nama',
-            'NIM',
-            'JK',
-            'Tempat Lahir',
-            'Tanggal Lahir',
-            'Alamat',
+            'Asrama',
+            'Nama Ayah',
             'Semester',
-            'Kelas',
-            'Tahun Ajaran',
+            'NIM',
+            'Status',
+            'Jenis Kelamin',
+            'Kelas Awal Masuk',
+            'Tahun Ajaran Masuk',
+            'Tempat Lahir',
             'Prodi',
+            'Tanggal Lahir',
+            'No. Telp / WA',
+            'Alamat',
         ]
 
+
+        # =================================================
+        # CEK HEADER
+        # =================================================
+
         for header in required_headers:
+
             if header not in headers:
+
                 messages.error(
                     request,
-                    f'Kolom "{header}" tidak ditemukan dalam file Excel.'
+                    f'Kolom "{header}" tidak ditemukan '
+                    f'dalam file Excel.'
                 )
-                return redirect('student_list')
+
+                return redirect(
+                    'student_list'
+                )
+
+
+        # =================================================
+        # INDEX HEADER
+        # =================================================
 
         header_index = {
             header: index
-            for index, header in enumerate(headers)
+            for index, header
+            in enumerate(headers)
         }
 
+
         berhasil = 0
+
         dilewati = 0
 
-        for row in sheet.iter_rows(min_row=2, values_only=True):
+
+        # =================================================
+        # PROSES SETIAP BARIS
+        # =================================================
+
+        for row in sheet.iter_rows(
+            min_row=2,
+            values_only=True
+        ):
+
+
+            # =============================================
+            # LEWATI BARIS KOSONG
+            # =============================================
 
             if not any(row):
                 continue
 
-            def get_value(nama_kolom):
-                index = header_index.get(nama_kolom)
 
-                if index is None or index >= len(row):
+            # =============================================
+            # FUNGSI AMBIL DATA
+            # =============================================
+
+            def get_value(nama_kolom):
+
+                index = header_index.get(
+                    nama_kolom
+                )
+
+                if (
+                    index is None
+                    or index >= len(row)
+                ):
+
                     return ''
+
 
                 value = row[index]
 
+
                 if value is None:
+
                     return ''
+
 
                 return str(value).strip()
 
-            nama = get_value('Nama')
-            nama_ayah = get_value('Nama Ayah')
-            nim = get_value('NIM')
-            if nim.endswith('.0'):
-                nim = nim[:-2]
-            jk = get_value('JK')
-            tempat_lahir = get_value('Tempat Lahir')
+
+            # =============================================
+            # DATA SISWA
+            # =============================================
+
+            nama = get_value(
+                'Nama'
+            )
+
+            asrama_nama = get_value(
+                'Asrama'
+            )
+
+            nama_ayah = get_value(
+                'Nama Ayah'
+            )
+
+            semester = get_value(
+                'Semester'
+            )
+
+            nim = get_value(
+                'NIM'
+            )
+
+            status = get_value(
+                'Status'
+            )
+
+            jk = get_value(
+                'Jenis Kelamin'
+            )
+
+            kelas_nama = get_value(
+                'Kelas Awal Masuk'
+            )
+
+            tahun_ajaran_nama = get_value(
+                'Tahun Ajaran Masuk'
+            )
+
+            tempat_lahir = get_value(
+                'Tempat Lahir'
+            )
+
+            prodi = get_value(
+                'Prodi'
+            )
+
             tanggal_lahir = row[
-                header_index['Tanggal Lahir']
+                header_index[
+                    'Tanggal Lahir'
+                ]
             ]
-            alamat = get_value('Alamat')
-            no_tlpn_wa = get_value('No. Telepon/WA')
-            status = get_value('Status')
-            asrama_nama = get_value('Asrama')
-            semester = get_value('Semester')
-            kelas_nama = get_value('Kelas')
-            tahun_ajaran_nama = get_value('Tahun Ajaran')
-            prodi = get_value('Prodi')
 
-            # Lewati baris contoh dari template
-            if nama.upper().startswith('CONTOH'):
+            no_tlpn_wa = get_value(
+                'No. Telp / WA'
+            )
+
+            alamat = get_value(
+                'Alamat'
+            )
+
+
+            # =============================================
+            # LEWATI BARIS CONTOH
+            # =============================================
+
+            if nama.upper().startswith(
+                'CONTOH'
+            ):
+
                 continue
 
-            # Validasi data wajib
+
+            # =============================================
+            # VALIDASI NAMA & NIM
+            # =============================================
+
             if not nama or not nim:
+
                 dilewati += 1
+
                 continue
 
-            # NIM harus unik
-            if Student.objects.filter(nim=nim).exists():
+
+            # =============================================
+            # NIM
+            # =============================================
+
+            if nim.endswith('.0'):
+
+                nim = nim[:-2]
+
+
+            # =============================================
+            # NIM HARUS UNIK
+            # =============================================
+
+            if Student.objects.filter(
+                nim=nim
+            ).exists():
+
                 dilewati += 1
+
                 continue
 
-            # JK
-            if jk not in ['L', 'P']:
+
+            # =============================================
+            # JENIS KELAMIN
+            # =============================================
+
+            jk_lower = jk.lower()
+
+
+            if jk_lower in [
+                'l',
+                'laki-laki',
+                'laki laki',
+            ]:
+
+                jk = 'L'
+
+
+            elif jk_lower in [
+                'p',
+                'perempuan',
+            ]:
+
+                jk = 'P'
+
+
+            else:
+
                 dilewati += 1
+
                 continue
 
-            # Tanggal lahir
+
+            # =============================================
+            # TANGGAL LAHIR
+            # =============================================
+
             try:
-                if isinstance(tanggal_lahir, datetime):
-                    tanggal_lahir = tanggal_lahir.date()
 
-                elif hasattr(tanggal_lahir, 'year'):
+                if isinstance(
+                    tanggal_lahir,
+                    datetime
+                ):
+
+                    tanggal_lahir = (
+                        tanggal_lahir.date()
+                    )
+
+
+                elif hasattr(
+                    tanggal_lahir,
+                    'year'
+                ):
+
+                    # Sudah berupa date
                     pass
 
+
                 else:
-                    tanggal_lahir = datetime.strptime(
-                        str(tanggal_lahir),
-                        '%d/%m/%Y'
-                    ).date()
 
-            except (ValueError, TypeError):
+                    tanggal_lahir = (
+                        datetime.strptime(
+                            str(
+                                tanggal_lahir
+                            ).strip(),
+                            '%d/%m/%Y'
+                        ).date()
+                    )
+
+
+            except (
+                ValueError,
+                TypeError
+            ):
+
                 dilewati += 1
+
                 continue
 
-            # Semester
+
+            # =============================================
+            # SEMESTER
+            # =============================================
+
             try:
-                semester = int(float(semester))
-            except (ValueError, TypeError):
+
+                semester = int(
+                    float(semester)
+                )
+
+            except (
+                ValueError,
+                TypeError
+            ):
+
                 dilewati += 1
+
                 continue
 
-            # Kelas
+
+            # =============================================
+            # KELAS AWAL MASUK
+            # =============================================
+
             kelas = None
 
+
             if kelas_nama:
-                kelas = Kelas.objects.filter(
-                    nama__iexact=kelas_nama
-                ).first()
+
+                kelas = (
+                    Kelas.objects
+                    .filter(
+                        nama__iexact=kelas_nama
+                    )
+                    .first()
+                )
+
 
                 if not kelas:
+
                     dilewati += 1
+
                     continue
 
-            # Tahun Ajaran
-            tahun_ajaran = TahunAjaran.objects.filter(
-                nama__iexact=tahun_ajaran_nama
-            ).first()
+
+            # =============================================
+            # TAHUN AJARAN MASUK
+            # =============================================
+
+            tahun_ajaran = (
+                TahunAjaran.objects
+                .filter(
+                    nama__iexact=
+                        tahun_ajaran_nama
+                )
+                .first()
+            )
+
 
             if not tahun_ajaran:
+
                 dilewati += 1
+
                 continue
 
-            # Asrama
+
+            # =============================================
+            # ASRAMA
+            # =============================================
+
             asrama_master = None
 
+
             if asrama_nama:
-                asrama_master = Asrama.objects.filter(
-                    nama__iexact=asrama_nama
-                ).first()
+
+                asrama_master = (
+                    Asrama.objects
+                    .filter(
+                        nama__iexact=
+                            asrama_nama
+                    )
+                    .first()
+                )
+
 
                 if not asrama_master:
+
                     dilewati += 1
+
                     continue
 
-            # Status
-            status_value = status.lower() == 'aktif'
 
-            Student.objects.create(
+            # =============================================
+            # STATUS
+            # =============================================
+
+            status_lower = (
+                status.strip().lower()
+            )
+
+
+            if status_lower in [
+                'aktif',
+                'active',
+                'true',
+                '1',
+            ]:
+
+                status_value = True
+
+
+            elif status_lower in [
+                'tidak aktif',
+                'inactive',
+                'false',
+                '0',
+            ]:
+
+                status_value = False
+
+
+            else:
+
+                # Default jika kosong
+                status_value = True
+
+
+            # =============================================
+            # BUAT SISWA
+            # =============================================
+
+            student = Student.objects.create(
+
                 nama=nama,
+
                 nama_ayah=nama_ayah,
+
                 nim=nim,
+
                 jk=jk,
+
                 tempat_lahir=tempat_lahir,
+
                 tanggal_lahir=tanggal_lahir,
+
                 alamat=alamat,
+
                 no_tlpn_wa=no_tlpn_wa,
+
                 status=status_value,
+
                 asrama=asrama_nama,
+
                 asrama_master=asrama_master,
+
                 semester=semester,
+
                 kelas=kelas,
+
                 tahun_ajaran=tahun_ajaran,
+
                 prodi=prodi,
             )
 
+
+            # =============================================
+            # RIWAYAT PENDIDIKAN / KELAS AWAL
+            # =============================================
+
+            if kelas:
+
+                RiwayatKelasSiswa.objects.create(
+
+                    student=student,
+
+                    tahun_ajaran=tahun_ajaran,
+
+                    kelas=kelas,
+
+                    semester=semester,
+
+                    status=status_value,
+                )
+
+
+            # =============================================
+            # BERHASIL
+            # =============================================
+
             berhasil += 1
+
+
+        # =================================================
+        # PESAN HASIL
+        # =================================================
 
         messages.success(
             request,
-            f'Import selesai. {berhasil} siswa berhasil diimpor, '
+            f'Import selesai. '
+            f'{berhasil} siswa berhasil diimpor, '
             f'{dilewati} baris dilewati.'
         )
 
+
     except Exception as e:
+
         messages.error(
             request,
             f'Import gagal: {str(e)}'
         )
 
-    return redirect('student_list')
+
+    # =====================================================
+    # KEMBALI
+    # =====================================================
+
+    return redirect(
+        'student_list'
+    )
+
+
 
 def export_siswa(request):
 
@@ -4217,94 +5241,636 @@ def export_siswa(request):
 
 def download_format_siswa(request):
 
-    workbook = openpyxl.Workbook()
+    import openpyxl
+
+    from openpyxl import Workbook
+    from openpyxl.styles import (
+        Font,
+        PatternFill,
+        Alignment,
+        Border,
+        Side,
+    )
+    from openpyxl.worksheet.datavalidation import (
+        DataValidation
+    )
+    from openpyxl.utils import get_column_letter
+
+    from .models import (
+        Asrama,
+        Kelas,
+        TahunAjaran,
+    )
+
+
+    # =====================================================
+    # BUAT WORKBOOK
+    # =====================================================
+
+    workbook = Workbook()
+
     sheet = workbook.active
+
     sheet.title = "Data Siswa"
+
+
+    # =====================================================
+    # HEADER SESUAI FORM TAMBAH SISWA
+    # =====================================================
 
     headers = [
         'Nama',
-        'Nama Ayah',
-        'NIM',
-        'JK',
-        'Tempat Lahir',
-        'Tanggal Lahir',
-        'Alamat',
-        'No. Telepon/WA',
-        'Status',
         'Asrama',
+        'Nama Ayah',
         'Semester',
-        'Kelas',
-        'Tahun Ajaran',
+        'NIM',
+        'Status',
+        'Jenis Kelamin',
+        'Kelas Awal Masuk',
+        'Tahun Ajaran Masuk',
+        'Tempat Lahir',
         'Prodi',
+        'Tanggal Lahir',
+        'No. Telp / WA',
+        'Alamat',
     ]
 
     sheet.append(headers)
 
-    # Contoh format
+
+    # =====================================================
+    # CONTOH DATA
+    # =====================================================
+
     sheet.append([
-        'CONTOH - HAPUS BARIS INI',
-        'Ahmad',
-        '10001',
-        'L',
-        'Kediri',
-        '01/01/2005',
-        'Alamat siswa',
-        '081234567890',
-        'Aktif',
-        'Asrama A',
+        'Ahmad Fauzan',
+        'Al-Barokah',
+        'Abdul Karim',
         1,
+        '10001',
+        'Aktif',
+        'Laki-laki',
         '1A',
-        '2026',
+        '2027/2028 Ganjil',
+        'Kediri',
         'Manajemen',
+        '01/01/2005',
+        '081234567890',
+        'Jl. Contoh No. 1, Kediri',
     ])
 
-    # Lebar kolom
-    widths = {
-        'A': 30,
-        'B': 25,
-        'C': 15,
-        'D': 10,
-        'E': 20,
-        'F': 18,
-        'G': 40,
-        'H': 20,
-        'I': 14,
-        'J': 20,
-        'K': 12,
-        'L': 14,
-        'M': 18,
-        'N': 30,
-    }
 
-    for column, width in widths.items():
-        sheet.column_dimensions[column].width = width
+    # =====================================================
+    # STYLE HEADER
+    # =====================================================
 
-    # Freeze header
-    sheet.freeze_panes = 'A2'
+    header_fill = PatternFill(
+        fill_type='solid',
+        fgColor='1F2937'
+    )
 
-    # Filter
-    sheet.auto_filter.ref = f"A1:N{sheet.max_row}"
+    header_font = Font(
+        bold=True,
+        color='FFFFFF'
+    )
 
-    # Style header
-    from openpyxl.styles import Font, PatternFill, Alignment
+    header_alignment = Alignment(
+        horizontal='center',
+        vertical='center',
+        wrap_text=True
+    )
+
+    thin_border = Border(
+        left=Side(style='thin', color='D1D5DB'),
+        right=Side(style='thin', color='D1D5DB'),
+        top=Side(style='thin', color='D1D5DB'),
+        bottom=Side(style='thin', color='D1D5DB'),
+    )
+
 
     for cell in sheet[1]:
+
+        cell.fill = header_fill
+
+        cell.font = header_font
+
+        cell.alignment = header_alignment
+
+        cell.border = thin_border
+
+
+    # =====================================================
+    # STYLE DATA CONTOH
+    # =====================================================
+
+    for cell in sheet[2]:
+
+        cell.alignment = Alignment(
+            vertical='top',
+            wrap_text=True
+        )
+
+        cell.border = thin_border
+
+
+    # =====================================================
+    # TINGGI BARIS
+    # =====================================================
+
+    sheet.row_dimensions[1].height = 30
+
+    sheet.row_dimensions[2].height = 40
+
+
+    # =====================================================
+    # LEBAR KOLOM
+    # =====================================================
+
+    widths = {
+        'A': 30,   # Nama
+        'B': 22,   # Asrama
+        'C': 28,   # Nama Ayah
+        'D': 12,   # Semester
+        'E': 18,   # NIM
+        'F': 15,   # Status
+        'G': 18,   # Jenis Kelamin
+        'H': 22,   # Kelas Awal Masuk
+        'I': 25,   # Tahun Ajaran Masuk
+        'J': 22,   # Tempat Lahir
+        'K': 35,   # Prodi
+        'L': 18,   # Tanggal Lahir
+        'M': 20,   # No Telp
+        'N': 40,   # Alamat
+    }
+
+
+    for column, width in widths.items():
+
+        sheet.column_dimensions[column].width = width
+
+
+    # =====================================================
+    # FORMAT NIM & NOMOR TELEPON SEBAGAI TEXT
+    # =====================================================
+
+    sheet['E2'].number_format = '@'
+
+    sheet['M2'].number_format = '@'
+
+
+    # =====================================================
+    # FORMAT TANGGAL
+    # =====================================================
+
+    sheet['L2'].number_format = 'dd/mm/yyyy'
+
+
+    # =====================================================
+    # FREEZE HEADER
+    # =====================================================
+
+    sheet.freeze_panes = 'A2'
+
+
+    # =====================================================
+    # FILTER
+    # =====================================================
+
+    sheet.auto_filter.ref = (
+        f"A1:N{sheet.max_row}"
+    )
+
+
+    # =====================================================
+    # AMBIL DATA MASTER
+    # =====================================================
+
+    asrama_list = list(
+        Asrama.objects
+        .order_by('nama')
+        .values_list('nama', flat=True)
+    )
+
+    kelas_list = list(
+        Kelas.objects
+        .order_by('nama')
+        .values_list('nama', flat=True)
+    )
+
+    tahun_ajaran_list = list(
+        TahunAjaran.objects
+        .order_by('-nama')
+        .values_list('nama', flat=True)
+    )
+
+
+    # =====================================================
+    # SHEET REFERENSI
+    # =====================================================
+
+    referensi = workbook.create_sheet(
+        "Referensi"
+    )
+
+
+    # =====================================================
+    # REFERENSI ASRAMA
+    # =====================================================
+
+    referensi['A1'] = 'Asrama'
+
+    for index, nama in enumerate(
+        asrama_list,
+        start=2
+    ):
+
+        referensi.cell(
+            row=index,
+            column=1
+        ).value = nama
+
+
+    # =====================================================
+    # REFERENSI KELAS
+    # =====================================================
+
+    referensi['B1'] = 'Kelas'
+
+    for index, nama in enumerate(
+        kelas_list,
+        start=2
+    ):
+
+        referensi.cell(
+            row=index,
+            column=2
+        ).value = nama
+
+
+    # =====================================================
+    # REFERENSI TAHUN AJARAN
+    # =====================================================
+
+    referensi['C1'] = 'Tahun Ajaran'
+
+    for index, nama in enumerate(
+        tahun_ajaran_list,
+        start=2
+    ):
+
+        referensi.cell(
+            row=index,
+            column=3
+        ).value = nama
+
+
+    # =====================================================
+    # REFERENSI STATUS
+    # =====================================================
+
+    referensi['D1'] = 'Status'
+
+    referensi['D2'] = 'Aktif'
+
+    referensi['D3'] = 'Tidak Aktif'
+
+
+    # =====================================================
+    # REFERENSI JENIS KELAMIN
+    # =====================================================
+
+    referensi['E1'] = 'Jenis Kelamin'
+
+    referensi['E2'] = 'Laki-laki'
+
+    referensi['E3'] = 'Perempuan'
+
+
+    # =====================================================
+    # REFERENSI SEMESTER
+    # =====================================================
+
+    referensi['F1'] = 'Semester'
+
+    for semester in range(1, 15):
+
+        referensi.cell(
+            row=semester + 1,
+            column=6
+        ).value = semester
+
+
+    # =====================================================
+    # REFERENSI PRODI
+    # =====================================================
+
+    referensi['G1'] = 'Prodi'
+
+    prodi_list = [
+        'Hukum Keluarga Islam (Ahwal Syakhshiyyah)',
+        'Akuntansi',
+        'Manajemen',
+        'Pendidikan Kimia',
+        'Pendidikan Bahasa Inggris',
+        'Pendidikan Matematika',
+        'Pendidikan Guru PAUD',
+        'Kebidanan',
+        'Keperawatan',
+        'Teknik Informatika',
+        'Teknik Industri',
+        'Teknik Mesin',
+        'Teknik Sipil',
+        'Agroteknologi',
+        'Agribisnis',
+    ]
+
+
+    for index, nama in enumerate(
+        prodi_list,
+        start=2
+    ):
+
+        referensi.cell(
+            row=index,
+            column=7
+        ).value = nama
+
+
+    # =====================================================
+    # STYLE SHEET REFERENSI
+    # =====================================================
+
+    for cell in referensi[1]:
+
         cell.font = Font(
-            bold=True,
-            color='FFFFFF'
+            bold=True
         )
 
         cell.fill = PatternFill(
             fill_type='solid',
-            fgColor='1F2937'
+            fgColor='E5E7EB'
         )
 
-        cell.alignment = Alignment(
-            horizontal='center',
-            vertical='center'
+
+    # =====================================================
+    # HIDE SHEET REFERENSI
+    # =====================================================
+
+    referensi.sheet_state = 'hidden'
+
+
+    # =====================================================
+    # DROPDOWN ASRAMA
+    # =====================================================
+
+    if asrama_list:
+
+        dv_asrama = DataValidation(
+            type='list',
+            formula1=(
+                f"'Referensi'!$A$2:$A$"
+                f"{len(asrama_list) + 1}"
+            ),
+            allow_blank=True
         )
 
-    # Response download
+        sheet.add_data_validation(
+            dv_asrama
+        )
+
+        dv_asrama.add(
+            'B2:B1000'
+        )
+
+
+    # =====================================================
+    # DROPDOWN SEMESTER
+    # =====================================================
+
+    dv_semester = DataValidation(
+        type='list',
+        formula1=(
+            "'Referensi'!$F$2:$F$15"
+        ),
+        allow_blank=True
+    )
+
+    sheet.add_data_validation(
+        dv_semester
+    )
+
+    dv_semester.add(
+        'D2:D1000'
+    )
+
+
+    # =====================================================
+    # DROPDOWN STATUS
+    # =====================================================
+
+    dv_status = DataValidation(
+        type='list',
+        formula1=(
+            "'Referensi'!$D$2:$D$3"
+        ),
+        allow_blank=True
+    )
+
+    sheet.add_data_validation(
+        dv_status
+    )
+
+    dv_status.add(
+        'F2:F1000'
+    )
+
+
+    # =====================================================
+    # DROPDOWN JENIS KELAMIN
+    # =====================================================
+
+    dv_jk = DataValidation(
+        type='list',
+        formula1=(
+            "'Referensi'!$E$2:$E$3"
+        ),
+        allow_blank=True
+    )
+
+    sheet.add_data_validation(
+        dv_jk
+    )
+
+    dv_jk.add(
+        'G2:G1000'
+    )
+
+
+    # =====================================================
+    # DROPDOWN KELAS
+    # =====================================================
+
+    if kelas_list:
+
+        dv_kelas = DataValidation(
+            type='list',
+            formula1=(
+                f"'Referensi'!$B$2:$B$"
+                f"{len(kelas_list) + 1}"
+            ),
+            allow_blank=True
+        )
+
+        sheet.add_data_validation(
+            dv_kelas
+        )
+
+        dv_kelas.add(
+            'H2:H1000'
+        )
+
+
+    # =====================================================
+    # DROPDOWN TAHUN AJARAN
+    # =====================================================
+
+    if tahun_ajaran_list:
+
+        dv_tahun = DataValidation(
+            type='list',
+            formula1=(
+                f"'Referensi'!$C$2:$C$"
+                f"{len(tahun_ajaran_list) + 1}"
+            ),
+            allow_blank=True
+        )
+
+        sheet.add_data_validation(
+            dv_tahun
+        )
+
+        dv_tahun.add(
+            'I2:I1000'
+        )
+
+
+    # =====================================================
+    # DROPDOWN PRODI
+    # =====================================================
+
+    dv_prodi = DataValidation(
+        type='list',
+        formula1=(
+            f"'Referensi'!$G$2:$G$"
+            f"{len(prodi_list) + 1}"
+        ),
+        allow_blank=True
+    )
+
+    sheet.add_data_validation(
+        dv_prodi
+    )
+
+    dv_prodi.add(
+        'K2:K1000'
+    )
+
+
+    # =====================================================
+    # CATATAN DI BAGIAN BAWAH
+    # =====================================================
+
+    catatan = workbook.create_sheet(
+        "Petunjuk"
+    )
+
+
+    catatan_data = [
+        [
+            'PETUNJUK PENGISIAN FORMAT DATA SISWA'
+        ],
+        [
+            ''
+        ],
+        [
+            '1.',
+            'Isi data siswa mulai dari baris ke-2.'
+        ],
+        [
+            '2.',
+            'Jangan mengubah nama atau urutan kolom.'
+        ],
+        [
+            '3.',
+            'Kolom yang memiliki pilihan dapat dipilih melalui dropdown.'
+        ],
+        [
+            '4.',
+            'NIM harus berupa angka dan tidak boleh sama.'
+        ],
+        [
+            '5.',
+            'Tanggal lahir menggunakan format DD/MM/YYYY.'
+        ],
+        [
+            '6.',
+            'Status pilih Aktif atau Tidak Aktif.'
+        ],
+        [
+            '7.',
+            'Jenis Kelamin pilih Laki-laki atau Perempuan.'
+        ],
+        [
+            '8.',
+            'Semester diisi sesuai semester siswa.'
+        ],
+        [
+            '9.',
+            'Kelas Awal Masuk adalah kelas ketika siswa pertama kali masuk.'
+        ],
+        [
+            '10.',
+            'Tahun Ajaran Masuk adalah tahun ajaran ketika siswa pertama kali masuk.'
+        ],
+        [
+            '11.',
+            'Setelah selesai mengisi, hapus baris contoh sebelum import.'
+        ],
+    ]
+
+
+    for row in catatan_data:
+
+        catatan.append(row)
+
+
+    catatan.column_dimensions['A'].width = 10
+
+    catatan.column_dimensions['B'].width = 90
+
+
+    # =====================================================
+    # STYLE PETUNJUK
+    # =====================================================
+
+    catatan['A1'].font = Font(
+        bold=True,
+        size=14
+    )
+
+    catatan.merge_cells(
+        'A1:B1'
+    )
+
+    catatan['A1'].alignment = Alignment(
+        horizontal='center'
+    )
+
+
+    # =====================================================
+    # RESPONSE DOWNLOAD
+    # =====================================================
+
     response = HttpResponse(
         content_type=(
             'application/vnd.openxmlformats-officedocument.'
@@ -4313,9 +5879,248 @@ def download_format_siswa(request):
     )
 
     response['Content-Disposition'] = (
-        'attachment; filename="format_data_siswa.xlsx"'
+        'attachment; '
+        'filename="format_data_siswa.xlsx"'
     )
+
 
     workbook.save(response)
 
     return response
+
+def kenaikan_siswa(request):
+
+    tahun_ajarans = TahunAjaran.objects.all().order_by('-nama')
+    kelass = Kelas.objects.all().order_by('nama')
+
+    tahun_id = request.GET.get('tahun_ajaran')
+    kelas_id = request.GET.get('kelas')
+
+    siswa = Student.objects.filter(
+        status=True
+    ).select_related(
+        'kelas',
+        'tahun_ajaran'
+    )
+
+    if tahun_id:
+        siswa = siswa.filter(
+            tahun_ajaran_id=tahun_id
+        )
+
+    if kelas_id:
+        siswa = siswa.filter(
+            kelas_id=kelas_id
+        )
+
+    if request.method == 'POST':
+
+        siswa_ids = request.POST.getlist('students')
+        tahun_tujuan_id = request.POST.get('tahun_tujuan')
+
+        if not tahun_tujuan_id:
+            messages.error(
+                request,
+                'Tahun ajaran tujuan wajib dipilih.'
+            )
+            return redirect('kenaikan_siswa')
+
+        for student_id in siswa_ids:
+
+            student = get_object_or_404(
+                Student,
+                id=student_id
+            )
+
+            kelas_tujuan_id = request.POST.get(
+                f'kelas_tujuan_{student_id}'
+            )
+
+            if not kelas_tujuan_id:
+                continue
+
+            RiwayatKelasSiswa.objects.update_or_create(
+                student=student,
+                tahun_ajaran_id=tahun_tujuan_id,
+                defaults={
+                    'kelas_id': kelas_tujuan_id
+                }
+            )
+
+            student.tahun_ajaran_id = tahun_tujuan_id
+            student.kelas_id = kelas_tujuan_id
+
+            student.save(
+                update_fields=[
+                    'tahun_ajaran',
+                    'kelas'
+                ]
+            )
+
+        messages.success(
+            request,
+            'Kenaikan siswa berhasil diproses.'
+        )
+
+        return redirect('kenaikan_siswa')
+
+    return render(
+        request,
+        'students/kenaikan_siswa.html',
+        {
+            'siswa': siswa.order_by('nama'),
+            'tahun_ajarans': tahun_ajarans,
+            'kelass': kelass,
+            'tahun_id': tahun_id,
+            'kelas_id': kelas_id,
+        }
+    )
+
+def tahun_ajaran(request):
+
+    tahun_ajarans = TahunAjaran.objects.all().order_by('-nama')
+
+    if request.method == 'POST':
+
+        aksi = request.POST.get('aksi')
+
+        # =====================================================
+        # TAMBAH
+        # =====================================================
+
+        if aksi == 'tambah':
+
+            nama = request.POST.get('nama', '').strip()
+            aktif = request.POST.get('aktif') == '1'
+
+            if not nama:
+
+                messages.error(
+                    request,
+                    'Tahun ajaran wajib diisi.'
+                )
+
+            elif TahunAjaran.objects.filter(
+                nama=nama
+            ).exists():
+
+                messages.error(
+                    request,
+                    'Tahun ajaran sudah ada.'
+                )
+
+            else:
+
+                if aktif:
+
+                    TahunAjaran.objects.update(
+                        aktif=False
+                    )
+
+                TahunAjaran.objects.create(
+                    nama=nama,
+                    aktif=aktif
+                )
+
+                messages.success(
+                    request,
+                    'Tahun ajaran berhasil ditambahkan.'
+                )
+
+
+        # =====================================================
+        # EDIT
+        # =====================================================
+
+        elif aksi == 'edit':
+
+            tahun_id = request.POST.get('tahun_id')
+            nama = request.POST.get('nama', '').strip()
+            aktif = request.POST.get('aktif') == '1'
+
+            tahun = get_object_or_404(
+                TahunAjaran,
+                id=tahun_id
+            )
+
+            if not nama:
+
+                messages.error(
+                    request,
+                    'Tahun ajaran wajib diisi.'
+                )
+
+            elif TahunAjaran.objects.filter(
+                nama=nama
+            ).exclude(
+                id=tahun.id
+            ).exists():
+
+                messages.error(
+                    request,
+                    'Tahun ajaran sudah ada.'
+                )
+
+            else:
+
+                if aktif:
+
+                    TahunAjaran.objects.exclude(
+                        id=tahun.id
+                    ).update(
+                        aktif=False
+                    )
+
+                tahun.nama = nama
+                tahun.aktif = aktif
+
+                tahun.save(
+                    update_fields=[
+                        'nama',
+                        'aktif'
+                    ]
+                )
+
+                messages.success(
+                    request,
+                    'Tahun ajaran berhasil diperbarui.'
+                )
+
+
+        # =====================================================
+        # HAPUS
+        # =====================================================
+
+        elif aksi == 'hapus':
+
+            tahun_id = request.POST.get('tahun_id')
+
+            tahun = get_object_or_404(
+                TahunAjaran,
+                id=tahun_id
+            )
+
+            nama_tahun = tahun.nama
+
+            tahun.delete()
+
+            messages.success(
+                request,
+                f'Tahun ajaran "{nama_tahun}" berhasil dihapus.'
+            )
+
+
+        # =====================================================
+        # REDIRECT
+        # =====================================================
+
+        return redirect('tahun_ajaran')
+
+
+    return render(
+        request,
+        'students/tahun_ajaran.html',
+        {
+            'tahun_ajarans': tahun_ajarans
+        }
+    )

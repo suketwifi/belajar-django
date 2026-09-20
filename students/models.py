@@ -1,18 +1,39 @@
 from django.db import models
 
 
+# =========================================================
+# ASRAMA
+# =========================================================
+
 class Asrama(models.Model):
-    nama = models.CharField(max_length=100, unique=True)
+
+    nama = models.CharField(
+        max_length=100,
+        unique=True
+    )
 
     def __str__(self):
         return self.nama
 
+
+# =========================================================
+# KELAS
+# =========================================================
 
 class Kelas(models.Model):
-    nama = models.CharField(max_length=20, unique=True)
+
+    nama = models.CharField(
+        max_length=20,
+        unique=True
+    )
 
     def __str__(self):
         return self.nama
+
+
+# =========================================================
+# GURU
+# =========================================================
 
 class Guru(models.Model):
 
@@ -40,13 +61,13 @@ class Guru(models.Model):
         verbose_name = 'Guru'
         verbose_name_plural = 'Guru'
 
-    class Meta:
-        ordering = ['nama']
-        verbose_name = 'Guru'
-        verbose_name_plural = 'Guru'
 
+# =========================================================
+# PRESENSI GURU
+# =========================================================
 
 class PresensiGuru(models.Model):
+
     STATUS_CHOICES = [
         ('Hadir', 'Hadir'),
         ('Izin', 'Izin'),
@@ -82,21 +103,55 @@ class PresensiGuru(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.guru.nama} - {self.tanggal} - {self.status}'    
+        return f'{self.guru.nama} - {self.tanggal} - {self.status}'
+
+
+# =========================================================
+# SISWA
+# =========================================================
 
 class Student(models.Model):
-    nama = models.CharField(max_length=100)
-    nama_ayah = models.CharField(max_length=100, blank=True)
-    nim = models.CharField(max_length=20, unique=True)
-    jk = models.CharField(max_length=10)
-    tempat_lahir = models.CharField(max_length=100)
+
+    nama = models.CharField(
+        max_length=100
+    )
+
+    nama_ayah = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    nim = models.CharField(
+        max_length=20,
+        unique=True
+    )
+
+    jk = models.CharField(
+        max_length=10
+    )
+
+    tempat_lahir = models.CharField(
+        max_length=100
+    )
+
     tanggal_lahir = models.DateField()
+
     alamat = models.TextField()
-    no_tlpn_wa = models.CharField(max_length=20, blank=True)
-    status = models.BooleanField(default=True)
+
+    no_tlpn_wa = models.CharField(
+        max_length=20,
+        blank=True
+    )
+
+    status = models.BooleanField(
+        default=True
+    )
 
     # Asrama lama
-    asrama = models.CharField(max_length=100, blank=True)
+    asrama = models.CharField(
+        max_length=100,
+        blank=True
+    )
 
     # Asrama master
     asrama_master = models.ForeignKey(
@@ -117,6 +172,7 @@ class Student(models.Model):
         blank=True
     )
 
+    # Tahun ajaran
     tahun_ajaran = models.ForeignKey(
         'TahunAjaran',
         on_delete=models.SET_NULL,
@@ -126,13 +182,20 @@ class Student(models.Model):
     )
 
     # Program studi
-    prodi = models.CharField(max_length=100)
+    prodi = models.CharField(
+        max_length=100
+    )
 
     def __str__(self):
         return self.nama
 
 
+# =========================================================
+# PRESENSI SISWA
+# =========================================================
+
 class Absensi(models.Model):
+
     STATUS_CHOICES = [
         ('Hadir', 'Hadir'),
         ('Izin', 'Izin'),
@@ -169,13 +232,15 @@ class Absensi(models.Model):
         ordering = ['-tanggal']
 
     def __str__(self):
-        return f"{self.student.nama} - {self.tanggal} - {self.status}"
+        return f'{self.student.nama} - {self.tanggal} - {self.status}'
+
 
 # =========================================================
 # TAHUN AJARAN
 # =========================================================
 
 class TahunAjaran(models.Model):
+
     nama = models.CharField(
         max_length=20,
         unique=True
@@ -190,11 +255,86 @@ class TahunAjaran(models.Model):
 
 
 # =========================================================
+# RIWAYAT KELAS SISWA
+# =========================================================
+
+class RiwayatKelasSiswa(models.Model):
+
+    student = models.ForeignKey(
+        Student,
+        on_delete=models.CASCADE,
+        related_name='riwayat_kelas'
+    )
+
+    tahun_ajaran = models.ForeignKey(
+        TahunAjaran,
+        on_delete=models.PROTECT,
+        related_name='riwayat_kelas_siswa'
+    )
+
+    kelas = models.ForeignKey(
+        Kelas,
+        on_delete=models.PROTECT,
+        related_name='riwayat_siswa'
+    )
+
+    semester = models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+
+    tanggal_masuk = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    status = models.BooleanField(
+        default=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    class Meta:
+        verbose_name = 'Riwayat Kelas Siswa'
+        verbose_name_plural = 'Riwayat Kelas Siswa'
+        ordering = [
+            '-tahun_ajaran',
+            'kelas__nama',
+            'student__nama'
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    'student',
+                    'tahun_ajaran'
+                ],
+                name='unique_student_tahun_ajaran'
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f'{self.student.nama} - '
+            f'{self.kelas.nama} - '
+            f'{self.tahun_ajaran.nama}'
+        )
+
+
+# =========================================================
 # MATA PELAJARAN
 # =========================================================
 
 class MataPelajaran(models.Model):
-    nama = models.CharField(max_length=100)
+
+    nama = models.CharField(
+        max_length=100
+    )
 
     kitab = models.CharField(
         max_length=150,
@@ -213,7 +353,9 @@ class MataPelajaran(models.Model):
         blank=True
     )
 
-    aktif = models.BooleanField(default=True)
+    aktif = models.BooleanField(
+        default=True
+    )
 
     def __str__(self):
         return self.nama
@@ -229,6 +371,14 @@ class Penilaian(models.Model):
         Student,
         on_delete=models.CASCADE,
         related_name='penilaian'
+    )
+
+    tahun_ajaran = models.ForeignKey(
+        TahunAjaran,
+        on_delete=models.PROTECT,
+        related_name='penilaian',
+        null=True,
+        blank=True
     )
 
     mata_pelajaran = models.ForeignKey(
@@ -257,14 +407,17 @@ class Penilaian(models.Model):
             models.UniqueConstraint(
                 fields=[
                     'student',
+                    'tahun_ajaran',
                     'mata_pelajaran'
                 ],
-                name='unique_penilaian_student_mapel'
+                name='unique_penilaian_student_tahun_mapel'
             )
         ]
 
     def __str__(self):
         return (
-            f"{self.student.nama} - "
-            f"{self.mata_pelajaran.nama}"
+            f'{self.student.nama} - '
+            f'{self.mata_pelajaran.nama} - '
+            f'{self.tahun_ajaran.nama}'
         )
+

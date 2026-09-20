@@ -6,90 +6,930 @@ Data Kelas
 
 {% block content %}
 
-<div class="page-header kelas-page-header">
+<style>
+
+/* =========================================================
+   HALAMAN
+   ========================================================= */
+
+.kelas-page {
+    width: 100%;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.kelas-page .page-header {
+    margin-bottom: 26px;
+}
+
+.kelas-page .page-header h1 {
+    margin: 0 0 6px;
+    font-size: 30px;
+    font-weight: 700;
+    color: #172554;
+}
+
+.kelas-page .page-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* =========================================================
+   FORM TAMBAH
+   ========================================================= */
+
+.kelas-form-card {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 26px;
+    padding: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+    overflow: hidden;
+}
+
+.kelas-form-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.kelas-form-header h2 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.kelas-form-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.kelas-form-body {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 22px 24px;
+}
+
+.kelas-form-group {
+    flex: 1;
+}
+
+.kelas-form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.kelas-form-group input {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 14px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.kelas-form-group input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+/* =========================================================
+   TOMBOL TAMBAH / SIMPAN
+   ========================================================= */
+
+.kelas-save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 17px;
+    border: none;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.kelas-save-button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   STATISTIK
+   ========================================================= */
+
+.kelas-stat-card {
+    width: 290px;
+    min-height: 128px;
+    box-sizing: border-box;
+    padding: 24px 26px;
+    margin-bottom: 26px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
+}
+
+.kelas-stat-label {
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.kelas-stat-number {
+    margin-bottom: 7px;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.kelas-stat-description {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.kelas-table-card {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+    overflow: hidden;
+}
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.kelas-table-header {
+    padding: 25px 26px 22px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.kelas-table-header h2 {
+    margin: 0 0 6px;
+    font-size: 19px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.kelas-table-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* =========================================================
+   TABLE WRAPPER
+   ========================================================= */
+
+.kelas-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.kelas-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 14px;
+}
+
+.kelas-table thead th {
+    height: 48px;
+    padding: 0 20px;
+    background: #ffffff;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.kelas-table thead th:nth-child(1) {
+    width: 70px;
+}
+
+.kelas-table thead th:nth-child(2) {
+    width: auto;
+}
+
+.kelas-table thead th:nth-child(3) {
+    width: 130px;
+}
+
+.kelas-table thead th:nth-child(4) {
+    width: 170px;
+    text-align: center;
+}
+
+/* =========================================================
+   TABLE BODY
+   ========================================================= */
+
+.kelas-table tbody tr {
+    height: 66px;
+}
+
+.kelas-table tbody td {
+    padding: 0 20px;
+    border-bottom: 1px solid #edf0f4;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.kelas-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* =========================================================
+   NAMA KELAS
+   ========================================================= */
+
+.kelas-name {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.kelas-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 55px;
+    height: 28px;
+    padding: 0 9px;
+    border-radius: 6px;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   AKSI
+   ========================================================= */
+
+.kelas-action {
+    text-align: center;
+}
+
+.kelas-action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+/* =========================================================
+   TOMBOL AKSI
+   ========================================================= */
+
+.kelas-edit-button,
+.kelas-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+/* =========================================================
+   EDIT
+   ========================================================= */
+
+.kelas-edit-button {
+    min-width: 50px;
+    border: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.kelas-edit-button:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+/* =========================================================
+   HAPUS
+   ========================================================= */
+
+.kelas-delete-button {
+    min-width: 58px;
+    border: 1px solid #dc2626;
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.kelas-delete-button:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #b91c1c;
+}
+
+/* =========================================================
+   BARIS EDIT
+   ========================================================= */
+
+.kelas-edit-row {
+    background: #f8fafc !important;
+}
+
+.kelas-edit-row td {
+    padding: 20px 24px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.kelas-edit-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.kelas-edit-form .kelas-form-group {
+    width: 250px;
+    flex: none;
+}
+
+.kelas-edit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* =========================================================
+   BATAL EDIT
+   ========================================================= */
+
+.kelas-cancel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 15px;
+    border: none;
+    border-radius: 7px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.kelas-cancel-button:hover {
+    background: #e2e8f0;
+}
+
+/* =========================================================
+   DATA KOSONG
+   ========================================================= */
+
+.kelas-empty {
+    text-align: center;
+    padding: 55px 20px !important;
+}
+
+.kelas-empty-title {
+    margin-bottom: 7px;
+    color: #475569;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.kelas-empty-text {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* =========================================================
+   POPUP HAPUS
+   ========================================================= */
+
+.kelas-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.kelas-delete-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.kelas-delete-box {
+    position: relative;
+    z-index: 1;
+    width: 420px;
+    max-width: calc(100% - 40px);
+    padding: 30px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    text-align: center;
+    animation: kelasDeletePopup 0.18s ease-out;
+}
+
+@keyframes kelasDeletePopup {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.kelas-delete-box h3 {
+    margin: 0 0 10px;
+    color: #1e293b;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.kelas-delete-box p {
+    margin: 0 auto 8px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.kelas-delete-box p strong {
+    color: #1e293b;
+}
+
+.kelas-delete-warning {
+    display: block;
+    margin-bottom: 25px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* =========================================================
+   TOMBOL POPUP
+   ========================================================= */
+
+.kelas-delete-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.kelas-delete-cancel,
+.kelas-delete-confirm {
+    min-width: 105px;
+    height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.kelas-delete-cancel {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.kelas-delete-cancel:hover {
+    background: #e2e8f0;
+}
+
+.kelas-delete-confirm {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.kelas-delete-confirm:hover {
+    background: #b91c1c;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .kelas-page .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .kelas-form-body {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .kelas-form-group {
+        width: 100%;
+    }
+
+    .kelas-save-button {
+        width: fit-content;
+    }
+
+    .kelas-stat-card {
+        width: 100%;
+    }
+
+    .kelas-table {
+        min-width: 650px;
+    }
+
+    .kelas-edit-form {
+        align-items: stretch;
+    }
+
+    .kelas-edit-form .kelas-form-group {
+        width: 100%;
+    }
+
+    .kelas-edit-actions {
+        width: 100%;
+    }
+
+    .kelas-delete-box {
+        width: 360px;
+        padding: 25px 20px;
+    }
+}
+
+</style>
+
+<div class="kelas-page">
+
+
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
+
+<div class="page-header">
 
     <div>
-        <h1>Data Kelas</h1>
-        <p>Kelola daftar kelas yang tersedia di madrasah</p>
-    </div>
 
-    <a href="{% url 'tambah_kelas' %}" class="btn-tambah-kelas">
-    <span class="btn-tambah-icon">+</span>
-    <span>Tambah Kelas</span>
-</a>
+        <h1>
+            Data Kelas
+        </h1>
+
+        <p>
+            Kelola daftar kelas yang tersedia di madrasah.
+        </p>
+
+    </div>
 
 </div>
 
 
-<!-- STATISTIK -->
+<!-- =====================================================
+     TAMBAH KELAS
+     ===================================================== -->
+
+<div class="kelas-form-card">
+
+    <div class="kelas-form-header">
+
+        <h2>
+            Tambah Kelas
+        </h2>
+
+        <p>
+            Masukkan nama kelas baru.
+        </p>
+
+    </div>
+
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="aksi"
+            value="tambah"
+        >
+
+        <div class="kelas-form-body">
+
+            <div class="kelas-form-group">
+
+                <label>
+                    Nama Kelas
+                </label>
+
+                <input
+                    type="text"
+                    name="nama"
+                    placeholder="Contoh: 1A"
+                    required
+                >
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="kelas-save-button"
+            >
+                Tambah
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- =====================================================
+     STATISTIK
+     ===================================================== -->
 
 <div class="kelas-stat-card">
 
-    <div class="kelas-stat-info">
-        <span class="kelas-stat-label">Total Kelas</span>
-        <strong>{{ kelass|length }}</strong>
-        <small>Kelas terdaftar</small>
+    <div class="kelas-stat-label">
+        Total Kelas
+    </div>
+
+    <div class="kelas-stat-number">
+        {{ kelass|length }}
+    </div>
+
+    <div class="kelas-stat-description">
+        Kelas terdaftar
     </div>
 
 </div>
 
 
-<!-- DATA KELAS -->
+<!-- =====================================================
+     DATA KELAS
+     ===================================================== -->
 
 <div class="kelas-table-card">
 
     <div class="kelas-table-header">
 
         <div>
-            <h2>Daftar Kelas</h2>
-            <p>Data kelas yang terdaftar dalam sistem</p>
+
+            <h2>
+                Daftar Kelas
+            </h2>
+
+            <p>
+                Data kelas yang terdaftar dalam sistem.
+            </p>
+
         </div>
 
     </div>
 
-
-    {% if kelass %}
 
     <div class="kelas-table-wrapper">
 
         <table class="kelas-table">
 
             <thead>
+
                 <tr>
-                    <th width="80">No</th>
-                    <th>Nama Kelas</th>
-                    <th width="160">Status</th>
-                    <th width="150">Aksi</th>
+
+                    <th>
+                        NO
+                    </th>
+
+                    <th>
+                        NAMA KELAS
+                    </th>
+
+                    <th>
+                        STATUS
+                    </th>
+
+                    <th>
+                        AKSI
+                    </th>
+
                 </tr>
+
             </thead>
+
 
             <tbody>
 
                 {% for kelas in kelass %}
 
+                <!-- =================================================
+                     DATA KELAS
+                     ================================================= -->
+
                 <tr>
 
-                    <td class="kelas-number">
+                    <td>
                         {{ forloop.counter }}
                     </td>
 
-                    <td>
-                        <div class="kelas-name">
-                            {{ kelas.nama }}
-                        </div>
+
+                    <td class="kelas-name">
+                        {{ kelas.nama }}
                     </td>
 
+
                     <td>
+
                         <span class="kelas-status">
                             Aktif
                         </span>
+
                     </td>
 
-                    <td>
-                        <a href="{% url 'edit_kelas' kelas.id %}"
-                            class="kelas-action">
+
+                    <td class="kelas-action">
+
+                        <div class="kelas-action-buttons">
+
+                            <!-- EDIT -->
+
+                            <button
+                                type="button"
+                                class="kelas-edit-button btn-edit-kelas"
+                                data-id="{{ kelas.id }}"
+                            >
                                 Edit
-                        </a>
+                            </button>
+
+
+                            <!-- HAPUS -->
+
+                            <button
+                                type="button"
+                                class="kelas-delete-button btn-hapus-kelas"
+                                data-id="{{ kelas.id }}"
+                                data-nama="{{ kelas.nama }}"
+                            >
+                                Hapus
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- =================================================
+                     FORM EDIT
+                     ================================================= -->
+
+                <tr
+                    id="edit-{{ kelas.id }}"
+                    class="kelas-edit-row"
+                    style="display: none;"
+                >
+
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+
+
+                    <td colspan="3">
+
+                        <form method="post">
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="aksi"
+                                value="edit"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="kelas_id"
+                                value="{{ kelas.id }}"
+                            >
+
+
+                            <div class="kelas-edit-form">
+
+                                <div class="kelas-form-group">
+
+                                    <label>
+                                        Nama Kelas
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="nama"
+                                        value="{{ kelas.nama }}"
+                                        required
+                                    >
+
+                                </div>
+
+
+                                <div class="kelas-edit-actions">
+
+                                    <button
+                                        type="submit"
+                                        class="kelas-save-button"
+                                    >
+                                        Simpan
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="kelas-cancel-button btn-batal-kelas"
+                                        data-id="{{ kelas.id }}"
+                                    >
+                                        Batal
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+
+                {% empty %}
+
+                <tr>
+
+                    <td
+                        colspan="4"
+                        class="kelas-empty"
+                    >
+
+                        <div class="kelas-empty-title">
+                            Belum ada data kelas
+                        </div>
+
+                        <div class="kelas-empty-text">
+                            Silakan tambahkan kelas terlebih dahulu.
+                        </div>
+
                     </td>
 
                 </tr>
@@ -102,322 +942,332 @@ Data Kelas
 
     </div>
 
-    {% else %}
+</div>
 
-    <div class="kelas-empty">
-
-        <h3>Belum ada data kelas</h3>
-
-        <p>
-            Belum ada kelas yang terdaftar.
-            Silakan tambahkan kelas baru.
-        </p>
-
-        <a href="{% url 'tambah_kelas' %}" class="btn btn-primary">
-            + Tambah Kelas
-        </a>
-
-    </div>
-
-    {% endif %}
 
 </div>
 
-{% endblock %}
+<!-- =========================================================
+     POPUP HAPUS KELAS
+     ========================================================= -->
+
+<div
+    id="kelas-delete-modal"
+    class="kelas-delete-modal"
+    style="display: none;"
+>
 
 
-{% block extra_css %}
+<div
+    class="kelas-delete-overlay"
+    id="kelas-delete-overlay"
+></div>
 
-    
-<style>
 
-    /* =========================
-    TOMBOL TAMBAH KELAS
-    ========================= */
+<div class="kelas-delete-box">
 
-    .btn-tambah-kelas {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 9px;
+    <h3>
+        Hapus Data Kelas?
+    </h3>
 
-        min-height: 42px;
-        padding: 0 17px;
 
-        background: #2563eb;
-        color: #ffffff;
+    <p>
 
-        border: 1px solid #2563eb;
-        border-radius: 8px;
+        Apakah Anda yakin ingin menghapus
 
-        text-decoration: none;
-        font-size: 14px;
-        font-weight: 600;
+        <strong id="kelas-delete-nama"></strong>?
 
-        box-shadow: 0 2px 5px rgba(37, 99, 235, 0.18);
+    </p>
 
-        transition:
-            background 0.2s ease,
-            border-color 0.2s ease,
-            box-shadow 0.2s ease,
-            transform 0.2s ease;
+
+    <span class="kelas-delete-warning">
+        Data yang sudah dihapus tidak dapat dikembalikan.
+    </span>
+
+
+    <form
+        method="POST"
+        id="kelas-delete-form"
+    >
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="aksi"
+            value="hapus"
+        >
+
+        <input
+            type="hidden"
+            name="kelas_id"
+            id="kelas-delete-id"
+        >
+
+
+        <div class="kelas-delete-actions">
+
+            <button
+                type="button"
+                class="kelas-delete-cancel"
+                id="kelas-delete-cancel"
+            >
+                Batal
+            </button>
+
+
+            <button
+                type="submit"
+                class="kelas-delete-confirm"
+            >
+                Ya, Hapus
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+</div>
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        /* =====================================================
+           EDIT KELAS
+           ===================================================== */
+
+        document
+            .querySelectorAll('.btn-edit-kelas')
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        'click',
+                        function () {
+
+                            const id =
+                                this.dataset.id;
+
+
+                            const editRow =
+                                document.getElementById(
+                                    'edit-' + id
+                                );
+
+
+                            /* Tutup form edit lainnya */
+
+                            document
+                                .querySelectorAll(
+                                    '.kelas-edit-row'
+                                )
+                                .forEach(
+                                    function (row) {
+
+                                        if (
+                                            row !== editRow
+                                        ) {
+
+                                            row.style.display =
+                                                'none';
+
+                                        }
+
+                                    }
+                                );
+
+
+                            /* Tampilkan form edit */
+
+                            editRow.style.display =
+                                'table-row';
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =====================================================
+           BATAL EDIT
+           ===================================================== */
+
+        document
+            .querySelectorAll('.btn-batal-kelas')
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        'click',
+                        function () {
+
+                            const id =
+                                this.dataset.id;
+
+
+                            const editRow =
+                                document.getElementById(
+                                    'edit-' + id
+                                );
+
+
+                            editRow.style.display =
+                                'none';
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =====================================================
+           POPUP HAPUS
+           ===================================================== */
+
+        const deleteModal =
+            document.getElementById(
+                'kelas-delete-modal'
+            );
+
+
+        const deleteOverlay =
+            document.getElementById(
+                'kelas-delete-overlay'
+            );
+
+
+        const deleteNama =
+            document.getElementById(
+                'kelas-delete-nama'
+            );
+
+
+        const deleteId =
+            document.getElementById(
+                'kelas-delete-id'
+            );
+
+
+        const deleteCancel =
+            document.getElementById(
+                'kelas-delete-cancel'
+            );
+
+
+        /* =====================================================
+           BUKA POPUP
+           ===================================================== */
+
+        document
+            .querySelectorAll('.btn-hapus-kelas')
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        'click',
+                        function () {
+
+                            const id =
+                                this.dataset.id;
+
+
+                            const nama =
+                                this.dataset.nama;
+
+
+                            deleteId.value =
+                                id;
+
+
+                            deleteNama.textContent =
+                                nama;
+
+
+                            deleteModal.style.display =
+                                'flex';
+
+                        }
+                    );
+
+                }
+            );
+
+
+        /* =====================================================
+           BATAL HAPUS
+           ===================================================== */
+
+        deleteCancel.addEventListener(
+            'click',
+            function () {
+
+                deleteModal.style.display =
+                    'none';
+
+                deleteId.value =
+                    '';
+
+            }
+        );
+
+
+        /* =====================================================
+           KLIK AREA LUAR POPUP
+           ===================================================== */
+
+        deleteOverlay.addEventListener(
+            'click',
+            function () {
+
+                deleteModal.style.display =
+                    'none';
+
+                deleteId.value =
+                    '';
+
+            }
+        );
+
+
+        /* =====================================================
+           ESC
+           ===================================================== */
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (
+                    event.key === 'Escape' &&
+                    deleteModal.style.display === 'flex'
+                ) {
+
+                    deleteModal.style.display =
+                        'none';
+
+                    deleteId.value =
+                        '';
+
+                }
+
+            }
+        );
+
     }
+);
 
-    .btn-tambah-kelas:hover {
-        background: #1d4ed8;
-        border-color: #1d4ed8;
-
-        color: #ffffff;
-        text-decoration: none;
-
-        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
-
-        transform: translateY(-1px);
-    }
-
-    .btn-tambah-kelas:active {
-        transform: translateY(0);
-        box-shadow: 0 2px 5px rgba(37, 99, 235, 0.18);
-    }
-
-
-    /* TANDA PLUS */
-
-    .btn-tambah-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-
-        width: 21px;
-        height: 21px;
-
-        border: 1.5px solid rgba(255, 255, 255, 0.85);
-        border-radius: 5px;
-
-        font-size: 17px;
-        font-weight: 400;
-        line-height: 1;
-    }
-
-    /* =========================
-       HEADER
-    ========================= */
-
-    .kelas-page-header {
-        margin-bottom: 24px;
-    }
-
-
-    /* =========================
-       STATISTIK
-    ========================= */
-
-    .kelas-stat-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 20px 24px;
-        margin-bottom: 24px;
-        max-width: 300px;
-    }
-
-    .kelas-stat-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .kelas-stat-label {
-        font-size: 13px;
-        color: #6b7280;
-        margin-bottom: 5px;
-    }
-
-    .kelas-stat-info strong {
-        font-size: 30px;
-        line-height: 1.2;
-        color: #111827;
-    }
-
-    .kelas-stat-info small {
-        margin-top: 5px;
-        color: #9ca3af;
-        font-size: 12px;
-    }
-
-
-    /* =========================
-       TABLE CARD
-    ========================= */
-
-    .kelas-table-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-
-    .kelas-table-header {
-        padding: 22px 24px;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .kelas-table-header h2 {
-        margin: 0 0 5px;
-        font-size: 18px;
-        color: #111827;
-    }
-
-    .kelas-table-header p {
-        margin: 0;
-        font-size: 13px;
-        color: #6b7280;
-    }
-
-
-    /* =========================
-       TABLE
-    ========================= */
-
-    .kelas-table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .kelas-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .kelas-table th {
-        background: #f9fafb;
-        padding: 14px 20px;
-        text-align: left;
-        font-size: 12px;
-        font-weight: 700;
-        color: #6b7280;
-        text-transform: uppercase;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .kelas-table td {
-        padding: 16px 20px;
-        border-bottom: 1px solid #f0f0f0;
-        font-size: 14px;
-        color: #374151;
-    }
-
-    .kelas-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    .kelas-table tbody tr:hover {
-        background: #fafafa;
-    }
-
-
-    /* =========================
-       NOMOR
-    ========================= */
-
-    .kelas-number {
-        color: #9ca3af !important;
-        font-size: 13px !important;
-    }
-
-
-    /* =========================
-       NAMA KELAS
-    ========================= */
-
-    .kelas-name {
-        font-weight: 600;
-        color: #111827;
-    }
-
-
-    /* =========================
-       STATUS
-    ========================= */
-
-    .kelas-status {
-        display: inline-flex;
-        align-items: center;
-        padding: 5px 10px;
-        border-radius: 20px;
-        background: #ecfdf3;
-        color: #15803d;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-
-    /* =========================
-       ACTION
-    ========================= */
-
-    .kelas-action {
-        display: inline-flex;
-        align-items: center;
-        padding: 7px 12px;
-        border-radius: 7px;
-        background: #f3f4f6;
-        color: #374151;
-        text-decoration: none;
-        font-size: 12px;
-        font-weight: 600;
-    }
-
-    .kelas-action:hover {
-        background: #e5e7eb;
-    }
-
-
-    /* =========================
-       EMPTY STATE
-    ========================= */
-
-    .kelas-empty {
-        padding: 60px 30px;
-        text-align: center;
-    }
-
-    .kelas-empty h3 {
-        margin: 0 0 8px;
-        color: #111827;
-        font-size: 18px;
-    }
-
-    .kelas-empty p {
-        margin: 0 auto 20px;
-        max-width: 450px;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-
-    /* =========================
-       RESPONSIVE
-    ========================= */
-
-    @media (max-width: 768px) {
-
-        .kelas-page-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-
-        .kelas-stat-card {
-            max-width: none;
-        }
-
-        .kelas-table th,
-        .kelas-table td {
-            padding: 12px 14px;
-        }
-
-    }
-
-</style>
+</script>
 
 {% endblock %}

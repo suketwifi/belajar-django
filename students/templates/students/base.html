@@ -8,7 +8,7 @@
 
     <link
         rel="icon"
-        type="image/jpeg"
+        type="image.jpeg"
         href="{% static 'students/logo-madin.jpeg' %}"
     >
 
@@ -20,9 +20,11 @@
     >
 
     <title>
+
         {% block title %}
             Sistem Madrasah
         {% endblock %}
+
     </title>
 
     <link
@@ -67,7 +69,11 @@
             max-width: 100%;
             min-height: 100vh;
 
-            font-family: "Inter", "Segoe UI", Arial, sans-serif;
+            font-family:
+                "Inter",
+                "Segoe UI",
+                Arial,
+                sans-serif;
 
             background: #f1f5f9;
             color: #1e293b;
@@ -225,6 +231,7 @@
             gap: 11px;
 
             padding: 0 10px;
+
             margin-bottom: 28px;
         }
 
@@ -295,7 +302,6 @@
         .sidebar > a,
         .menu-item > a,
         .submenu a {
-
             display: flex;
             align-items: center;
 
@@ -348,7 +354,6 @@
         .sidebar > a:hover,
         .menu-item > a:hover,
         .submenu a:hover {
-
             background: #1e293b;
 
             color: #ffffff;
@@ -362,7 +367,6 @@
         ========================================================= */
 
         .sidebar a.active {
-
             background: #2563eb;
 
             color: #ffffff;
@@ -383,6 +387,7 @@
 
         .submenu {
             margin-left: 12px;
+
             padding-left: 10px;
 
             border-left: 1px solid #334155;
@@ -391,6 +396,7 @@
 
         .submenu a {
             font-size: 13px;
+
             padding: 9px 12px;
 
             color: #94a3b8;
@@ -407,7 +413,6 @@
         ========================================================= */
 
         .content {
-
             margin-left: 250px;
 
             min-height: 100vh;
@@ -425,9 +430,10 @@
         ========================================================= */
 
         .navbar {
-
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
 
             background: #ffffff;
@@ -448,7 +454,6 @@
 
 
         .navbar h3 {
-
             font-size: 18px;
 
             font-weight: 600;
@@ -458,7 +463,6 @@
 
 
         .navbar-brand {
-
             display: flex;
 
             align-items: center;
@@ -470,7 +474,6 @@
 
 
         .navbar-brand img {
-
             width: 42px;
             height: 42px;
 
@@ -487,7 +490,6 @@
 
 
         .navbar-brand-text {
-
             display: flex;
 
             flex-direction: column;
@@ -499,7 +501,6 @@
 
 
         .navbar-brand-text strong {
-
             color: #0f172a;
 
             font-size: 17px;
@@ -511,12 +512,64 @@
 
 
         .navbar-brand-text span {
-
             color: #64748b;
 
             font-size: 11px;
 
             line-height: 1.3;
+        }
+
+        /* =========================================================
+        TAHUN AJARAN GLOBAL
+        ========================================================= */
+
+        .tahun-ajaran-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tahun-ajaran-label {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tahun-ajaran-selector {
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+
+            min-width: 180px;
+            padding: 9px 12px;
+
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+
+            color: #1e293b;
+            font-size: 13px;
+            font-weight: 600;
+
+            transition: all 0.2s ease;
+        }
+
+        .tahun-ajaran-selector:hover {
+            background: #ffffff;
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .tahun-ajaran-arrow {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .tahun-ajaran-selector:hover .tahun-ajaran-arrow {
+            color: #2563eb;
         }
 
 
@@ -525,7 +578,6 @@
         ========================================================= */
 
         .page-header {
-
             display: flex;
 
             justify-content: space-between;
@@ -539,7 +591,6 @@
 
 
         .page-header h1 {
-
             font-size: 26px;
 
             font-weight: 700;
@@ -551,7 +602,6 @@
 
 
         .page-header p {
-
             color: #64748b;
 
             font-size: 14px;
@@ -563,10 +613,10 @@
         ========================================================= */
 
         .btn-add {
-
             display: inline-flex;
 
             align-items: center;
+
             justify-content: center;
 
             gap: 7px;
@@ -595,7 +645,6 @@
 
 
         .btn-add:hover {
-
             background: #1d4ed8;
 
             transform: translateY(-1px);
@@ -610,7 +659,6 @@
         ========================================================= */
 
         .cards {
-
             display: grid;
 
             grid-template-columns:
@@ -623,7 +671,6 @@
 
 
         .card {
-
             position: relative;
 
             background: #ffffff;
@@ -642,7 +689,6 @@
 
 
         .card:hover {
-
             transform: translateY(-3px);
 
             box-shadow:
@@ -651,7 +697,6 @@
 
 
         .card h3 {
-
             font-size: 13px;
 
             font-weight: 600;
@@ -663,7 +708,6 @@
 
 
         .card h2 {
-
             font-size: 30px;
 
             font-weight: 700;
@@ -675,7 +719,6 @@
 
 
         .card p {
-
             color: #94a3b8;
 
             font-size: 13px;
@@ -687,7 +730,6 @@
         ========================================================= */
 
         .table-card {
-
             background: #ffffff;
 
             border-radius: 12px;
@@ -706,7 +748,6 @@
         ========================================================= */
 
         .table-header {
-
             display: flex;
 
             justify-content: space-between;
@@ -720,7 +761,6 @@
 
 
         .table-header h2 {
-
             font-size: 18px;
 
             color: #0f172a;
@@ -732,7 +772,6 @@
         ========================================================= */
 
         .search-box {
-
             width: 260px;
 
             padding: 10px 13px;
@@ -759,7 +798,6 @@
 
 
         .search-box:focus {
-
             border-color: #2563eb;
 
             box-shadow:
@@ -772,7 +810,6 @@
         ========================================================= */
 
         .table-container {
-
             width: 100%;
 
             overflow-x: auto;
@@ -782,7 +819,6 @@
 
 
         .student-table {
-
             width: 100%;
 
             border-collapse: collapse;
@@ -792,7 +828,6 @@
 
 
         .student-table th {
-
             background: #f8fafc;
 
             color: #475569;
@@ -812,7 +847,6 @@
 
 
         .student-table td {
-
             padding: 14px;
 
             border-bottom: 1px solid #e2e8f0;
@@ -826,20 +860,17 @@
 
 
         .student-table tbody tr {
-
             transition:
                 background 0.15s ease;
         }
 
 
         .student-table tbody tr:hover {
-
             background: #f8fafc;
         }
 
 
         .student-table tbody tr:last-child td {
-
             border-bottom: none;
         }
 
@@ -849,7 +880,6 @@
         ========================================================= */
 
         .status {
-
             display: inline-flex;
 
             align-items: center;
@@ -865,7 +895,6 @@
 
 
         .status.active {
-
             background: #dcfce7;
 
             color: #166534;
@@ -873,7 +902,6 @@
 
 
         .status.inactive {
-
             background: #fee2e2;
 
             color: #991b1b;
@@ -885,14 +913,13 @@
         ========================================================= */
 
         .actions {
-
             white-space: nowrap;
         }
 
 
         .actions button {
-
             width: 34px;
+
             height: 34px;
 
             border: none;
@@ -912,7 +939,6 @@
 
 
         .actions button:hover {
-
             background: #f1f5f9;
 
             transform: translateY(-1px);
@@ -939,7 +965,6 @@
         ========================================================= */
 
         .empty {
-
             text-align: center !important;
 
             padding: 35px !important;
@@ -955,7 +980,6 @@
         ========================================================= */
 
         .form-card {
-
             background: #ffffff;
 
             padding: 25px;
@@ -975,7 +999,6 @@
 
 
         .form-group label {
-
             display: block;
 
             margin-bottom: 7px;
@@ -991,7 +1014,6 @@
         .form-group input,
         .form-group select,
         .form-group textarea {
-
             width: 100%;
 
             padding: 11px 13px;
@@ -1013,7 +1035,6 @@
 
 
         .form-group textarea {
-
             min-height: 100px;
 
             resize: vertical;
@@ -1023,7 +1044,6 @@
         .form-group input:focus,
         .form-group select:focus,
         .form-group textarea:focus {
-
             border-color: #2563eb;
 
             box-shadow:
@@ -1036,7 +1056,6 @@
         ========================================================= */
 
         .detail-page {
-
             width: 100%;
 
             max-width: 1400px;
@@ -1046,7 +1065,6 @@
 
 
         .detail-page .detail-header {
-
             display: flex;
 
             justify-content: space-between;
@@ -1068,7 +1086,6 @@
 
 
         .detail-page .detail-header h1 {
-
             margin: 0 0 6px;
 
             font-size: 28px;
@@ -1080,7 +1097,6 @@
 
 
         .detail-page .detail-header p {
-
             margin: 0;
 
             color: #64748b;
@@ -1090,7 +1106,6 @@
 
 
         .detail-header-actions {
-
             display: flex;
 
             align-items: center;
@@ -1100,7 +1115,6 @@
 
 
         .detail-header-actions a {
-
             display: inline-flex;
 
             align-items: center;
@@ -1124,7 +1138,6 @@
 
 
         .detail-header-actions .btn-back {
-
             background: #ffffff;
 
             color: #475569;
@@ -1134,7 +1147,6 @@
 
 
         .detail-header-actions .btn-back:hover {
-
             background: #f8fafc;
 
             color: #1e293b;
@@ -1144,7 +1156,6 @@
 
 
         .detail-header-actions .btn-edit-main {
-
             background: #2563eb;
 
             color: #ffffff;
@@ -1157,7 +1168,6 @@
 
 
         .detail-header-actions .btn-edit-main:hover {
-
             background: #1d4ed8;
 
             border-color: #1d4ed8;
@@ -1171,7 +1181,6 @@
         ========================================================= */
 
         .student-profile-card {
-
             display: flex;
 
             align-items: center;
@@ -1196,8 +1205,8 @@
 
 
         .profile-avatar {
-
             width: 64px;
+
             height: 64px;
 
             min-width: 64px;
@@ -1205,6 +1214,7 @@
             display: flex;
 
             align-items: center;
+
             justify-content: center;
 
             border-radius: 50%;
@@ -1228,7 +1238,6 @@
 
 
         .profile-info h2 {
-
             margin: 0 0 7px;
 
             font-size: 22px;
@@ -1240,7 +1249,6 @@
 
 
         .profile-meta {
-
             display: flex;
 
             flex-wrap: wrap;
@@ -1261,7 +1269,6 @@
 
 
         .profile-status {
-
             display: inline-flex;
 
             align-items: center;
@@ -1287,7 +1294,6 @@
         ========================================================= */
 
         .detail-page .detail-grid {
-
             display: grid;
 
             grid-template-columns:
@@ -1305,7 +1311,6 @@
         ========================================================= */
 
         .detail-page .detail-card {
-
             width: 100%;
 
             background: #ffffff;
@@ -1322,7 +1327,6 @@
 
 
         .detail-page .detail-card-header {
-
             display: flex;
 
             align-items: center;
@@ -1338,8 +1342,8 @@
 
 
         .detail-card-icon {
-
             width: 40px;
+
             height: 40px;
 
             min-width: 40px;
@@ -1347,6 +1351,7 @@
             display: flex;
 
             align-items: center;
+
             justify-content: center;
 
             border-radius: 10px;
@@ -1358,7 +1363,6 @@
 
 
         .detail-card-header h3 {
-
             margin: 0 0 3px;
 
             font-size: 16px;
@@ -1370,7 +1374,6 @@
 
 
         .detail-card-header p {
-
             margin: 0;
 
             font-size: 12px;
@@ -1384,7 +1387,6 @@
         ========================================================= */
 
         .detail-page .detail-list {
-
             display: grid;
 
             grid-template-columns: 1fr 1fr;
@@ -1396,7 +1398,6 @@
 
 
         .detail-page .detail-item {
-
             padding: 13px 14px;
 
             background: #f8fafc;
@@ -1408,7 +1409,6 @@
 
 
         .detail-page .detail-item > span:first-child {
-
             display: block;
 
             margin-bottom: 5px;
@@ -1426,7 +1426,6 @@
 
 
         .detail-page .detail-item strong {
-
             display: block;
 
             color: #334155;
@@ -1444,7 +1443,6 @@
         ========================================================= */
 
         .class-badge {
-
             display: inline-flex;
 
             padding: 4px 9px;
@@ -1462,7 +1460,6 @@
 
 
         .status-badge {
-
             display: inline-flex;
 
             padding: 5px 10px;
@@ -1476,7 +1473,6 @@
 
 
         .status-badge.active {
-
             background: #dcfce7;
 
             color: #15803d;
@@ -1484,7 +1480,6 @@
 
 
         .status-badge.inactive {
-
             background: #fee2e2;
 
             color: #b91c1c;
@@ -1496,13 +1491,11 @@
         ========================================================= */
 
         .detail-page .address-card {
-
             grid-column: 1 / -1;
         }
 
 
         .address-content {
-
             margin: 20px;
 
             padding: 16px 18px;
@@ -1533,7 +1526,6 @@
         ========================================================= */
 
         .student-actions {
-
             display: flex;
 
             align-items: center;
@@ -1548,7 +1540,6 @@
 
 
         .btn-import {
-
             display: inline-flex;
 
             align-items: center;
@@ -1579,7 +1570,6 @@
 
 
         .btn-export {
-
             display: inline-flex;
 
             align-items: center;
@@ -1611,7 +1601,6 @@
 
 
         .btn-export:hover {
-
             background: #334155;
 
             border-color: #334155;
@@ -1627,7 +1616,6 @@
         ========================================================= */
 
         .student-filter {
-
             display: grid;
 
             grid-template-columns:
@@ -1663,7 +1651,6 @@
 
 
         .filter-item label {
-
             display: block;
 
             margin-bottom: 6px;
@@ -1678,7 +1665,6 @@
 
         .filter-item select,
         .filter-item .search-box {
-
             width: 100%;
 
             height: 40px;
@@ -1703,7 +1689,6 @@
 
         .filter-item select:focus,
         .filter-item .search-box:focus {
-
             border-color: #2563eb;
 
             box-shadow:
@@ -1712,7 +1697,6 @@
 
 
         .filter-buttons {
-
             display: flex;
 
             align-items: center;
@@ -1725,7 +1709,6 @@
 
         .btn-filter,
         .btn-reset {
-
             display: inline-flex;
 
             align-items: center;
@@ -1751,7 +1734,6 @@
 
 
         .btn-filter {
-
             border: 1px solid #2563eb;
 
             background: #2563eb;
@@ -1761,7 +1743,6 @@
 
 
         .btn-filter:hover {
-
             background: #1d4ed8;
 
             border-color: #1d4ed8;
@@ -1771,7 +1752,6 @@
 
 
         .btn-reset {
-
             border: 1px solid #d1d5db;
 
             background: #ffffff;
@@ -1781,7 +1761,6 @@
 
 
         .btn-reset:hover {
-
             background: #f8fafc;
 
             color: #111827;
@@ -1789,7 +1768,6 @@
 
 
         .btn-format {
-
             display: inline-flex;
 
             align-items: center;
@@ -1821,7 +1799,6 @@
 
 
         .btn-format:hover {
-
             background: #f8fafc;
 
             border-color: #9ca3af;
@@ -1837,16 +1814,15 @@
         ========================================================= */
 
         .logout-form {
-
             width: 100%;
 
             margin: 0;
+
             padding: 0;
         }
 
 
         .logout-button {
-
             display: flex;
 
             align-items: center;
@@ -1882,7 +1858,6 @@
 
 
         .logout-button:hover {
-
             background: #1e293b;
 
             color: #ffffff;
@@ -1894,7 +1869,6 @@
         ========================================================= */
 
         .system-footer {
-
             margin-top: 35px;
 
             padding: 18px 0 10px;
@@ -1907,6 +1881,109 @@
 
             text-align: center;
         }
+
+        /* =========================================================
+        POPUP NOTIFIKASI
+        ========================================================= */
+
+        .popup-container {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 99999;
+            width: min(380px, calc(100vw - 30px));
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .popup-notification {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 15px 16px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            animation: popupSlideIn 0.35s ease forwards;
+            pointer-events: auto;
+        }
+
+        .popup-icon {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .popup-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .popup-content strong {
+            display: block;
+            margin-bottom: 3px;
+            color: #0f172a;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .popup-content span {
+            display: block;
+            color: #64748b;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .popup-close {
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .popup-close:hover {
+            color: #334155;
+        }
+
+        @keyframes popupSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .popup-container {
+                top: 14px;
+                right: 15px;
+                left: 15px;
+                width: auto;
+            }
+
+            .popup-notification {
+                padding: 14px;
+            }
+        }
+
 
 
         /* =========================================================
@@ -1921,7 +1998,6 @@
 
 
             .content {
-
                 margin-left: 220px;
 
                 padding: 25px;
@@ -1929,46 +2005,38 @@
 
 
             .cards {
-
                 grid-template-columns:
                     repeat(2, minmax(0, 1fr));
             }
+
         }
 
 
         /* =========================================================
            RESPONSIVE MOBILE
-           
-           PENTING:
-           Sidebar TIDAK fixed.
-           Sidebar menjadi bagian dari halaman.
-           Scroll HP dilakukan oleh BODY/WINDOW.
         ========================================================= */
 
         @media (max-width: 768px) {
 
             html,
             body {
-
                 width: 100%;
+
                 max-width: 100%;
 
                 overflow-x: hidden;
 
                 overflow-y: auto;
 
-                /*
-                 * Hanya vertical scrolling.
-                 */
                 touch-action: pan-y;
             }
 
 
             .sidebar {
-
                 position: relative;
 
                 top: auto;
+
                 left: auto;
 
                 width: 100%;
@@ -1979,16 +2047,10 @@
 
                 padding: 18px;
 
-                /*
-                 * SANGAT PENTING:
-                 * jangan gunakan overflow-y:auto
-                 * pada mobile.
-                 *
-                 * Yang melakukan scroll adalah BODY.
-                 */
                 overflow: visible;
 
                 overflow-x: visible;
+
                 overflow-y: visible;
 
                 overscroll-behavior: auto;
@@ -2003,7 +2065,6 @@
 
 
             .sidebar-brand {
-
                 padding: 0 4px;
 
                 margin-bottom: 22px;
@@ -2011,29 +2072,27 @@
 
 
             .sidebar-brand img {
-
                 width: 40px;
+
                 height: 40px;
             }
 
 
             .sidebar-brand strong {
-
                 font-size: 18px;
             }
 
 
             .sidebar-brand span {
-
                 font-size: 8px;
             }
 
 
             .content {
-
                 margin-left: 0;
 
                 width: 100%;
+
                 max-width: 100%;
 
                 padding: 18px;
@@ -2043,7 +2102,6 @@
 
 
             .navbar {
-
                 margin-bottom: 20px;
 
                 padding: 15px 18px;
@@ -2053,31 +2111,37 @@
 
 
             .navbar-brand {
-
                 width: 100%;
             }
 
 
             .navbar-brand-text {
-
                 min-width: 0;
             }
 
 
             .navbar-brand-text strong {
-
                 font-size: 16px;
             }
 
 
             .navbar-brand-text span {
-
                 font-size: 9px;
+            }
+
+            .tahun-ajaran-wrapper {
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 12px;
+            }
+
+            .tahun-ajaran-selector {
+                min-width: 0;
+                flex: 1;
             }
 
 
             .page-header {
-
                 flex-direction: column;
 
                 align-items: flex-start;
@@ -2085,25 +2149,21 @@
 
 
             .page-header h1 {
-
                 font-size: 23px;
             }
 
 
             .cards {
-
                 grid-template-columns: 1fr;
             }
 
 
             .table-card {
-
                 padding: 16px;
             }
 
 
             .table-header {
-
                 flex-direction: column;
 
                 align-items: stretch;
@@ -2111,31 +2171,26 @@
 
 
             .search-box {
-
                 width: 100%;
             }
 
 
             .btn-add {
-
                 width: 100%;
             }
 
 
             .detail-page .detail-grid {
-
                 grid-template-columns: 1fr;
             }
 
 
             .detail-page .address-card {
-
                 grid-column: auto;
             }
 
 
             .detail-page .detail-header {
-
                 flex-direction: column;
 
                 align-items: flex-start;
@@ -2143,31 +2198,26 @@
 
 
             .detail-header-actions {
-
                 width: 100%;
             }
 
 
             .detail-header-actions a {
-
                 flex: 1;
             }
 
 
             .student-profile-card {
-
                 padding: 18px;
             }
 
 
             .detail-page .detail-list {
-
                 grid-template-columns: 1fr;
             }
 
 
             .student-actions {
-
                 flex-direction: column;
 
                 align-items: stretch;
@@ -2176,32 +2226,27 @@
 
             .student-actions > *,
             .student-actions form {
-
                 width: 100%;
             }
 
 
             .btn-import,
             .btn-export {
-
                 width: 100%;
             }
 
 
             .student-filter {
-
                 grid-template-columns: 1fr;
             }
 
 
             .search-filter {
-
                 grid-column: auto;
             }
 
 
             .filter-buttons {
-
                 grid-column: auto;
 
                 flex-wrap: wrap;
@@ -2211,9 +2256,9 @@
             .btn-filter,
             .btn-reset,
             .btn-export {
-
                 flex: 1;
             }
+
         }
 
 
@@ -2224,64 +2269,56 @@
         @media (max-width: 480px) {
 
             .content {
-
                 padding: 14px;
             }
 
 
             .navbar h3 {
-
                 font-size: 15px;
             }
 
 
             .navbar-brand img {
-
                 width: 38px;
+
                 height: 38px;
             }
 
 
             .navbar-brand-text span {
-
                 font-size: 8px;
             }
 
 
             .navbar-brand-text strong {
-
                 font-size: 15px;
             }
 
 
             .page-header h1 {
-
                 font-size: 21px;
             }
 
 
             .table-card {
-
                 padding: 12px;
             }
 
 
             .student-table th,
             .student-table td {
-
                 padding: 11px;
             }
 
 
             .student-profile-card {
-
                 align-items: flex-start;
             }
 
 
             .profile-avatar {
-
                 width: 52px;
+
                 height: 52px;
 
                 min-width: 52px;
@@ -2291,13 +2328,11 @@
 
 
             .profile-info h2 {
-
                 font-size: 19px;
             }
 
 
             .profile-meta {
-
                 flex-direction: column;
 
                 align-items: flex-start;
@@ -2307,27 +2342,24 @@
 
 
             .detail-card-header {
-
                 padding: 16px;
             }
 
 
             .detail-page .detail-list {
-
                 padding: 16px;
             }
 
 
             .address-content {
-
                 margin: 16px;
             }
 
 
             .sidebar {
-
                 padding: 16px;
             }
+
         }
 
 
@@ -2338,22 +2370,20 @@
         @media (max-width: 1200px) and (min-width: 701px) {
 
             .student-filter {
-
                 grid-template-columns:
                     repeat(3, minmax(0, 1fr));
             }
 
 
             .search-filter {
-
                 grid-column: span 2;
             }
 
 
             .filter-buttons {
-
                 grid-column: 1 / -1;
             }
+
         }
 
 
@@ -2364,19 +2394,16 @@
         @media (max-width: 700px) {
 
             .student-filter {
-
                 grid-template-columns: 1fr;
             }
 
 
             .search-filter {
-
                 grid-column: auto;
             }
 
 
             .filter-buttons {
-
                 grid-column: auto;
 
                 flex-wrap: wrap;
@@ -2386,17 +2413,62 @@
             .btn-filter,
             .btn-reset,
             .btn-export {
-
                 flex: 1;
             }
+
         }
 
     </style>
 
 </head>
 
-
 <body>
+
+<!-- =====================================================
+     POPUP NOTIFIKASI
+====================================================== -->
+
+{% if messages %}
+
+<div class="popup-container">
+
+    {% for message in messages %}
+
+    <div class="popup-notification">
+
+        <div class="popup-icon">
+            ✓
+        </div>
+
+        <div class="popup-content">
+
+            <strong>
+                Berhasil
+            </strong>
+
+            <span>
+                {{ message }}
+            </span>
+
+        </div>
+
+        <button
+            type="button"
+            class="popup-close"
+            onclick="this.parentElement.remove()"
+        >
+            ×
+        </button>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
+
+
 
 
 <!-- =====================================================
@@ -2422,7 +2494,7 @@
             </strong>
 
             <span>
-                Sistem Utama Fasilitas Informasi, Siswa, & Madrasah
+                Sistem Utama Fasilitas Informasi, Siswa, &amp; Madrasah
             </span>
 
         </div>
@@ -2444,6 +2516,16 @@
         </span>
 
     </a>
+
+    
+    <a href="{% url 'tahun_ajaran' %}">
+
+        <span class="menu-text">
+            Tahun Ajaran
+        </span>
+
+    </a>
+
 
 
     <!-- =================================================
@@ -2503,15 +2585,6 @@
     </a>
 
 
-    <a href="#">
-
-        <span class="menu-text">
-            Jadwal
-        </span>
-
-    </a>
-
-
     <!-- =================================================
          AKADEMIK
     ================================================== -->
@@ -2549,6 +2622,15 @@
 
         <span class="menu-text">
             Ijazah
+        </span>
+
+    </a>
+
+
+    <a href="{% url 'kenaikan_siswa' %}">
+
+        <span class="menu-text">
+            Kenaikan Siswa
         </span>
 
     </a>
@@ -2724,35 +2806,59 @@
 
     <div class="navbar">
 
-
         <div class="navbar-brand">
-
 
             <img
                 src="{% static 'students/logo-madin.jpeg' %}"
                 alt="Logo Madrasah"
             >
 
-
             <div class="navbar-brand-text">
-
 
                 <strong>
                     SUFISM
                 </strong>
-
 
                 <span>
                     Sistem Utama Fasilitas Informasi,
                     Siswa, &amp; Madrasah
                 </span>
 
-
             </div>
-
 
         </div>
 
+
+        <!-- TAHUN AJARAN -->
+
+        {% if request.user.is_authenticated %}
+
+        <div class="tahun-ajaran-wrapper">
+
+            <span class="tahun-ajaran-label">
+                Tahun Ajaran
+            </span>
+
+            <a
+                href="{% url 'pilih_tahun_ajaran' %}"
+                class="tahun-ajaran-selector"
+            >
+                <span>
+                    {% if tahun_ajaran_aktif %}
+                        {{ tahun_ajaran_aktif.nama }}
+                    {% else %}
+                        Pilih Tahun Ajaran
+                    {% endif %}
+                </span>
+
+                <span class="tahun-ajaran-arrow">
+                    ▾
+                </span>
+            </a>
+
+        </div>
+
+        {% endif %}
 
     </div>
 
@@ -2780,13 +2886,7 @@
 
 
 <!-- =====================================================
-     JAVASCRIPT
-     
-     DESKTOP:
-     menyimpan scroll sidebar.
-
-     MOBILE:
-     menyimpan scroll halaman.
+     JAVASCRIPT GLOBAL SCROLL
 ====================================================== -->
 
 <script>
@@ -2796,10 +2896,6 @@
     "use strict";
 
 
-    /* =====================================================
-       STORAGE KEY
-    ===================================================== */
-
     const DESKTOP_SCROLL_KEY =
         "sufism_sidebar_scroll_desktop";
 
@@ -2807,10 +2903,6 @@
     const MOBILE_SCROLL_KEY =
         "sufism_page_scroll_mobile";
 
-
-    /* =====================================================
-       CEK MOBILE
-    ===================================================== */
 
     function isMobile() {
 
@@ -2821,10 +2913,6 @@
     }
 
 
-    /* =====================================================
-       AMBIL SIDEBAR
-    ===================================================== */
-
     function getSidebar() {
 
         return document.querySelector(
@@ -2834,10 +2922,6 @@
     }
 
 
-    /* =====================================================
-       SIMPAN POSISI
-    ===================================================== */
-
     function saveScrollPosition() {
 
         const sidebar =
@@ -2845,17 +2929,17 @@
 
 
         if (!sidebar) {
+
             return;
+
         }
 
 
         /*
-         * ==============================================
          * MOBILE
          *
          * Sidebar bukan area scroll.
          * BODY/WINDOW yang melakukan scroll.
-         * ==============================================
          */
 
         if (isMobile()) {
@@ -2866,15 +2950,14 @@
             );
 
             return;
+
         }
 
 
         /*
-         * ==============================================
          * DESKTOP
          *
          * Sidebar merupakan area scroll sendiri.
-         * ==============================================
          */
 
         sessionStorage.setItem(
@@ -2885,10 +2968,6 @@
     }
 
 
-    /* =====================================================
-       RESTORE POSISI
-    ===================================================== */
-
     function restoreScrollPosition() {
 
         const sidebar =
@@ -2896,14 +2975,14 @@
 
 
         if (!sidebar) {
+
             return;
+
         }
 
 
         /*
-         * ==============================================
          * MOBILE
-         * ==============================================
          */
 
         if (isMobile()) {
@@ -2920,6 +2999,7 @@
             ) {
 
                 return;
+
             }
 
 
@@ -2935,13 +3015,9 @@
             ) {
 
                 return;
+
             }
 
-
-            /*
-             * Gunakan instant scroll.
-             * Tidak mengikuti scroll-behavior smooth.
-             */
 
             requestAnimationFrame(
                 function () {
@@ -2952,11 +3028,6 @@
                         behavior: "instant"
                     });
 
-
-                    /*
-                     * Jalankan sekali lagi setelah
-                     * layout benar-benar selesai.
-                     */
 
                     requestAnimationFrame(
                         function () {
@@ -2975,13 +3046,12 @@
 
 
             return;
+
         }
 
 
         /*
-         * ==============================================
          * DESKTOP
-         * ==============================================
          */
 
         const saved =
@@ -2996,6 +3066,7 @@
         ) {
 
             return;
+
         }
 
 
@@ -3011,6 +3082,7 @@
         ) {
 
             return;
+
         }
 
 
@@ -3036,10 +3108,6 @@
     }
 
 
-    /* =====================================================
-       INITIALIZE
-    ===================================================== */
-
     function initialize() {
 
         const sidebar =
@@ -3047,20 +3115,18 @@
 
 
         if (!sidebar) {
+
             return;
+
         }
 
-
-        /*
-         * Restore posisi sebelumnya.
-         */
 
         restoreScrollPosition();
 
 
-        /* =================================================
-           DESKTOP SIDEBAR SCROLL
-        ================================================= */
+        /*
+         * DESKTOP SIDEBAR SCROLL
+         */
 
         sidebar.addEventListener(
             "scroll",
@@ -3079,9 +3145,9 @@
         );
 
 
-        /* =================================================
-           MOBILE PAGE SCROLL
-        ================================================= */
+        /*
+         * MOBILE PAGE SCROLL
+         */
 
         window.addEventListener(
             "scroll",
@@ -3100,9 +3166,9 @@
         );
 
 
-        /* =================================================
-           MENU CLICK
-        ================================================= */
+        /*
+         * MENU CLICK
+         */
 
         const menuLinks =
             sidebar.querySelectorAll(
@@ -3117,11 +3183,6 @@
                     "click",
                     function () {
 
-                        /*
-                         * Jangan simpan untuk link #
-                         * karena tidak berpindah halaman.
-                         */
-
                         if (
                             link.getAttribute(
                                 "href"
@@ -3129,6 +3190,7 @@
                         ) {
 
                             return;
+
                         }
 
 
@@ -3141,9 +3203,9 @@
         );
 
 
-        /* =================================================
-           PAGE HIDE
-        ================================================= */
+        /*
+         * PAGE HIDE
+         */
 
         window.addEventListener(
             "pagehide",
@@ -3155,9 +3217,9 @@
         );
 
 
-        /* =================================================
-           PAGE SHOW
-        ================================================= */
+        /*
+         * PAGE SHOW
+         */
 
         window.addEventListener(
             "pageshow",
@@ -3171,9 +3233,9 @@
     }
 
 
-    /* =====================================================
-       DOM READY
-    ===================================================== */
+    /*
+     * DOM READY
+     */
 
     if (
         document.readyState ===
@@ -3191,9 +3253,43 @@
 
     }
 
+
 })();
 
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const notifications =
+        document.querySelectorAll(
+            ".popup-notification"
+        );
+
+    notifications.forEach(function (notification) {
+
+        setTimeout(function () {
+
+            notification.style.opacity = "0";
+            notification.style.transform =
+                "translateX(30px)";
+
+            notification.style.transition =
+                "all 0.3s ease";
+
+            setTimeout(function () {
+                notification.remove();
+            }, 300);
+
+        }, 4000);
+
+    });
+
+});
+</script>
+
+{% block extra_js %}
+{% endblock %}
 
 
 </body>

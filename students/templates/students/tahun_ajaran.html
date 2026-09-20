@@ -1,0 +1,1439 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+
+Tahun Ajaran
+
+{% endblock %}
+
+{% block content %}
+
+<div class="tahun-page">
+
+
+<!-- HEADER -->
+
+<div class="page-header">
+
+    <div>
+
+        <h1>Tahun Ajaran</h1>
+
+        <p>Kelola data tahun ajaran sekolah</p>
+
+    </div>
+
+</div>
+
+
+<!-- FORM TAMBAH -->
+
+<div class="tahun-form-card">
+
+    <div class="tahun-form-header">
+
+        <div>
+
+            <h2>Tambah Tahun Ajaran</h2>
+
+            <p>Masukkan tahun ajaran baru</p>
+
+        </div>
+
+    </div>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input type="hidden" name="aksi" value="tambah">
+
+        <div class="tahun-form-row">
+
+            <!-- TAHUN AJARAN -->
+
+            <div class="tahun-field">
+
+                <label for="nama-tahun">
+                    Tahun Ajaran
+                </label>
+
+                <input
+                    type="text"
+                    id="nama-tahun"
+                    name="nama"
+                    placeholder="Contoh: 2026/2027 Ganjil"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+
+            <!-- STATUS -->
+
+            <div class="tahun-field">
+
+                <label for="status-tahun">
+                    Status
+                </label>
+
+                <select
+                    id="status-tahun"
+                    name="aktif"
+                >
+
+                    <option value="1">
+                        Aktif
+                    </option>
+
+                    <option value="0">
+                        Tidak Aktif
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- TOMBOL TAMBAH -->
+
+            <div class="tahun-add-wrap">
+
+                <button
+                    type="submit"
+                    class="tahun-add-button"
+                >
+                    Tambah
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<!-- TABEL -->
+
+<div class="tahun-table-card">
+
+    <div class="tahun-table-header">
+
+        <div>
+
+            <h2>Daftar Tahun Ajaran</h2>
+
+            <p>Data tahun ajaran yang tersedia</p>
+
+        </div>
+
+    </div>
+
+
+    <div class="tahun-table-wrapper">
+
+        <table class="tahun-table">
+
+            <thead>
+
+                <tr>
+
+                    <th width="70">
+                        No
+                    </th>
+
+                    <th>
+                        Tahun Ajaran
+                    </th>
+
+                    <th width="160">
+                        Status
+                    </th>
+
+                    <th width="180">
+                        Aksi
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for tahun in tahun_ajarans %}
+
+                <tr id="tahun-row-{{ tahun.id }}">
+
+                    <!-- NO -->
+
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+
+
+                    <!-- TAHUN AJARAN -->
+
+                    <td>
+
+                        <!-- MODE LIHAT -->
+
+                        <div
+                            class="tahun-view-data"
+                            id="tahun-view-{{ tahun.id }}"
+                        >
+
+                            <strong>
+                                {{ tahun.nama }}
+                            </strong>
+
+                        </div>
+
+
+                        <!-- FORM EDIT -->
+
+                        <form
+                            method="POST"
+                            class="tahun-edit-row"
+                            id="tahun-edit-{{ tahun.id }}"
+                            style="display: none;"
+                        >
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="aksi"
+                                value="edit"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="tahun_id"
+                                value="{{ tahun.id }}"
+                            >
+
+                            <input
+                                type="text"
+                                name="nama"
+                                value="{{ tahun.nama }}"
+                                class="tahun-edit-input"
+                                required
+                            >
+
+                        </form>
+
+                    </td>
+
+
+                    <!-- STATUS -->
+
+                    <td>
+
+                        <!-- STATUS MODE LIHAT -->
+
+                        <div
+                            class="tahun-view-data"
+                            id="tahun-status-view-{{ tahun.id }}"
+                        >
+
+                            {% if tahun.aktif %}
+
+                                <span class="tahun-status aktif">
+                                    Aktif
+                                </span>
+
+                            {% else %}
+
+                                <span class="tahun-status tidak-aktif">
+                                    Tidak Aktif
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+
+                        <!-- STATUS MODE EDIT -->
+
+                        <div
+                            class="tahun-status-edit"
+                            id="tahun-status-edit-{{ tahun.id }}"
+                            style="display: none;"
+                        >
+
+                            <select
+                                name="aktif"
+                                form="tahun-edit-{{ tahun.id }}"
+                                class="tahun-edit-select"
+                            >
+
+                                <option
+                                    value="1"
+                                    {% if tahun.aktif %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Aktif
+                                </option>
+
+                                <option
+                                    value="0"
+                                    {% if not tahun.aktif %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    Tidak Aktif
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </td>
+
+
+                    <!-- AKSI -->
+
+                    <td>
+
+                        <!-- AKSI NORMAL -->
+
+                        <div
+                            class="tahun-action-buttons"
+                            id="tahun-actions-{{ tahun.id }}"
+                        >
+
+                            <button
+                                type="button"
+                                class="tahun-edit-button btn-edit-tahun"
+                                data-id="{{ tahun.id }}"
+                            >
+                                Edit
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="tahun-delete-button btn-hapus-tahun"
+                                data-id="{{ tahun.id }}"
+                                data-nama="{{ tahun.nama }}"
+                            >
+                                Hapus
+                            </button>
+
+                        </div>
+
+
+                        <!-- AKSI SAAT EDIT -->
+
+                        <div
+                            class="tahun-edit-actions"
+                            id="tahun-edit-actions-{{ tahun.id }}"
+                            style="display: none;"
+                        >
+
+                            <button
+                                type="submit"
+                                form="tahun-edit-{{ tahun.id }}"
+                                class="tahun-save-button"
+                            >
+                                Simpan
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="tahun-cancel-button btn-batal-tahun"
+                                data-id="{{ tahun.id }}"
+                            >
+                                Batal
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td
+                        colspan="4"
+                        class="tahun-empty"
+                    >
+                        Belum ada data tahun ajaran.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- =====================================================
+     POPUP HAPUS
+===================================================== -->
+
+<div
+    class="tahun-delete-modal"
+    id="tahun-delete-modal"
+    style="display: none;"
+>
+
+
+<div
+    class="tahun-delete-overlay"
+    id="tahun-delete-overlay"
+></div>
+
+
+<div class="tahun-delete-box">
+
+    <div class="tahun-delete-icon">
+        !
+    </div>
+
+
+    <h3>
+        Hapus Tahun Ajaran?
+    </h3>
+
+
+    <p>
+
+        Apakah Anda yakin ingin menghapus
+
+        <strong id="tahun-delete-nama"></strong>?
+
+    </p>
+
+
+    <span class="tahun-delete-warning">
+
+        Data yang sudah dihapus tidak dapat dikembalikan.
+
+    </span>
+
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="aksi"
+            value="hapus"
+        >
+
+        <input
+            type="hidden"
+            name="tahun_id"
+            id="tahun-delete-id"
+        >
+
+
+        <div class="tahun-delete-actions">
+
+            <button
+                type="button"
+                class="tahun-delete-cancel"
+                id="btn-batal-hapus-tahun"
+            >
+                Batal
+            </button>
+
+
+            <button
+                type="submit"
+                class="tahun-delete-confirm"
+            >
+                Ya, Hapus
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+
+/* =====================================================
+   HALAMAN
+===================================================== */
+
+.tahun-page {
+    width: 100%;
+}
+
+
+/* =====================================================
+   FORM TAMBAH
+===================================================== */
+
+.tahun-form-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.tahun-form-header {
+    margin-bottom: 22px;
+}
+
+.tahun-form-header h2 {
+    margin: 0 0 5px 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.tahun-form-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+
+/* =====================================================
+   BARIS FORM
+===================================================== */
+
+.tahun-form-row {
+    display: flex !important;
+    align-items: flex-end !important;
+    gap: 16px !important;
+    flex-wrap: wrap !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.tahun-field {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0;
+}
+
+.tahun-field label {
+    display: block;
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.tahun-field input,
+.tahun-field select {
+    display: block;
+    width: 260px;
+    height: 44px;
+    margin: 0;
+    padding: 0 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    font-family: inherit;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.tahun-field select {
+    width: 180px;
+    cursor: pointer;
+}
+
+.tahun-field input:focus,
+.tahun-field select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* =====================================================
+   TOMBOL TAMBAH
+===================================================== */
+
+.tahun-add-wrap {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.tahun-add-button {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100px !important;
+    min-width: 100px !important;
+    height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: #2563eb !important;
+    color: #ffffff !important;
+    font-family: inherit !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+    cursor: pointer !important;
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease !important;
+}
+
+.tahun-add-button:hover {
+    background: #1d4ed8 !important;
+}
+
+.tahun-add-button:active {
+    background: #1e40af !important;
+}
+
+.tahun-add-button:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+}
+
+
+/* =====================================================
+   TABLE CARD
+===================================================== */
+
+.tahun-table-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.tahun-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.tahun-table-header h2 {
+    margin: 0 0 5px 0;
+    font-size: 17px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.tahun-table-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.tahun-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.tahun-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.tahun-table th {
+    height: 48px;
+    padding: 0 18px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.tahun-table td {
+    height: 64px;
+    padding: 10px 18px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #374151;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.tahun-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tahun-table tbody tr:hover {
+    background: #fafafa;
+}
+
+
+/* =====================================================
+   NAMA TAHUN
+===================================================== */
+
+.tahun-view-data {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+}
+
+.tahun-view-data strong {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.tahun-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 82px;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.tahun-status.aktif {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.tahun-status.tidak-aktif {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+
+/* =====================================================
+   ACTION BUTTON
+===================================================== */
+
+.tahun-action-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tahun-edit-button,
+.tahun-delete-button {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 13px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease;
+}
+
+
+/* EDIT */
+
+.tahun-edit-button {
+    border: 1px solid #e2e8f0;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.tahun-edit-button:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+
+/* HAPUS */
+
+.tahun-delete-button {
+    border: 1px solid #fecaca;
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.tahun-delete-button:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+
+/* =====================================================
+   EDIT
+===================================================== */
+
+.tahun-edit-row {
+    margin: 0;
+    padding: 0;
+}
+
+.tahun-edit-input {
+    display: block;
+    width: 260px;
+    height: 38px;
+    margin: 0;
+    padding: 0 10px;
+    border: 1px solid #2563eb;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #111827;
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.tahun-edit-input:focus {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+.tahun-status-edit {
+    margin: 0;
+    padding: 0;
+}
+
+.tahun-edit-select {
+    width: 130px;
+    height: 38px;
+    margin: 0;
+    padding: 0 10px;
+    border: 1px solid #2563eb;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #111827;
+    font-family: inherit;
+    font-size: 13px;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.tahun-edit-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tahun-save-button,
+.tahun-cancel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 13px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+
+/* SIMPAN */
+
+.tahun-save-button {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.tahun-save-button:hover {
+    background: #1d4ed8;
+}
+
+
+/* BATAL */
+
+.tahun-cancel-button {
+    border: 1px solid #e2e8f0;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.tahun-cancel-button:hover {
+    background: #e2e8f0;
+}
+
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.tahun-empty {
+    padding: 40px 20px !important;
+    text-align: center !important;
+    color: #94a3b8 !important;
+    font-size: 13px !important;
+}
+
+
+/* =====================================================
+   POPUP HAPUS
+===================================================== */
+
+.tahun-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    width: 100%;
+    height: 100%;
+}
+
+.tahun-delete-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.45);
+}
+
+
+/* =====================================================
+   BOX POPUP
+===================================================== */
+
+.tahun-delete-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 420px;
+    max-width: calc(100% - 32px);
+    padding: 28px;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    border-radius: 13px;
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.20);
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.tahun-delete-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 18px auto;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.tahun-delete-box h3 {
+    margin: 0 0 10px 0;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.tahun-delete-box p {
+    margin: 0 auto 10px auto;
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.tahun-delete-box p strong {
+    color: #111827;
+}
+
+.tahun-delete-warning {
+    display: block;
+    margin-top: 8px;
+    color: #dc2626;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
+/* =====================================================
+   TOMBOL POPUP
+===================================================== */
+
+.tahun-delete-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.tahun-delete-cancel,
+.tahun-delete-confirm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+
+/* BATAL */
+
+.tahun-delete-cancel {
+    border: 1px solid #e2e8f0;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.tahun-delete-cancel:hover {
+    background: #e2e8f0;
+}
+
+
+/* KONFIRMASI */
+
+.tahun-delete-confirm {
+    border: 1px solid #dc2626;
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.tahun-delete-confirm:hover {
+    background: #b91c1c;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .tahun-form-card {
+        padding: 18px;
+    }
+
+    .tahun-form-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .tahun-field {
+        width: 100%;
+    }
+
+    .tahun-field input,
+    .tahun-field select {
+        width: 100%;
+    }
+
+    .tahun-add-wrap {
+        width: 100% !important;
+    }
+
+    .tahun-add-button {
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+
+    .tahun-table th,
+    .tahun-table td {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .tahun-action-buttons,
+    .tahun-edit-actions {
+        flex-wrap: wrap;
+    }
+
+    .tahun-delete-box {
+        padding: 24px 20px;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+
+    /* =================================================
+       EDIT TAHUN AJARAN
+    ================================================= */
+
+    const editButtons =
+        document.querySelectorAll('.btn-edit-tahun');
+
+
+    editButtons.forEach(function (button) {
+
+        button.addEventListener('click', function () {
+
+            const id = this.dataset.id;
+
+
+            const viewData =
+                document.getElementById(
+                    'tahun-view-' + id
+                );
+
+
+            const statusView =
+                document.getElementById(
+                    'tahun-status-view-' + id
+                );
+
+
+            const editRow =
+                document.getElementById(
+                    'tahun-edit-' + id
+                );
+
+
+            const statusEdit =
+                document.getElementById(
+                    'tahun-status-edit-' + id
+                );
+
+
+            const actions =
+                document.getElementById(
+                    'tahun-actions-' + id
+                );
+
+
+            const editActions =
+                document.getElementById(
+                    'tahun-edit-actions-' + id
+                );
+
+
+            if (viewData) {
+                viewData.style.display = 'none';
+            }
+
+
+            if (statusView) {
+                statusView.style.display = 'none';
+            }
+
+
+            if (editRow) {
+                editRow.style.display = 'block';
+            }
+
+
+            if (statusEdit) {
+                statusEdit.style.display = 'block';
+            }
+
+
+            if (actions) {
+                actions.style.display = 'none';
+            }
+
+
+            if (editActions) {
+                editActions.style.display = 'flex';
+            }
+
+        });
+
+    });
+
+
+    /* =================================================
+       BATAL EDIT
+    ================================================= */
+
+    const cancelButtons =
+        document.querySelectorAll('.btn-batal-tahun');
+
+
+    cancelButtons.forEach(function (button) {
+
+        button.addEventListener('click', function () {
+
+            const id = this.dataset.id;
+
+
+            const viewData =
+                document.getElementById(
+                    'tahun-view-' + id
+                );
+
+
+            const statusView =
+                document.getElementById(
+                    'tahun-status-view-' + id
+                );
+
+
+            const editRow =
+                document.getElementById(
+                    'tahun-edit-' + id
+                );
+
+
+            const statusEdit =
+                document.getElementById(
+                    'tahun-status-edit-' + id
+                );
+
+
+            const actions =
+                document.getElementById(
+                    'tahun-actions-' + id
+                );
+
+
+            const editActions =
+                document.getElementById(
+                    'tahun-edit-actions-' + id
+                );
+
+
+            if (viewData) {
+                viewData.style.display = 'flex';
+            }
+
+
+            if (statusView) {
+                statusView.style.display = 'flex';
+            }
+
+
+            if (editRow) {
+                editRow.style.display = 'none';
+            }
+
+
+            if (statusEdit) {
+                statusEdit.style.display = 'none';
+            }
+
+
+            if (actions) {
+                actions.style.display = 'flex';
+            }
+
+
+            if (editActions) {
+                editActions.style.display = 'none';
+            }
+
+        });
+
+    });
+
+
+    /* =================================================
+       POPUP HAPUS
+    ================================================= */
+
+    const modal =
+        document.getElementById(
+            'tahun-delete-modal'
+        );
+
+
+    const overlay =
+        document.getElementById(
+            'tahun-delete-overlay'
+        );
+
+
+    const deleteName =
+        document.getElementById(
+            'tahun-delete-nama'
+        );
+
+
+    const deleteId =
+        document.getElementById(
+            'tahun-delete-id'
+        );
+
+
+    const cancelDelete =
+        document.getElementById(
+            'btn-batal-hapus-tahun'
+        );
+
+
+    const deleteButtons =
+        document.querySelectorAll(
+            '.btn-hapus-tahun'
+        );
+
+
+    /* BUKA POPUP */
+
+    function openDeleteModal(id, nama) {
+
+        if (deleteId) {
+            deleteId.value = id;
+        }
+
+
+        if (deleteName) {
+            deleteName.textContent = nama;
+        }
+
+
+        if (modal) {
+            modal.style.display = 'block';
+        }
+
+
+        document.body.style.overflow = 'hidden';
+
+    }
+
+
+    /* TUTUP POPUP */
+
+    function closeDeleteModal() {
+
+        if (modal) {
+            modal.style.display = 'none';
+        }
+
+
+        document.body.style.overflow = '';
+
+    }
+
+
+    /* TOMBOL HAPUS */
+
+    deleteButtons.forEach(function (button) {
+
+        button.addEventListener('click', function () {
+
+            const id = this.dataset.id;
+
+            const nama = this.dataset.nama;
+
+            openDeleteModal(id, nama);
+
+        });
+
+    });
+
+
+    /* TOMBOL BATAL */
+
+    if (cancelDelete) {
+
+        cancelDelete.addEventListener(
+            'click',
+            closeDeleteModal
+        );
+
+    }
+
+
+    /* KLIK OVERLAY */
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            'click',
+            closeDeleteModal
+        );
+
+    }
+
+
+    /* TOMBOL ESCAPE */
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (
+                event.key === 'Escape' &&
+                modal &&
+                modal.style.display !== 'none'
+            ) {
+
+                closeDeleteModal();
+
+            }
+
+        }
+    );
+
+});
+
+</script>
+
+{% endblock %}

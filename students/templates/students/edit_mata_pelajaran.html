@@ -8,205 +8,246 @@ Edit Mata Pelajaran
 
 <div class="edit-mapel-page">
 
-    <div class="page-header">
-        <div>
-            <h1>Edit Mata Pelajaran</h1>
-            <p>Perbarui data mata pelajaran dan kelas yang berlaku</p>
-        </div>
-    </div>
+<div class="page-header">
 
-    <div class="edit-mapel-card">
+    <div>
 
-        <div class="edit-mapel-card-header">
-            <div>
-                <h2>Informasi Mata Pelajaran</h2>
-                <p>Silakan perbarui data berikut.</p>
-            </div>
-        </div>
+        <h1>Edit Mata Pelajaran</h1>
 
-        <form method="POST">
-            {% csrf_token %}
-
-            <div class="edit-mapel-body">
-
-                <!-- NAMA -->
-                <div class="form-group">
-                    <label for="nama">
-                        Nama Mata Pelajaran
-                        <span>*</span>
-                    </label>
-
-                    <input
-                        type="text"
-                        id="nama"
-                        name="nama"
-                        value="{{ mata_pelajaran.nama }}"
-                        placeholder="Contoh: Matematika"
-                        required
-                    >
-                </div>
-
-                <div class="form-group">
-                    <label for="kitab">Kitab</label>
-
-                    <input
-                        type="text"
-                        name="kitab"
-                        id="kitab"
-                        maxlength="150"
-                        value="{{ mata_pelajaran.kitab }}"
-                        placeholder="Masukkan nama kitab"
-                    >
-                </div>
-
-
-                <!-- TAHUN AJARAN -->
-                <div class="form-group">
-
-                    <label for="tahun_ajaran">
-                        Tahun Ajaran
-                        <span>*</span>
-                    </label>
-
-                    <select
-                        id="tahun_ajaran"
-                        name="tahun_ajaran"
-                        required
-                    >
-
-                        <option value="">
-                            Pilih Tahun Ajaran
-                        </option>
-
-                        {% for tahun in tahun_ajarans %}
-
-                        <option
-                            value="{{ tahun.id }}"
-                            {% if tahun.id == mata_pelajaran.tahun_ajaran_id %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ tahun.nama }}
-                        </option>
-
-                        {% endfor %}
-
-                    </select>
-
-                </div>
-
-
-                <!-- KELAS -->
-                <div class="form-group">
-
-                    <label>
-                        Berlaku Untuk Kelas
-                        <span>*</span>
-                    </label>
-
-                    <p class="form-help">
-                        Pilih satu atau beberapa kelas yang mengikuti
-                        mata pelajaran ini.
-                    </p>
-
-                    <div class="kelas-options">
-
-                        {% for kelas in kelass %}
-
-                        <label class="kelas-option">
-
-                            <input
-                                type="checkbox"
-                                name="kelas"
-                                value="{{ kelas.id }}"
-                                {% if kelas in mata_pelajaran.kelas.all %}
-                                    checked
-                                {% endif %}
-                            >
-
-                            <span class="kelas-option-box">
-
-                                <span class="kelas-check">
-                                    ✓
-                                </span>
-
-                                <span class="kelas-option-name">
-                                    {{ kelas.nama }}
-                                </span>
-
-                            </span>
-
-                        </label>
-
-                        {% empty %}
-
-                        <div class="no-kelas">
-                            Belum ada data kelas.
-                        </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                </div>
-
-
-                <!-- STATUS -->
-                <div class="form-group">
-
-                    <label>
-                        Status
-                    </label>
-
-                    <label class="status-toggle">
-
-                        <input
-                            type="checkbox"
-                            name="aktif"
-                            {% if mata_pelajaran.aktif %}
-                                checked
-                            {% endif %}
-                        >
-
-                        <span class="toggle-slider"></span>
-
-                        <span class="toggle-text">
-                            Mata pelajaran aktif
-                        </span>
-
-                    </label>
-
-                </div>
-
-            </div>
-
-
-            <!-- FOOTER -->
-            <div class="edit-mapel-footer">
-
-                <a
-                    href="{% url 'data_mata_pelajaran' %}"
-                    class="btn-batal"
-                >
-                    Batal
-                </a>
-
-                <button
-                    type="submit"
-                    class="btn-simpan"
-                >
-                    <span class="btn-simpan-icon">✓</span>
-                    <span>Simpan Perubahan</span>
-                </button>
-
-            </div>
-
-        </form>
+        <p>Perbarui data mata pelajaran dan kelas yang berlaku</p>
 
     </div>
 
 </div>
 
+<div class="edit-mapel-card">
+
+    <div class="edit-mapel-card-header">
+
+        <div>
+
+            <h2>Informasi Mata Pelajaran</h2>
+
+            <p>Silakan perbarui data berikut.</p>
+
+        </div>
+
+    </div>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <div class="edit-mapel-body">
+
+            <!-- NAMA -->
+
+            <div class="form-group">
+
+                <label for="nama">
+
+                    Nama Mata Pelajaran
+
+                    <span>*</span>
+
+                </label>
+
+                <input
+                    type="text"
+                    id="nama"
+                    name="nama"
+                    value="{{ mata_pelajaran.nama }}"
+                    placeholder="Contoh: Matematika"
+                    required
+                >
+
+            </div>
+
+            <!-- KITAB -->
+
+            <div class="form-group">
+
+                <label for="kitab">
+                    Kitab
+                </label>
+
+                <input
+                    type="text"
+                    name="kitab"
+                    id="kitab"
+                    maxlength="150"
+                    value="{{ mata_pelajaran.kitab }}"
+                    placeholder="Masukkan nama kitab"
+                >
+
+            </div>
+
+            <!-- TAHUN AJARAN -->
+
+            <div class="form-group">
+
+                <label for="tahun_ajaran">
+
+                    Tahun Ajaran
+
+                    <span>*</span>
+
+                </label>
+
+                <select
+                    id="tahun_ajaran"
+                    name="tahun_ajaran"
+                    required
+                >
+
+                    <option value="">
+                        Pilih Tahun Ajaran
+                    </option>
+
+                    {% for tahun in tahun_ajarans %}
+
+                    <option
+                        value="{{ tahun.id }}"
+                        {% if tahun.id == mata_pelajaran.tahun_ajaran_id %}
+                            selected
+                        {% endif %}
+                    >
+
+                        {{ tahun.nama }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <!-- KELAS -->
+
+            <div class="form-group">
+
+                <label>
+
+                    Berlaku Untuk Kelas
+
+                    <span>*</span>
+
+                </label>
+
+                <p class="form-help">
+
+                    Pilih satu atau beberapa kelas yang mengikuti
+                    mata pelajaran ini.
+
+                </p>
+
+                <div class="kelas-options">
+
+                    {% for kelas in kelass %}
+
+                    <label class="kelas-option">
+
+                        <input
+                            type="checkbox"
+                            name="kelas"
+                            value="{{ kelas.id }}"
+                            {% if kelas in mata_pelajaran.kelas.all %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <span class="kelas-option-box">
+
+                            <span class="kelas-check">
+                                ✓
+                            </span>
+
+                            <span class="kelas-option-name">
+                                {{ kelas.nama }}
+                            </span>
+
+                        </span>
+
+                    </label>
+
+                    {% empty %}
+
+                    <div class="no-kelas">
+
+                        Belum ada data kelas.
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+            <!-- STATUS -->
+
+            <div class="form-group">
+
+                <label>
+                    Status
+                </label>
+
+                <label class="status-toggle">
+
+                    <input
+                        type="checkbox"
+                        name="aktif"
+                        {% if mata_pelajaran.aktif %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <span class="toggle-slider"></span>
+
+                    <span class="toggle-text">
+                        Mata pelajaran aktif
+                    </span>
+
+                </label>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+
+        <div class="edit-mapel-footer">
+
+            <a
+                href="{% url 'data_mata_pelajaran' %}"
+                class="btn-batal"
+            >
+                Batal
+            </a>
+
+            <button
+                type="submit"
+                class="btn-simpan"
+            >
+
+                <span class="btn-simpan-icon">
+                    ✓
+                </span>
+
+                <span>
+                    Simpan Perubahan
+                </span>
+
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+</div>
 
 <style>
 
@@ -278,8 +319,9 @@ Edit Mata Pelajaran
     color: #111827;
     font-size: 14px;
     outline: none;
-    transition: border-color 0.2s ease,
-                box-shadow 0.2s ease;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
     box-sizing: border-box;
 }
 
@@ -294,7 +336,6 @@ Edit Mata Pelajaran
     color: #6b7280;
     font-size: 13px;
 }
-
 
 .kelas-options {
     display: grid;
@@ -350,25 +391,21 @@ Edit Mata Pelajaran
     color: #374151;
 }
 
-.kelas-option input:checked
-+ .kelas-option-box {
+.kelas-option input:checked + .kelas-option-box {
     border-color: #2563eb;
     background: #eff6ff;
 }
 
-.kelas-option input:checked
-+ .kelas-option-box .kelas-check {
+.kelas-option input:checked + .kelas-option-box .kelas-check {
     border-color: #2563eb;
     background: #2563eb;
     color: #ffffff;
 }
 
-.kelas-option input:checked
-+ .kelas-option-box .kelas-option-name {
+.kelas-option input:checked + .kelas-option-box .kelas-option-name {
     color: #1d4ed8;
     font-weight: 600;
 }
-
 
 .no-kelas {
     grid-column: 1 / -1;
@@ -379,7 +416,6 @@ Edit Mata Pelajaran
     text-align: center;
     font-size: 14px;
 }
-
 
 /* STATUS */
 
@@ -417,13 +453,11 @@ Edit Mata Pelajaran
     transition: transform 0.2s ease;
 }
 
-.status-toggle input:checked
-+ .toggle-slider {
+.status-toggle input:checked + .toggle-slider {
     background: #2563eb;
 }
 
-.status-toggle input:checked
-+ .toggle-slider::after {
+.status-toggle input:checked + .toggle-slider::after {
     transform: translateX(18px);
 }
 
@@ -433,7 +467,6 @@ Edit Mata Pelajaran
     font-weight: 500 !important;
     color: #374151 !important;
 }
-
 
 /* FOOTER */
 
@@ -497,7 +530,6 @@ Edit Mata Pelajaran
     font-size: 12px;
 }
 
-
 /* RESPONSIVE */
 
 @media (max-width: 700px) {
@@ -519,7 +551,6 @@ Edit Mata Pelajaran
     }
 
 }
-
 
 @media (max-width: 480px) {
 

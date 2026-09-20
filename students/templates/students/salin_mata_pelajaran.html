@@ -1,0 +1,666 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Salin Mata Pelajaran
+{% endblock %}
+
+
+{% block content %}
+
+<div class="salin-mapel-page">
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <div class="page-header salin-mapel-header">
+
+        <div>
+
+            <h1>
+                Salin Mata Pelajaran
+            </h1>
+
+            <p>
+                Salin mata pelajaran yang dipilih ke tahun ajaran lain
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         CARD
+         ===================================================== -->
+
+    <div class="salin-mapel-card">
+
+        <form
+            method="POST"
+            action="{% url 'salin_mata_pelajaran' %}"
+        >
+
+            {% csrf_token %}
+
+
+            <!-- =================================================
+                 MAPEL TERPILIH
+                 ================================================= -->
+
+            <div class="salin-mapel-section">
+
+                <div class="salin-mapel-section-title">
+                    Mata Pelajaran Dipilih
+                </div>
+
+
+                <div class="salin-mapel-list">
+
+                    {% for mapel in mata_pelajarans_dipilih %}
+
+                        <div class="salin-mapel-item">
+
+                            <input
+                                type="hidden"
+                                name="mapel_ids"
+                                value="{{ mapel.id }}"
+                            >
+
+
+                            <div>
+
+                                <strong>
+                                    {{ mapel.nama }}
+                                </strong>
+
+
+                                <span>
+                                    Tahun asal:
+                                    {{ mapel.tahun_ajaran.nama }}
+                                </span>
+
+                            </div>
+
+
+                            <div class="salin-mapel-kelas">
+
+                                {% for kelas in mapel.kelas.all %}
+
+                                    <span>
+                                        {{ kelas.nama }}
+                                    </span>
+
+                                {% empty %}
+
+                                    <span class="kelas-semua">
+                                        Semua kelas
+                                    </span>
+
+                                {% endfor %}
+
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TAHUN TUJUAN
+                 ================================================= -->
+
+            <div class="salin-mapel-section">
+
+                <label
+                    class="salin-mapel-label"
+                    for="tahun_tujuan"
+                >
+                    Tahun Ajaran Tujuan
+                </label>
+
+
+                <select
+                    name="tahun_tujuan"
+                    id="tahun_tujuan"
+                    class="salin-mapel-select"
+                    required
+                >
+
+                    <option value="">
+                        -- Pilih Tahun Ajaran --
+                    </option>
+
+
+                    {% for tahun in tahun_ajarans %}
+
+                        <option value="{{ tahun.id }}">
+
+                            {{ tahun.nama }}
+
+                            {% if tahun.aktif %}
+                                (Aktif)
+                            {% endif %}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- =================================================
+                 KELAS
+                 ================================================= -->
+
+            <div class="salin-mapel-section">
+
+                <div class="salin-mapel-label">
+                    Kelas Tujuan
+                </div>
+
+
+                <!-- IKUTI KELAS ASAL -->
+
+                <label class="salin-mapel-radio-option">
+
+                    <input
+                        type="radio"
+                        name="kelas_mode"
+                        value="asal"
+                        checked
+                    >
+
+                    <span>
+
+                        <strong>
+                            Ikuti kelas asal
+                        </strong>
+
+                        <small>
+                            Kelas mata pelajaran akan mengikuti kelas pada tahun asal.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <!-- PILIH KELAS SENDIRI -->
+
+                <label class="salin-mapel-radio-option">
+
+                    <input
+                        type="radio"
+                        name="kelas_mode"
+                        value="pilih"
+                        id="kelas-mode-pilih"
+                    >
+
+                    <span>
+
+                        <strong>
+                            Pilih kelas tujuan sendiri
+                        </strong>
+
+                        <small>
+                            Tentukan sendiri kelas yang akan menerima mata pelajaran.
+                        </small>
+
+                    </span>
+
+                </label>
+
+
+                <!-- PILIHAN KELAS -->
+
+                <div
+                    class="salin-mapel-kelas-container"
+                    id="salin-kelas-container"
+                    style="display: none;"
+                >
+
+                    <div class="salin-mapel-kelas-grid">
+
+                        {% for kelas in kelass %}
+
+                            <label class="salin-mapel-kelas-option">
+
+                                <input
+                                    type="checkbox"
+                                    name="kelas_tujuan"
+                                    value="{{ kelas.id }}"
+                                >
+
+                                <span>
+                                    {{ kelas.nama }}
+                                </span>
+
+                            </label>
+
+                        {% endfor %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 INFORMASI
+                 ================================================= -->
+
+            <div class="salin-mapel-info">
+
+                <strong>
+                    Informasi
+                </strong>
+
+                <p>
+                    Data nilai siswa tidak ikut disalin.
+                    Fitur ini hanya membuat atau menyesuaikan
+                    data mata pelajaran pada tahun ajaran tujuan.
+                </p>
+
+            </div>
+
+
+            <!-- =================================================
+                 ACTION
+                 ================================================= -->
+
+            <div class="salin-mapel-actions">
+
+                <a
+                    href="{% url 'data_mata_pelajaran' %}"
+                    class="salin-mapel-cancel"
+                >
+                    Batal
+                </a>
+
+
+                <button
+                    type="submit"
+                    class="salin-mapel-submit"
+                >
+                    Salin Mata Pelajaran
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+
+{% block extra_css %}
+
+<style>
+
+/* =========================================================
+   HALAMAN
+   ========================================================= */
+
+.salin-mapel-page {
+    width: 100%;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.salin-mapel-header {
+    margin-bottom: 26px;
+}
+
+.salin-mapel-header h1 {
+    margin: 0 0 6px;
+    color: #172554;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.salin-mapel-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   CARD
+   ========================================================= */
+
+.salin-mapel-card {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   SECTION
+   ========================================================= */
+
+.salin-mapel-section {
+    padding: 25px 26px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.salin-mapel-section-title {
+    margin-bottom: 15px;
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   MAPEL LIST
+   ========================================================= */
+
+.salin-mapel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.salin-mapel-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.salin-mapel-item strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.salin-mapel-item span {
+    display: block;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.salin-mapel-kelas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.salin-mapel-kelas span {
+    display: inline-flex;
+    padding: 5px 9px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    color: #334155;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.salin-mapel-kelas span.kelas-semua {
+    color: #94a3b8;
+    background: #f1f5f9;
+}
+
+
+/* =========================================================
+   LABEL
+   ========================================================= */
+
+.salin-mapel-label {
+    display: block;
+    margin-bottom: 10px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   SELECT
+   ========================================================= */
+
+.salin-mapel-select {
+    width: 100%;
+    height: 44px;
+    padding: 0 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 13px;
+    outline: none;
+}
+
+.salin-mapel-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================================
+   RADIO
+   ========================================================= */
+
+.salin-mapel-radio-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 13px 14px;
+    margin-bottom: 9px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.salin-mapel-radio-option:hover {
+    background: #f8fafc;
+}
+
+.salin-mapel-radio-option input {
+    width: 16px;
+    height: 16px;
+    margin-top: 2px;
+    accent-color: #2563eb;
+}
+
+.salin-mapel-radio-option strong {
+    display: block;
+    margin-bottom: 3px;
+    color: #334155;
+    font-size: 13px;
+}
+
+.salin-mapel-radio-option small {
+    display: block;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   KELAS CONTAINER
+   ========================================================= */
+
+.salin-mapel-kelas-container {
+    margin-top: 15px;
+    padding: 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.salin-mapel-kelas-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+}
+
+.salin-mapel-kelas-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 12px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    color: #334155;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.salin-mapel-kelas-option:hover {
+    background: #f1f5f9;
+}
+
+.salin-mapel-kelas-option input {
+    width: 15px;
+    height: 15px;
+    accent-color: #2563eb;
+}
+
+
+/* =========================================================
+   INFORMASI
+   ========================================================= */
+
+.salin-mapel-info {
+    margin: 25px 26px 0;
+    padding: 15px 17px;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+}
+
+.salin-mapel-info strong {
+    display: block;
+    margin-bottom: 5px;
+    color: #1e40af;
+    font-size: 13px;
+}
+
+.salin-mapel-info p {
+    margin: 0;
+    color: #475569;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+
+/* =========================================================
+   ACTION
+   ========================================================= */
+
+.salin-mapel-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 25px 26px;
+}
+
+
+/* =========================================================
+   BATAL
+   ========================================================= */
+
+.salin-mapel-cancel {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 7px;
+    background: #f1f5f9;
+    color: #475569;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.salin-mapel-cancel:hover {
+    background: #e2e8f0;
+    color: #334155;
+    text-decoration: none;
+}
+
+
+/* =========================================================
+   SUBMIT
+   ========================================================= */
+
+.salin-mapel-submit {
+    min-width: 170px;
+    height: 40px;
+    padding: 0 18px;
+    border: none;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.salin-mapel-submit:hover {
+    background: #1d4ed8;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .salin-mapel-item {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .salin-mapel-kelas {
+        width: 100%;
+    }
+
+    .salin-mapel-actions {
+        flex-direction: column;
+    }
+
+    .salin-mapel-cancel,
+    .salin-mapel-submit {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+

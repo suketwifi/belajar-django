@@ -1,152 +1,585 @@
 {% extends "students/base.html" %}
+
 {% load static %}
 
 {% block title %}
+
 Rapot Siswa
+
 {% endblock %}
 
 {% block content %}
+
 <div class="rapot-page">
 
-    <div class="rapot-filter-area no-print">
-        <div class="filter-card">
-            <form method="get" class="rapot-filter">
-                <div class="filter-group">
-                    <label for="tahun_ajaran">Tahun Ajaran</label>
-                    <select name="tahun_ajaran" id="tahun_ajaran" required>
-                        <option value="">-- Pilih Tahun Ajaran --</option>
-                        {% for tahun in tahun_ajarans %}
-                            <option value="{{ tahun.id }}" {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}selected{% endif %}>
-                                {{ tahun.nama }}{% if tahun.aktif %} (Aktif){% endif %}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
 
-                <div class="filter-group">
-                    <label for="kelas">Kelas</label>
-                    <select name="kelas" id="kelas" required>
-                        <option value="">-- Pilih Kelas --</option>
-                        {% for kelas in kelass %}
-                            <option value="{{ kelas.id }}" {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}selected{% endif %}>
-                                {{ kelas.nama }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
+<div class="rapot-filter-area no-print">
 
-                <div class="filter-buttons">
-                    <button type="submit" class="btn-tampilkan">Tampilkan</button>
-                    <a href="{% url 'rapot' %}" class="btn-reset">Reset</a>
-                </div>
-            </form>
-        </div>
+    <div class="filter-card">
+
+        <form method="get" class="rapot-filter">
+
+            <div class="filter-group">
+
+                <label for="tahun_ajaran">
+                    Tahun Ajaran
+                </label>
+
+                <select
+                    name="tahun_ajaran"
+                    id="tahun_ajaran"
+                    required
+                >
+
+                    <option value="">
+                        -- Pilih Tahun Ajaran --
+                    </option>
+
+                    {% for tahun in tahun_ajarans %}
+
+                        <option
+                            value="{{ tahun.id }}"
+                            {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ tahun.nama }}{% if tahun.aktif %} (Aktif){% endif %}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-group">
+
+                <label for="kelas">
+                    Kelas
+                </label>
+
+                <select
+                    name="kelas"
+                    id="kelas"
+                    required
+                >
+
+                    <option value="">
+                        -- Pilih Kelas --
+                    </option>
+
+                    {% for kelas in kelass %}
+
+                        <option
+                            value="{{ kelas.id }}"
+                            {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ kelas.nama }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="filter-buttons">
+
+                <button
+                    type="submit"
+                    class="btn-tampilkan"
+                >
+                    Tampilkan
+                </button>
+
+                <a
+                    href="{% url 'rapot' %}"
+                    class="btn-reset"
+                >
+                    Reset
+                </a>
+
+            </div>
+
+        </form>
+
     </div>
 
-    {% if tahun_ajaran_id and kelas_id %}
+</div>
 
-        <div class="rapot-search-card no-print">
-            <div class="rapot-search-title">
-                <h3>Pencarian Siswa</h3>
-                <p>Cari berdasarkan nama atau NIM.</p>
-            </div>
 
-            <form method="get" class="rapot-search-form">
-                <input type="hidden" name="tahun_ajaran" value="{{ tahun_ajaran_id }}">
-                <input type="hidden" name="kelas" value="{{ kelas_id }}">
+{% if tahun_ajaran_id and kelas_id %}
 
-                <input type="text" name="search" value="{{ search }}" placeholder="Cari nama atau NIM..." class="rapot-search-input">
-                <button type="submit" class="btn-cari-siswa">Cari</button>
+    <div class="rapot-search-card no-print">
 
-                {% if search %}
-                    <a href="?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}" class="btn-reset-search">Reset</a>
-                {% endif %}
-            </form>
+        <div class="rapot-search-title">
+
+            <h3>
+                Pencarian Siswa
+            </h3>
+
+            <p>
+                Cari berdasarkan nama atau NIM.
+            </p>
+
         </div>
 
-        <div class="siswa-rapot-card no-print">
-            <div class="siswa-rapot-header">
-                <div>
-                    <h2>Daftar Siswa</h2>
-                    <p>Siswa aktif pada tahun ajaran dan kelas yang dipilih.</p>
-                </div>
-                <strong>{{ students|length }} Siswa</strong>
+
+        <form
+            method="get"
+            class="rapot-search-form"
+        >
+
+            <input
+                type="hidden"
+                name="tahun_ajaran"
+                value="{{ tahun_ajaran_id }}"
+            >
+
+            <input
+                type="hidden"
+                name="kelas"
+                value="{{ kelas_id }}"
+            >
+
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Cari nama atau NIM..."
+                class="rapot-search-input"
+            >
+
+            <button
+                type="submit"
+                class="btn-cari-siswa"
+            >
+                Cari
+            </button>
+
+            {% if search %}
+
+                <a
+                    href="?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}"
+                    class="btn-reset-search"
+                >
+                    Reset
+                </a>
+
+            {% endif %}
+
+        </form>
+
+    </div>
+
+
+    <div class="siswa-rapot-card no-print">
+
+        <div class="siswa-rapot-header">
+
+            <div>
+
+                <h2>
+                    Daftar Siswa
+                </h2>
+
+                <p>
+                    Siswa aktif pada tahun ajaran dan kelas yang dipilih.
+                </p>
+
             </div>
 
-            <div class="table-wrapper">
-                <table class="siswa-rapot-table">
-                    <thead>
+            <strong>
+                {{ students|length }} Siswa
+            </strong>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table class="siswa-rapot-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            No
+                        </th>
+
+                        <th>
+                            NIM
+                        </th>
+
+                        <th>
+                            Nama
+                        </th>
+
+                        <th>
+                            Kelas
+                        </th>
+
+                        <th>
+                            Tahun Ajaran
+                        </th>
+
+                        <th>
+                            Aksi
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for student in students %}
+
                         <tr>
-                            <th>No</th>
-                            <th>NIM</th>
-                            <th>Nama</th>
-                            <th>Kelas</th>
-                            <th>Tahun Ajaran</th>
-                            <th>Aksi</th>
+
+                            <td>
+                                {{ forloop.counter }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ student.nim }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ student.nama }}
+                            </td>
+
+                            <td>
+                                {% if student.kelas %}
+                                    {{ student.kelas.nama }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                {% if student.tahun_ajaran %}
+                                    {{ student.tahun_ajaran.nama }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+
+                            <td>
+
+                                <a
+                                    href="{% url 'cetak_rapot_siswa' student.id %}?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}"
+                                    class="btn-cetak-rapot"
+                                >
+                                    Cetak Rapot
+                                </a>
+
+                            </td>
+
                         </tr>
-                    </thead>
-                    <tbody>
-                        {% for student in students %}
-                            <tr>
-                                <td>{{ forloop.counter }}</td>
-                                <td><strong>{{ student.nim }}</strong></td>
-                                <td>{{ student.nama }}</td>
-                                <td>{% if student.kelas %}{{ student.kelas.nama }}{% else %}-{% endif %}</td>
-                                <td>{% if student.tahun_ajaran %}{{ student.tahun_ajaran.nama }}{% else %}-{% endif %}</td>
-                                <td>
-                                    <a href="{% url 'cetak_rapot_siswa' student.id %}?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}" class="btn-cetak-rapot">
-                                        Cetak Rapot
-                                    </a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="6" class="empty-cell">Tidak ada siswa pada tahun ajaran dan kelas tersebut.</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+
+                    {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty-cell"
+                            >
+                                Tidak ada siswa pada tahun ajaran dan kelas tersebut.
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
         </div>
 
-    {% endif %}
+    </div>
+
+{% endif %}
+
 
 </div>
 
 <style>
-.rapot-page { width:100%; max-width:1100px; margin:0 auto; }
-.rapot-filter-area { margin-bottom:20px; }
-.filter-card { background:#fff; border:1px solid #e2e8f0; border-radius:12px; padding:20px; }
-.rapot-filter { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)) auto; gap:15px; align-items:end; }
-.filter-group label { display:block; margin-bottom:7px; color:#475569; font-size:13px; font-weight:600; }
-.filter-group select { width:100%; height:42px; padding:0 12px; border:1px solid #cbd5e1; border-radius:8px; background:#fff; color:#1e293b; outline:none; font-size:13px; }
-.filter-buttons { display:flex; gap:8px; }
-.btn-tampilkan,.btn-reset,.btn-cari-siswa,.btn-reset-search { height:42px; display:inline-flex; align-items:center; justify-content:center; padding:0 16px; border-radius:8px; font-size:13px; font-weight:600; text-decoration:none; cursor:pointer; white-space:nowrap; }
-.btn-tampilkan,.btn-cari-siswa { background:#2563eb; color:#fff; border:1px solid #2563eb; }
-.btn-reset,.btn-reset-search { background:#fff; color:#475569; border:1px solid #d1d5db; }
-.btn-tampilkan:hover,.btn-cari-siswa:hover { background:#1d4ed8; }
-.btn-reset:hover,.btn-reset-search:hover { background:#f8fafc; }
-.rapot-search-card { margin-bottom:20px; padding:18px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; }
-.rapot-search-title { margin-bottom:12px; }
-.rapot-search-title h3 { margin:0 0 4px; font-size:15px; color:#0f172a; }
-.rapot-search-title p { margin:0; color:#64748b; font-size:12px; }
-.rapot-search-form { display:flex; gap:8px; align-items:center; }
-.rapot-search-input { flex:1; height:40px; padding:0 12px; border:1px solid #cbd5e1; border-radius:8px; outline:none; font-size:13px; }
-.rapot-search-input:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.10); }
-.siswa-rapot-card { margin-bottom:22px; padding:20px; background:#fff; border:1px solid #e2e8f0; border-radius:12px; box-shadow:0 3px 10px rgba(15,23,42,.04); }
-.siswa-rapot-header { display:flex; align-items:center; justify-content:space-between; gap:15px; margin-bottom:15px; }
-.siswa-rapot-header h2 { margin:0 0 4px; color:#0f172a; font-size:17px; }
-.siswa-rapot-header p { margin:0; color:#64748b; font-size:12px; }
-.siswa-rapot-header > strong { padding:7px 11px; border-radius:7px; background:#eff6ff; color:#2563eb; font-size:12px; white-space:nowrap; }
-.table-wrapper { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
-.siswa-rapot-table { width:100%; min-width:720px; border-collapse:collapse; }
-.siswa-rapot-table th,.siswa-rapot-table td { padding:11px 12px; border-bottom:1px solid #e2e8f0; font-size:13px; color:#334155; vertical-align:middle; }
-.siswa-rapot-table th { background:#f8fafc; color:#475569; font-size:11px; font-weight:700; text-align:left; white-space:nowrap; text-transform:uppercase; }
-.siswa-rapot-table tbody tr:hover { background:#f8fafc; }
-.btn-cetak-rapot { display:inline-flex; align-items:center; justify-content:center; min-width:105px; height:35px; padding:0 12px; border:1px solid #2563eb; border-radius:7px; background:#2563eb; color:#fff; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; }
-.btn-cetak-rapot:hover { background:#1d4ed8; border-color:#1d4ed8; }
-.empty-cell { text-align:center !important; padding:28px !important; color:#94a3b8 !important; }
-@media (max-width:700px) { .rapot-filter{grid-template-columns:1fr;} .filter-buttons{flex-direction:column;} .rapot-search-form{flex-direction:column;align-items:stretch;} .rapot-search-input,.btn-cari-siswa,.btn-reset-search{width:100%;} .siswa-rapot-header{align-items:flex-start;flex-direction:column;} }
+
+.rapot-page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.rapot-filter-area {
+    margin-bottom: 20px;
+}
+
+.filter-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.rapot-filter {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+    gap: 15px;
+    align-items: end;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 7px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.filter-group select {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    color: #1e293b;
+    outline: none;
+    font-size: 13px;
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-tampilkan,
+.btn-reset,
+.btn-cari-siswa,
+.btn-reset-search {
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.btn-tampilkan,
+.btn-cari-siswa {
+    background: #2563eb;
+    color: #fff;
+    border: 1px solid #2563eb;
+}
+
+.btn-reset,
+.btn-reset-search {
+    background: #fff;
+    color: #475569;
+    border: 1px solid #d1d5db;
+}
+
+.btn-tampilkan:hover,
+.btn-cari-siswa:hover {
+    background: #1d4ed8;
+}
+
+.btn-reset:hover,
+.btn-reset-search:hover {
+    background: #f8fafc;
+}
+
+.rapot-search-card {
+    margin-bottom: 20px;
+    padding: 18px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.rapot-search-title {
+    margin-bottom: 12px;
+}
+
+.rapot-search-title h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    color: #0f172a;
+}
+
+.rapot-search-title p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.rapot-search-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.rapot-search-input {
+    flex: 1;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    font-size: 13px;
+}
+
+.rapot-search-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .10);
+}
+
+.siswa-rapot-card {
+    margin-bottom: 22px;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, .04);
+}
+
+.siswa-rapot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.siswa-rapot-header h2 {
+    margin: 0 0 4px;
+    color: #0f172a;
+    font-size: 17px;
+}
+
+.siswa-rapot-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.siswa-rapot-header > strong {
+    padding: 7px 11px;
+    border-radius: 7px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.siswa-rapot-table {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+}
+
+.siswa-rapot-table th,
+.siswa-rapot-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 13px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.siswa-rapot-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    white-space: nowrap;
+    text-transform: uppercase;
+}
+
+.siswa-rapot-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.btn-cetak-rapot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 105px;
+    height: 35px;
+    padding: 0 12px;
+    border: 1px solid #2563eb;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-cetak-rapot:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.empty-cell {
+    text-align: center !important;
+    padding: 28px !important;
+    color: #94a3b8 !important;
+}
+
+@media (max-width: 700px) {
+
+    .rapot-filter {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-buttons {
+        flex-direction: column;
+    }
+
+    .rapot-search-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .rapot-search-input,
+    .btn-cari-siswa,
+    .btn-reset-search {
+        width: 100%;
+    }
+
+    .siswa-rapot-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+}
+
 </style>
 
 {% endblock %}

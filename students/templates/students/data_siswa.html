@@ -1,0 +1,1929 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Data Siswa
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   HALAMAN
+========================================================= */
+
+.student-page {
+    width: 100%;
+}
+
+/* =========================================================
+   HEADER DATA SISWA
+========================================================= */
+
+.student-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    width: 100%;
+    margin-bottom: 24px;
+}
+
+.student-page-title {
+    min-width: 0;
+}
+
+.student-page-title h1 {
+    margin: 0 0 6px 0;
+    font-size: 30px;
+    font-weight: 700;
+    color: #172554;
+}
+
+.student-page-title p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* =========================================================
+   TOMBOL HEADER
+========================================================= */
+
+.student-header-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.student-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-family: inherit;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.student-action-btn:hover {
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   IMPORT EXCEL
+========================================================= */
+
+.btn-import {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn-import:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+/* =========================================================
+   DOWNLOAD FORMAT
+========================================================= */
+
+.btn-download {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+.btn-download:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #334155;
+}
+
+/* =========================================================
+   TAMBAH SISWA
+========================================================= */
+
+.btn-add {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.btn-add:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+.student-filter {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    padding: 20px 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.035);
+}
+
+/* =========================================================
+   ITEM FILTER
+========================================================= */
+
+.student-filter .filter-item {
+    flex: 1 1 180px;
+    min-width: 180px;
+}
+
+.student-filter label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.student-filter input,
+.student-filter select {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 13px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.student-filter input::placeholder {
+    color: #94a3b8;
+}
+
+.student-filter input:focus,
+.student-filter select:focus {
+    border-color: #2563eb;
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+/* =========================================================
+   TOMBOL FILTER
+========================================================= */
+
+.student-filter .filter-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex: 1 0 100%;
+    width: 100%;
+    margin-top: 2px;
+}
+
+.student-filter .btn-filter,
+.student-filter .btn-reset,
+.student-filter .btn-export {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+/* =========================================================
+   TERAPKAN FILTER
+========================================================= */
+
+.student-filter .btn-filter {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.student-filter .btn-filter:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+.student-filter .btn-reset {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+.student-filter .btn-reset:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+}
+
+/* =========================================================
+   EXPORT
+========================================================= */
+
+.student-filter .btn-export {
+    border: 1px solid #059669;
+    background: #059669;
+    color: #ffffff;
+}
+
+.student-filter .btn-export:hover {
+    background: #047857;
+    border-color: #047857;
+}
+
+/* =========================================================
+   TABLE CARD
+========================================================= */
+
+.student-table-card {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.035);
+    overflow: hidden;
+}
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.student-table-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.student-table-header h2 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.student-table-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.student-table-total {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 0 11px;
+    border-radius: 7px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   TABLE WRAPPER
+========================================================= */
+
+.student-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.student-table {
+    width: 100%;
+    min-width: 1450px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 13px;
+}
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.student-table thead th {
+    height: 52px;
+    padding: 0 16px;
+    background: #f8fafc;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   LEBAR KOLOM
+========================================================= */
+
+.student-table thead th:nth-child(1),
+.student-table tbody td:nth-child(1) {
+    width: 55px;
+    text-align: center;
+}
+
+.student-table thead th:nth-child(2),
+.student-table tbody td:nth-child(2) {
+    width: 190px;
+}
+
+.student-table thead th:nth-child(3),
+.student-table tbody td:nth-child(3) {
+    width: 125px;
+}
+
+.student-table thead th:nth-child(4),
+.student-table tbody td:nth-child(4) {
+    width: 130px;
+}
+
+.student-table thead th:nth-child(5),
+.student-table tbody td:nth-child(5) {
+    width: 180px;
+}
+
+.student-table thead th:nth-child(6),
+.student-table tbody td:nth-child(6) {
+    width: 145px;
+}
+
+.student-table thead th:nth-child(7),
+.student-table tbody td:nth-child(7) {
+    width: 210px;
+}
+
+.student-table thead th:nth-child(8),
+.student-table tbody td:nth-child(8) {
+    width: 150px;
+}
+
+.student-table thead th:nth-child(9),
+.student-table tbody td:nth-child(9) {
+    width: 110px;
+    text-align: center;
+}
+
+.student-table thead th:nth-child(10),
+.student-table tbody td:nth-child(10) {
+    width: 190px;
+    text-align: center;
+}
+
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+.student-table tbody tr {
+    height: 66px;
+    transition:
+        background 0.15s ease;
+}
+
+.student-table tbody td {
+    padding: 0 16px;
+    border-bottom: 1px solid #edf0f4;
+    color: #334155;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.student-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.student-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* =========================================================
+   NAMA
+========================================================= */
+
+.nama-siswa {
+    display: block;
+    max-width: 170px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   NIM
+========================================================= */
+
+.nim-siswa {
+    color: #475569;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   KELAS
+========================================================= */
+
+.class-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   TAHUN AJARAN
+========================================================= */
+
+.tahun-ajaran-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 105px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   ASRAMA
+========================================================= */
+
+.asrama-siswa {
+    display: block;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #475569;
+    font-size: 13px;
+}
+
+/* =========================================================
+   PRODI
+========================================================= */
+
+.student-table tbody td:nth-child(7) {
+    color: #475569;
+    line-height: 1.4;
+    white-space: normal;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status-active,
+.status-inactive {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 75px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-active {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.status-inactive {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* =========================================================
+   AKSI TABEL
+========================================================= */
+
+.student-table .actions {
+    text-align: center;
+    white-space: nowrap;
+}
+
+.student-table .action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+/* =========================================================
+   TOMBOL AKSI TABEL
+========================================================= */
+
+.student-table .btn-view,
+.student-table .btn-edit,
+.student-table .btn-delete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 11px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: inherit;
+    white-space: nowrap;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+/* =========================================================
+   LIHAT
+========================================================= */
+
+.student-table .btn-view {
+    min-width: 52px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.student-table .btn-view:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
+}
+
+/* =========================================================
+   EDIT
+========================================================= */
+
+.student-table .btn-edit {
+    min-width: 52px;
+    border: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.student-table .btn-edit:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+/* =========================================================
+   HAPUS
+========================================================= */
+
+.student-table .btn-delete {
+    min-width: 58px;
+    border: 1px solid #dc2626;
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.student-table .btn-delete:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #b91c1c;
+}
+
+/* =========================================================
+   DATA KOSONG
+========================================================= */
+
+.student-empty {
+    text-align: center;
+    padding: 55px 20px !important;
+    color: #94a3b8;
+}
+
+.student-empty-title {
+    margin-bottom: 7px;
+    color: #475569;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.student-empty-text {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* =========================================================
+   POPUP IMPORT EXCEL
+========================================================= */
+
+.student-import-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.student-import-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.student-import-box {
+    position: relative;
+    z-index: 1;
+    width: 460px;
+    max-width: calc(100% - 40px);
+    padding: 28px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.18);
+    animation: studentImportPopup 0.18s ease-out;
+}
+
+@keyframes studentImportPopup {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.student-import-box h3 {
+    margin: 0 0 8px;
+    color: #1e293b;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.student-import-box p {
+    margin: 0 0 20px;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   FILE INPUT
+========================================================= */
+
+.student-import-file {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px dashed #94a3b8;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.student-import-file:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+/* =========================================================
+   CATATAN IMPORT
+========================================================= */
+
+.student-import-note {
+    margin-top: 12px !important;
+    margin-bottom: 0 !important;
+    font-size: 12px !important;
+    color: #94a3b8 !important;
+}
+
+/* =========================================================
+   TOMBOL POPUP IMPORT
+========================================================= */
+
+.student-import-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.student-import-cancel,
+.student-import-submit {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.student-import-cancel {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+.student-import-cancel:hover {
+    background: #f8fafc;
+}
+
+.student-import-submit {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #ffffff;
+}
+
+.student-import-submit:hover {
+    background: #1d4ed8;
+}
+
+/* =========================================================
+   POPUP HAPUS
+========================================================= */
+
+.student-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.student-delete-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.student-delete-box {
+    position: relative;
+    z-index: 1;
+    width: 420px;
+    max-width: calc(100% - 40px);
+    padding: 30px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.18);
+    text-align: center;
+    animation: studentDeletePopup 0.18s ease-out;
+}
+
+@keyframes studentDeletePopup {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.student-delete-box h3 {
+    margin: 0 0 10px;
+    color: #1e293b;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.student-delete-box p {
+    margin: 0 auto 8px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.student-delete-box p strong {
+    color: #1e293b;
+}
+
+.student-delete-warning {
+    display: block;
+    margin-bottom: 25px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* =========================================================
+   TOMBOL POPUP HAPUS
+========================================================= */
+
+.student-delete-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.student-delete-cancel,
+.student-delete-confirm {
+    min-width: 105px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.student-delete-cancel {
+    border: none;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.student-delete-cancel:hover {
+    background: #e2e8f0;
+}
+
+.student-delete-confirm {
+    border: none;
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.student-delete-confirm:hover {
+    background: #b91c1c;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .student-page-header {
+        align-items: flex-start;
+    }
+
+    .student-header-actions {
+        flex-wrap: wrap;
+    }
+
+    .student-filter .filter-item {
+        flex: 1 1 calc(50% - 14px);
+    }
+}
+
+@media (max-width: 768px) {
+
+    .student-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 18px;
+    }
+
+    .student-header-actions {
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .student-action-btn {
+        flex: 0 0 auto;
+    }
+
+    .student-filter {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 13px;
+    }
+
+    .student-filter .filter-item {
+        width: 100%;
+        min-width: 0;
+        flex: none;
+    }
+
+    .student-filter .filter-buttons {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .student-filter .btn-filter,
+    .student-filter .btn-reset,
+    .student-filter .btn-export {
+        flex: 0 0 auto;
+    }
+
+    .student-table {
+        min-width: 1450px;
+    }
+
+    .student-import-box {
+        width: 400px;
+        padding: 25px 20px;
+    }
+
+    .student-delete-box {
+        width: 360px;
+        padding: 25px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .student-header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .student-action-btn {
+        width: 100%;
+    }
+
+    .student-filter .filter-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .student-filter .btn-filter,
+    .student-filter .btn-reset,
+    .student-filter .btn-export {
+        width: 100%;
+    }
+
+    .student-import-box {
+        width: calc(100% - 30px);
+        padding: 24px 18px;
+    }
+
+    .student-import-actions {
+        flex-direction: column-reverse;
+    }
+
+    .student-import-cancel,
+    .student-import-submit {
+        width: 100%;
+    }
+
+    .student-delete-box {
+        width: calc(100% - 30px);
+        padding: 24px 18px;
+    }
+
+    .student-delete-actions {
+        flex-direction: column-reverse;
+    }
+
+    .student-delete-cancel,
+    .student-delete-confirm {
+        width: 100%;
+    }
+}
+
+</style>
+
+<div class="student-page">
+
+    <!-- =====================================================
+         HEADER
+         IMPORT + DOWNLOAD + TAMBAH SISWA
+    ====================================================== -->
+
+    <div class="student-page-header">
+
+        <div class="student-page-title">
+
+            <h1>
+                Data Siswa
+            </h1>
+
+            <p>
+                Kelola data siswa yang terdaftar
+            </p>
+
+        </div>
+
+        <div class="student-header-actions">
+
+            <!-- IMPORT EXCEL -->
+
+            <button
+                type="button"
+                class="student-action-btn btn-import"
+                id="btn-open-import"
+            >
+                Import Excel
+            </button>
+
+            <!-- DOWNLOAD FORMAT -->
+
+            <a
+                href="{% url 'download_format_siswa' %}"
+                class="student-action-btn btn-download"
+            >
+                Download Format
+            </a>
+
+            <!-- TAMBAH SISWA -->
+
+            <a
+                href="{% url 'student_create' %}"
+                class="student-action-btn btn-add"
+            >
+                + Tambah Siswa
+            </a>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+         FILTER
+    ====================================================== -->
+
+    <form
+        method="GET"
+        class="student-filter"
+    >
+
+        <!-- CARI SISWA -->
+
+        <div class="filter-item">
+
+            <label for="search">
+                Cari Siswa
+            </label>
+
+            <input
+                type="text"
+                id="search"
+                name="search"
+                value="{{ search }}"
+                placeholder="Nama atau NIM..."
+            >
+
+        </div>
+
+        <!-- TAHUN AJARAN TER-UPDATE -->
+
+        <div class="filter-item">
+
+            <label for="tahun_ajaran">
+                Tahun Ajaran Ter-Update
+            </label>
+
+            <select
+                name="tahun_ajaran"
+                id="tahun_ajaran"
+            >
+
+                <option value="">
+                    Semua Tahun Ajaran
+                </option>
+
+                {% for tahun in tahun_ajarans %}
+
+                <option
+                    value="{{ tahun.id }}"
+                    {% if tahun_ajaran_id == tahun.id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ tahun.nama }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <!-- KELAS TER-UPDATE -->
+
+        <div class="filter-item">
+
+            <label for="kelas">
+                Kelas Ter-Update
+            </label>
+
+            <select
+                name="kelas"
+                id="kelas"
+            >
+
+                <option value="">
+                    Semua Kelas
+                </option>
+
+                {% for kelas in kelass %}
+
+                <option
+                    value="{{ kelas.id }}"
+                    {% if kelas_id == kelas.id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ kelas.nama }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <!-- ASRAMA -->
+
+        <div class="filter-item">
+
+            <label for="asrama">
+                Asrama
+            </label>
+
+            <select
+                name="asrama"
+                id="asrama"
+            >
+
+                <option value="">
+                    Semua Asrama
+                </option>
+
+                {% for asrama in asramas %}
+
+                <option
+                    value="{{ asrama.id }}"
+                    {% if asrama_id == asrama.id|stringformat:"s" %}
+                        selected
+                    {% endif %}
+                >
+                    {{ asrama.nama }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <!-- STATUS -->
+
+        <div class="filter-item">
+
+            <label for="status">
+                Status
+            </label>
+
+            <select
+                name="status"
+                id="status"
+            >
+
+                <option value="">
+                    Semua Status
+                </option>
+
+                <option
+                    value="aktif"
+                    {% if status == 'aktif' %}
+                        selected
+                    {% endif %}
+                >
+                    Aktif
+                </option>
+
+                <option
+                    value="nonaktif"
+                    {% if status == 'nonaktif' %}
+                        selected
+                    {% endif %}
+                >
+                    Tidak Aktif
+                </option>
+
+            </select>
+
+        </div>
+
+        <!-- =================================================
+             BUTTON FILTER
+        ================================================== -->
+
+        <div class="filter-buttons">
+
+            <!-- TERAPKAN FILTER -->
+
+            <button
+                type="submit"
+                class="btn-filter"
+            >
+                Terapkan Filter
+            </button>
+
+            <!-- RESET -->
+
+            <a
+                href="{% url 'student_list' %}"
+                class="btn-reset"
+            >
+                Reset
+            </a>
+
+            <!-- EXPORT EXCEL -->
+
+            <a
+                href="{% url 'export_siswa' %}?search={{ search|urlencode }}&tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}&asrama={{ asrama_id }}&status={{ status|urlencode }}"
+                class="btn-export"
+            >
+                Export Excel
+            </a>
+
+        </div>
+
+    </form>
+
+    <!-- =====================================================
+         TABLE
+    ====================================================== -->
+
+    <div class="student-table-card">
+
+        <!-- TABLE HEADER -->
+
+        <div class="student-table-header">
+
+            <div>
+
+                <h2>
+                    Daftar Siswa
+                </h2>
+
+                <p>
+                    Data siswa yang terdaftar dalam sistem
+                </p>
+
+            </div>
+
+            <span class="student-table-total">
+                {{ students|length }} siswa
+            </span>
+
+        </div>
+
+        <!-- TABLE WRAPPER -->
+
+        <div class="student-table-wrapper">
+
+            <table class="student-table">
+
+                <!-- TABLE HEAD -->
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            NO
+                        </th>
+
+                        <th>
+                            NAMA SISWA
+                        </th>
+
+                        <th>
+                            NIM
+                        </th>
+
+                        <th>
+                            JENIS KELAMIN
+                        </th>
+
+                        <th>
+                            TAHUN AJARAN TER-UPDATE
+                        </th>
+
+                        <th>
+                            KELAS TER-UPDATE
+                        </th>
+
+                        <th>
+                            PRODI
+                        </th>
+
+                        <th>
+                            ASRAMA
+                        </th>
+
+                        <th>
+                            STATUS
+                        </th>
+
+                        <th>
+                            AKSI
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <!-- TABLE BODY -->
+
+                <tbody>
+
+                    {% for student in students %}
+
+                    <tr>
+
+                        <!-- NO -->
+
+                        <td>
+                            {{ forloop.counter }}
+                        </td>
+
+                        <!-- NAMA -->
+
+                        <td>
+
+                            <div class="nama-siswa">
+                                {{ student.nama }}
+                            </div>
+
+                        </td>
+
+                        <!-- NIM -->
+
+                        <td>
+
+                            <span class="nim-siswa">
+                                {{ student.nim }}
+                            </span>
+
+                        </td>
+
+                        <!-- JENIS KELAMIN -->
+
+                        <td>
+                            {{ student.jk|default:"-" }}
+                        </td>
+
+                        <!-- TAHUN AJARAN TER-UPDATE -->
+
+                        <td>
+
+                            {% if student.tahun_ajaran_terupdate %}
+
+                                <span class="tahun-ajaran-badge">
+                                    {{ student.tahun_ajaran_terupdate }}
+                                </span>
+
+                            {% elif student.tahun_ajaran %}
+
+                                <span class="tahun-ajaran-badge">
+                                    {{ student.tahun_ajaran.nama }}
+                                </span>
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- KELAS TER-UPDATE -->
+
+                        <td>
+
+                            {% if student.kelas_terupdate %}
+
+                                <span class="class-badge">
+                                    {{ student.kelas_terupdate }}
+                                </span>
+
+                            {% elif student.kelas %}
+
+                                <span class="class-badge">
+                                    {{ student.kelas.nama }}
+                                </span>
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- PRODI -->
+
+                        <td>
+                            {{ student.prodi|default:"-" }}
+                        </td>
+
+                        <!-- ASRAMA -->
+
+                        <td>
+
+                            {% if student.asrama_master %}
+
+                                <span class="asrama-siswa">
+                                    {{ student.asrama_master.nama }}
+                                </span>
+
+                            {% elif student.asrama %}
+
+                                <span class="asrama-siswa">
+                                    {{ student.asrama }}
+                                </span>
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- STATUS -->
+
+                        <td>
+
+                            {% if student.status %}
+
+                                <span class="status-active">
+                                    Aktif
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-inactive">
+                                    Tidak Aktif
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <!-- AKSI -->
+
+                        <td class="actions">
+
+                            <div class="action-buttons">
+
+                                <!-- LIHAT -->
+
+                                <a
+                                    href="{% url 'student_detail' student.id %}"
+                                    class="btn-view"
+                                >
+                                    Lihat
+                                </a>
+
+                                <!-- EDIT -->
+
+                                <a
+                                    href="{% url 'student_edit' student.id %}"
+                                    class="btn-edit"
+                                >
+                                    Edit
+                                </a>
+
+                                <!-- HAPUS -->
+
+                                <button
+                                    type="button"
+                                    class="btn-delete btn-hapus-siswa"
+                                    data-url="{% url 'student_delete' student.id %}"
+                                    data-nama="{{ student.nama }}"
+                                >
+                                    Hapus
+                                </button>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td
+                            colspan="10"
+                            class="student-empty"
+                        >
+
+                            <div class="student-empty-title">
+                                Belum ada data siswa
+                            </div>
+
+                            <div class="student-empty-text">
+                                Silakan tambahkan siswa terlebih dahulu.
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     POPUP IMPORT EXCEL
+========================================================= -->
+
+<div
+    id="student-import-modal"
+    class="student-import-modal"
+>
+
+    <!-- OVERLAY -->
+
+    <div
+        class="student-import-overlay"
+        id="student-import-overlay"
+    ></div>
+
+    <!-- BOX -->
+
+    <div class="student-import-box">
+
+        <h3>
+            Import Data Siswa
+        </h3>
+
+        <p>
+            Pilih file Excel (.xlsx) yang sudah diisi sesuai
+            format yang disediakan.
+        </p>
+
+        <!-- FORM IMPORT -->
+
+        <form
+            method="POST"
+            action="{% url 'import_siswa' %}"
+            enctype="multipart/form-data"
+            id="student-import-form"
+        >
+
+            {% csrf_token %}
+
+            <input
+                type="file"
+                name="file"
+                id="student-import-file"
+                class="student-import-file"
+                accept=".xlsx"
+                required
+            >
+
+            <p class="student-import-note">
+                Pastikan nama kolom Excel sesuai dengan
+                format Download Format.
+            </p>
+
+            <div class="student-import-actions">
+
+                <!-- BATAL -->
+
+                <button
+                    type="button"
+                    class="student-import-cancel"
+                    id="student-import-cancel"
+                >
+                    Batal
+                </button>
+
+                <!-- IMPORT -->
+
+                <button
+                    type="submit"
+                    class="student-import-submit"
+                >
+                    Import Sekarang
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     POPUP HAPUS SISWA
+========================================================= -->
+
+<div
+    id="student-delete-modal"
+    class="student-delete-modal"
+    style="display: none;"
+>
+
+    <!-- OVERLAY -->
+
+    <div
+        class="student-delete-overlay"
+        id="student-delete-overlay"
+    ></div>
+
+    <!-- BOX -->
+
+    <div class="student-delete-box">
+
+        <h3>
+            Hapus Data Siswa?
+        </h3>
+
+        <p>
+            Apakah Anda yakin ingin menghapus
+            <strong id="student-delete-nama"></strong>?
+        </p>
+
+        <span class="student-delete-warning">
+            Data yang sudah dihapus tidak dapat dikembalikan.
+        </span>
+
+        <form
+            method="POST"
+            id="student-delete-form"
+        >
+
+            {% csrf_token %}
+
+            <div class="student-delete-actions">
+
+                <!-- BATAL -->
+
+                <button
+                    type="button"
+                    class="student-delete-cancel"
+                    id="student-delete-cancel"
+                >
+                    Batal
+                </button>
+
+                <!-- KONFIRMASI -->
+
+                <button
+                    type="submit"
+                    class="student-delete-confirm"
+                >
+                    Ya, Hapus
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    /* =====================================================
+       POPUP IMPORT
+    ===================================================== */
+
+    const importModal = document.getElementById(
+        'student-import-modal'
+    );
+
+    const importOverlay = document.getElementById(
+        'student-import-overlay'
+    );
+
+    const importCancel = document.getElementById(
+        'student-import-cancel'
+    );
+
+    const importButton = document.getElementById(
+        'btn-open-import'
+    );
+
+    function bukaImport() {
+        importModal.style.display = 'flex';
+    }
+
+    function tutupImport() {
+        importModal.style.display = 'none';
+    }
+
+    if (importButton) {
+        importButton.addEventListener(
+            'click',
+            bukaImport
+        );
+    }
+
+    if (importCancel) {
+        importCancel.addEventListener(
+            'click',
+            tutupImport
+        );
+    }
+
+    if (importOverlay) {
+        importOverlay.addEventListener(
+            'click',
+            tutupImport
+        );
+    }
+
+    /* =====================================================
+       ELEMENT POPUP HAPUS
+    ===================================================== */
+
+    const modal = document.getElementById(
+        'student-delete-modal'
+    );
+
+    const overlay = document.getElementById(
+        'student-delete-overlay'
+    );
+
+    const nama = document.getElementById(
+        'student-delete-nama'
+    );
+
+    const form = document.getElementById(
+        'student-delete-form'
+    );
+
+    const tombolBatal = document.getElementById(
+        'student-delete-cancel'
+    );
+
+    /* =====================================================
+       TOMBOL HAPUS
+    ===================================================== */
+
+    const tombolHapus = document.querySelectorAll(
+        '.btn-hapus-siswa'
+    );
+
+    tombolHapus.forEach(function (button) {
+
+        button.addEventListener(
+            'click',
+            function () {
+
+                const url = this.dataset.url;
+                const namaSiswa = this.dataset.nama;
+
+                form.action = url;
+                nama.textContent = namaSiswa;
+                modal.style.display = 'flex';
+
+            }
+        );
+
+    });
+
+    /* =====================================================
+       TUTUP POPUP HAPUS
+    ===================================================== */
+
+    function tutupHapus() {
+
+        modal.style.display = 'none';
+        form.action = '';
+
+    }
+
+    tombolBatal.addEventListener(
+        'click',
+        tutupHapus
+    );
+
+    overlay.addEventListener(
+        'click',
+        tutupHapus
+    );
+
+    /* =====================================================
+       ESC
+    ===================================================== */
+
+    document.addEventListener(
+        'keydown',
+        function (event) {
+
+            if (event.key === 'Escape') {
+
+                if (
+                    importModal.style.display === 'flex'
+                ) {
+                    tutupImport();
+                }
+
+                if (
+                    modal.style.display === 'flex'
+                ) {
+                    tutupHapus();
+                }
+
+            }
+
+        }
+    );
+
+});
+
+</script>
+
+{% endblock %}

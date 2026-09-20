@@ -1,69 +1,1363 @@
 {% extends "students/base.html" %}
+{% load static %}
 
 {% block title %}
 Detail Siswa
 {% endblock %}
 
+
 {% block content %}
+
+<style>
+
+/* =========================================================
+   HALAMAN DETAIL
+   ========================================================= */
+
+.detail-page {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    gap: 20px;
+}
+
+.detail-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.detail-header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #172033;
+}
+
+.detail-header p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #8a99b2;
+}
+
+
+/* =========================================================
+   BUTTON KEMBALI
+   ========================================================= */
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid #dce3ee;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #475569;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.btn-back:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+
+/* =========================================================
+   GRID UTAMA
+   ========================================================= */
+
+.detail-grid {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+    gap: 24px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* =========================================================
+   CARD UMUM
+   ========================================================= */
+
+.detail-card {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 28px 34px;
+    background: #ffffff;
+    border: 1px solid #e1e7ef;
+    border-radius: 16px;
+    box-shadow:
+        0 5px 18px rgba(15, 23, 42, 0.06);
+}
+
+
+/* =========================================================
+   JUDUL CARD
+   ========================================================= */
+
+.card-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e7ecf3;
+}
+
+.card-icon {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #eff6ff;
+    font-size: 22px;
+}
+
+.card-title h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #172033;
+}
+
+.card-title p {
+    margin: 5px 0 0;
+    font-size: 13px;
+    color: #8ca0bd;
+}
+
+
+/* =========================================================
+   PROFILE CARD
+   ========================================================= */
+
+.profile-card {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 28px 34px;
+}
+
+.profile-photo {
+    width: 90px;
+    height: 90px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #eef4ff;
+    color: #475569;
+    font-size: 34px;
+    overflow: hidden;
+}
+
+.profile-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-info {
+    min-width: 0;
+}
+
+.profile-info h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #172033;
+}
+
+.profile-info p {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: #7c8da8;
+}
+
+.profile-nim {
+    display: inline-flex;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   ITEM GRID
+   ========================================================= */
+
+.detail-items {
+    display: grid;
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+}
+
+
+/* =========================================================
+   DETAIL ITEM
+   ========================================================= */
+
+.detail-item {
+    min-width: 0;
+    min-height: 76px;
+    padding: 17px 18px;
+    box-sizing: border-box;
+    background: #f8fafc;
+    border: 1px solid #e5eaf1;
+    border-radius: 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.detail-item > span:first-child {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8aa0be;
+    text-transform: uppercase;
+    letter-spacing: 0.25px;
+}
+
+.detail-item strong {
+    display: block;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.55;
+    color: #172033;
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   ALAMAT
+   FULL WIDTH DI DALAM INFORMASI PRIBADI
+   ========================================================= */
+
+.detail-item.address-item {
+    grid-column: 1 / -1;
+    min-height: 86px;
+}
+
+.detail-item.address-item strong {
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   CLASS BADGE
+   ========================================================= */
+
+.class-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 6px 12px;
+    background: #eef5ff;
+    color: #2563eb;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 6px 13px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.active {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.status-badge.inactive {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   HISTORI PENDIDIKAN
+   ========================================================= */
+
+.history-card {
+    grid-column: 1 / -1;
+}
+
+.history-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 24px;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+}
+
+.history-table th {
+    padding: 13px 16px;
+    background: #f8fafc;
+    border-top: 1px solid #e5eaf1;
+    border-bottom: 1px solid #e5eaf1;
+    color: #71829e;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-align: left;
+}
+
+.history-table th:first-child {
+    border-left: 1px solid #e5eaf1;
+    border-top-left-radius: 9px;
+}
+
+.history-table th:last-child {
+    border-right: 1px solid #e5eaf1;
+    border-top-right-radius: 9px;
+}
+
+.history-table td {
+    padding: 15px 16px;
+    border-bottom: 1px solid #edf1f5;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.history-table tbody tr:last-child td {
+    border-bottom: 1px solid #e5eaf1;
+}
+
+.history-table td:first-child {
+    border-left: 1px solid #e5eaf1;
+}
+
+.history-table td:last-child {
+    border-right: 1px solid #e5eaf1;
+}
+
+
+/* =========================================================
+   HISTORY BADGE
+   ========================================================= */
+
+.history-year {
+    font-weight: 600;
+    color: #334155;
+}
+
+.history-class {
+    display: inline-flex;
+    padding: 5px 10px;
+    background: #eef5ff;
+    color: #2563eb;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.history-status-active,
+.history-status-inactive {
+    display: inline-flex;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.history-status-active {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.history-status-inactive {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+
+/* =========================================================
+   TOMBOL HAPUS HISTORI
+   ========================================================= */
+
+.history-delete-btn {
+    border: 0;
+    padding: 6px 11px;
+    border-radius: 7px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.history-delete-btn:hover {
+    background: #fee2e2;
+}
+
+
+/* =========================================================
+   MODAL HAPUS
+   ========================================================= */
+
+.delete-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.45);
+}
+
+.delete-modal.show {
+    display: flex;
+}
+
+.delete-modal-box {
+    width: 100%;
+    max-width: 430px;
+    padding: 28px;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.20);
+}
+
+.delete-modal-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 22px;
+}
+
+.delete-modal-box h3 {
+    margin: 0 0 8px;
+    color: #172033;
+    font-size: 18px;
+}
+
+.delete-modal-box p {
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.delete-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.delete-cancel-btn,
+.delete-confirm-btn {
+    padding: 9px 15px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.delete-cancel-btn {
+    border: 1px solid #dbe2ea;
+    background: #ffffff;
+    color: #475569;
+}
+
+.delete-confirm-btn {
+    border: 0;
+    background: #dc2626;
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-card,
+    .history-card {
+        grid-column: 1;
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .detail-card {
+        padding: 22px 20px;
+    }
+
+    .profile-card {
+        padding: 22px 20px;
+    }
+
+    .detail-items {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-item.address-item {
+        grid-column: 1;
+    }
+
+    .detail-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .history-table {
+        min-width: 650px;
+    }
+
+}
+
+</style>
+
 
 <div class="detail-page">
 
 
-<!-- HEADER -->
-<div class="page-header detail-header">
+    <!-- =====================================================
+         HEADER
+         ====================================================== -->
 
-    <div>
-        <h1>Detail Siswa</h1>
-        <p>Informasi lengkap data siswa.</p>
-    </div>
+    <div class="detail-header">
 
-    <div class="detail-header-actions">
+        <div class="detail-header-left">
 
-        <a href="{% url 'student_list' %}" class="btn-back">
+            <div>
+
+                <h1>
+                    Detail Siswa
+                </h1>
+
+                <p>
+                    Informasi lengkap data siswa
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <a
+            href="{% url 'student_list' %}"
+            class="btn-back"
+        >
             ← Kembali
         </a>
 
-        <a href="{% url 'student_edit' student.id %}" class="btn-edit-main">
-            ✏️ Edit Siswa
-        </a>
-
     </div>
 
-</div>
+
+    <!-- =====================================================
+         GRID UTAMA
+         ====================================================== -->
+
+    <div class="detail-grid">
 
 
-<!-- PROFILE CARD -->
-<div class="student-profile-card">
+        <!-- =================================================
+             PROFILE
+             ================================================== -->
 
-    <div class="profile-avatar">
-        {{ student.nama|first|upper }}
-    </div>
+        <div class="detail-card profile-card">
 
-    <div class="profile-info">
+            <div class="profile-photo">
 
-        <h2>{{ student.nama }}</h2>
+                {% if student.foto %}
 
-        <div class="profile-meta">
+                    <img
+                        src="{{ student.foto.url }}"
+                        alt="{{ student.nama }}"
+                    >
 
-            <span>
-                NIM: <strong>{{ student.nim }}</strong>
-            </span>
+                {% else %}
 
-            {% if student.kelas %}
-            <span>
-                Kelas: <strong>{{ student.kelas.nama }}</strong>
-            </span>
-            {% endif %}
+                    👤
 
-            {% if student.status %}
-                <span class="profile-status active">
-                    ● Aktif
+                {% endif %}
+
+            </div>
+
+
+            <div class="profile-info">
+
+                <h2>
+                    {{ student.nama }}
+                </h2>
+
+                <p>
+                    Data Siswa
+                </p>
+
+                <span class="profile-nim">
+                    NIM: {{ student.nim }}
                 </span>
-            {% else %}
-                <span class="profile-status inactive">
-                    ● Tidak Aktif
-                </span>
-            {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INFORMASI PRIBADI
+             ================================================== -->
+
+        <div class="detail-card">
+
+            <div class="card-title">
+
+                <div class="card-icon">
+                    👤
+                </div>
+
+                <div>
+
+                    <h3>
+                        Informasi Pribadi
+                    </h3>
+
+                    <p>
+                        Data identitas siswa
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="detail-items">
+
+
+                <!-- NIM -->
+
+                <div class="detail-item">
+
+                    <span>
+                        NIM
+                    </span>
+
+                    <strong>
+                        {{ student.nim }}
+                    </strong>
+
+                </div>
+
+
+                <!-- NAMA AYAH -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Nama Ayah
+                    </span>
+
+                    <strong>
+
+                        {% if student.nama_ayah %}
+
+                            {{ student.nama_ayah }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- JENIS KELAMIN -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Jenis Kelamin
+                    </span>
+
+                    <strong>
+
+                        {% if student.jk %}
+
+                            {{ student.jk }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- TEMPAT LAHIR -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Tempat Lahir
+                    </span>
+
+                    <strong>
+
+                        {% if student.tempat_lahir %}
+
+                            {{ student.tempat_lahir }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- TANGGAL LAHIR -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Tanggal Lahir
+                    </span>
+
+                    <strong>
+
+                        {% if student.tanggal_lahir %}
+
+                            {{ student.tanggal_lahir|date:"d F Y" }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- NO TELEPON -->
+
+                <div class="detail-item">
+
+                    <span>
+                        No. Telepon
+                    </span>
+
+                    <strong>
+
+                        {% if student.no_tlpn_wa %}
+
+                            {{ student.no_tlpn_wa }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- =================================================
+                     ALAMAT
+                     FULL WIDTH DI BAWAH TANGGAL LAHIR + TELEPON
+                     ================================================== -->
+
+                <div class="detail-item address-item">
+
+                    <span>
+                        Alamat
+                    </span>
+
+                    <strong>
+
+                        {% if student.alamat %}
+
+                            {{ student.alamat }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             INFORMASI AKADEMIK
+             ================================================== -->
+
+        <div class="detail-card">
+
+            <div class="card-title">
+
+                <div class="card-icon">
+                    🎓
+                </div>
+
+                <div>
+
+                    <h3>
+                        Informasi Akademik
+                    </h3>
+
+                    <p>
+                        Data pendidikan siswa
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="detail-items">
+
+
+                <!-- TAHUN AJARAN MASUK -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Tahun Ajaran Masuk
+                    </span>
+
+                    <strong>
+
+                        {% if riwayat_awal %}
+
+                            {{ riwayat_awal.tahun_ajaran.nama }}
+
+                        {% elif student.tahun_ajaran %}
+
+                            {{ student.tahun_ajaran.nama }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- KELAS AWAL -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Kelas Awal Masuk
+                    </span>
+
+                    <strong>
+
+                        {% if riwayat_awal and riwayat_awal.kelas %}
+
+                            <span class="class-badge">
+                                {{ riwayat_awal.kelas.nama }}
+                            </span>
+
+                        {% elif student.kelas %}
+
+                            <span class="class-badge">
+                                {{ student.kelas.nama }}
+                            </span>
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- TAHUN AJARAN TER-UPDATE -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Tahun Ajaran Ter-update
+                    </span>
+
+                    <strong>
+
+                        {% if riwayat_terbaru %}
+
+                            {{ riwayat_terbaru.tahun_ajaran.nama }}
+
+                        {% elif student.tahun_ajaran %}
+
+                            {{ student.tahun_ajaran.nama }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- KELAS TER-UPDATE -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Kelas Ter-update
+                    </span>
+
+                    <strong>
+
+                        {% if riwayat_terbaru and riwayat_terbaru.kelas %}
+
+                            <span class="class-badge">
+                                {{ riwayat_terbaru.kelas.nama }}
+                            </span>
+
+                        {% elif student.kelas %}
+
+                            <span class="class-badge">
+                                {{ student.kelas.nama }}
+                            </span>
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- SEMESTER -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Semester
+                    </span>
+
+                    <strong>
+
+                        {% if student.semester %}
+
+                            {{ student.semester }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- PROGRAM STUDI -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Program Studi
+                    </span>
+
+                    <strong>
+
+                        {% if student.prodi %}
+
+                            {{ student.prodi }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- ASRAMA -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Asrama
+                    </span>
+
+                    <strong>
+
+                        {% if student.asrama_master %}
+
+                            {{ student.asrama_master.nama }}
+
+                        {% elif student.asrama %}
+
+                            {{ student.asrama }}
+
+                        {% else %}
+
+                            -
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+                <!-- STATUS SISWA -->
+
+                <div class="detail-item">
+
+                    <span>
+                        Status Siswa
+                    </span>
+
+                    <strong>
+
+                        {% if student.status %}
+
+                            <span class="status-badge active">
+                                Aktif
+                            </span>
+
+                        {% else %}
+
+                            <span class="status-badge inactive">
+                                Tidak Aktif
+                            </span>
+
+                        {% endif %}
+
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             HISTORI PENDIDIKAN
+             ================================================== -->
+
+        <div class="detail-card history-card">
+
+            <div class="card-title">
+
+                <div class="card-icon">
+                    🎓
+                </div>
+
+                <div>
+
+                    <h3>
+                        Histori Pendidikan
+                    </h3>
+
+                    <p>
+                        Riwayat kelas dan tahun ajaran siswa
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="history-table-wrapper">
+
+                <table class="history-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                No
+                            </th>
+
+                            <th>
+                                Tahun Ajaran
+                            </th>
+
+                            <th>
+                                Kelas
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Aksi
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for riwayat in riwayat_kelas %}
+
+                        <tr>
+
+                            <td>
+                                {{ forloop.counter }}
+                            </td>
+
+
+                            <td>
+
+                                <span class="history-year">
+                                    {{ riwayat.tahun_ajaran.nama }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="history-class">
+                                    {{ riwayat.kelas.nama }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                {% if riwayat.status %}
+
+                                    <span class="history-status-active">
+                                        Aktif
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="history-status-inactive">
+                                        Tidak Aktif
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <td>
+
+                                <button
+                                    type="button"
+                                    class="history-delete-btn"
+                                    data-url="{% url 'hapus_histori_pendidikan' student.id riwayat.id %}"
+                                    data-tahun="{{ riwayat.tahun_ajaran.nama }}"
+                                    data-kelas="{{ riwayat.kelas.nama }}"
+                                >
+                                    Hapus
+                                </button>
+
+                            </td>
+
+                        </tr>
+
+                        {% empty %}
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                style="
+                                    text-align: center;
+                                    padding: 30px;
+                                    color: #94a3b8;
+                                "
+                            >
+                                Belum ada histori pendidikan.
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     MODAL HAPUS HISTORI
+========================================================= -->
+
+<div
+    class="delete-modal"
+    id="deleteModal"
+>
+
+    <div class="delete-modal-box">
+
+        <div class="delete-modal-icon">
+            ⚠
+        </div>
+
+
+        <h3>
+            Hapus Histori Pendidikan?
+        </h3>
+
+
+        <p>
+
+            Histori pendidikan
+
+            <strong id="deleteHistoryInfo"></strong>
+
+            akan dihapus.
+
+            Tindakan ini tidak dapat dibatalkan.
+
+        </p>
+
+
+        <div class="delete-modal-actions">
+
+            <button
+                type="button"
+                class="delete-cancel-btn"
+                id="deleteCancelBtn"
+            >
+                Batal
+            </button>
+
+
+            <form
+                method="POST"
+                id="deleteHistoryForm"
+                style="margin: 0;"
+            >
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    class="delete-confirm-btn"
+                >
+                    Hapus
+                </button>
+
+            </form>
 
         </div>
 
@@ -72,211 +1366,83 @@ Detail Siswa
 </div>
 
 
-<!-- DATA SISWA -->
-<div class="detail-grid">
+<script>
+
+/* =========================================================
+   MODAL HAPUS HISTORI
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modal = document.getElementById("deleteModal");
+
+    const form = document.getElementById("deleteHistoryForm");
+
+    const info = document.getElementById("deleteHistoryInfo");
+
+    const cancelButton =
+        document.getElementById("deleteCancelBtn");
+
+    const deleteButtons =
+        document.querySelectorAll(".history-delete-btn");
 
 
-    <!-- INFORMASI PRIBADI -->
-    <div class="detail-card">
+    deleteButtons.forEach(function (button) {
 
-        <div class="detail-card-header">
+        button.addEventListener("click", function () {
 
-            <div class="detail-card-icon">
-                👤
-            </div>
+            const url =
+                button.getAttribute("data-url");
 
-            <div>
-                <h3>Informasi Pribadi</h3>
-                <p>Data identitas siswa</p>
-            </div>
+            const tahun =
+                button.getAttribute("data-tahun");
 
-        </div>
+            const kelas =
+                button.getAttribute("data-kelas");
 
 
-        <div class="detail-list">
+            form.action = url;
 
-            <div class="detail-item">
-                <span>Nama Lengkap</span>
-                <strong>{{ student.nama }}</strong>
-            </div>
+            info.textContent =
+                tahun + " - Kelas " + kelas;
 
-            <div class="detail-item">
-                <span>NIM</span>
-                <strong>{{ student.nim }}</strong>
-            </div>
+            modal.classList.add("show");
 
-            <div class="detail-item">
-                <span>Jenis Kelamin</span>
-                <strong>{{ student.jk }}</strong>
-            </div>
+        });
 
-            <div class="detail-item">
-                <span>Tempat Lahir</span>
-                <strong>{{ student.tempat_lahir }}</strong>
-            </div>
-
-            <div class="detail-item">
-                <span>Tanggal Lahir</span>
-                <strong>
-                    {{ student.tanggal_lahir|date:"d F Y" }}
-                </strong>
-            </div>
-
-            <div class="detail-item">
-                <span>Nama Ayah</span>
-                <strong>
-                    {% if student.nama_ayah %}
-                        {{ student.nama_ayah }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </strong>
-            </div>
-
-            <div class="detail-item">
-                <span>No. Telepon</span>
-                <strong>
-                    {% if student.no_tlpn %}
-                        {{ student.no_tlpn }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </strong>
-            </div>
-
-        </div>
-
-    </div>
+    });
 
 
-    <!-- INFORMASI AKADEMIK -->
-    <div class="detail-card">
+    cancelButton.addEventListener("click", function () {
 
-        <div class="detail-card-header">
+        modal.classList.remove("show");
 
-            <div class="detail-card-icon">
-                🎓
-            </div>
-
-            <div>
-                <h3>Informasi Akademik</h3>
-                <p>Data pendidikan siswa</p>
-            </div>
-
-        </div>
+    });
 
 
-        <div class="detail-list">
+    modal.addEventListener("click", function (event) {
 
-            <div class="detail-item">
-                <span>Kelas</span>
+        if (event.target === modal) {
 
-                <strong>
-                    {% if student.kelas %}
-                        <span class="class-badge">
-                            {{ student.kelas.nama }}
-                        </span>
-                    {% else %}
-                        -
-                    {% endif %}
-                </strong>
+            modal.classList.remove("show");
 
-            </div>
+        }
 
-            <div class="detail-item">
-                <span>Semester</span>
-
-                <strong>
-                    {% if student.semester %}
-                        {{ student.semester }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </strong>
-
-            </div>
-
-            <div class="detail-item">
-                <span>Program Studi</span>
-
-                <strong>
-                    {% if student.prodi %}
-                        {{ student.prodi }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </strong>
-
-            </div>
-
-            <div class="detail-item">
-                <span>Asrama</span>
-
-                <strong>
-                    {% if student.asrama_master %}
-                        {{ student.asrama_master.nama }}
-                    {% else %}
-                        -
-                    {% endif %}
-                </strong>
-
-            </div>
-
-            <div class="detail-item">
-                <span>Status Siswa</span>
-
-                <strong>
-                    {% if student.status %}
-                        <span class="status-badge active">
-                            Aktif
-                        </span>
-                    {% else %}
-                        <span class="status-badge inactive">
-                            Tidak Aktif
-                        </span>
-                    {% endif %}
-                </strong>
-
-            </div>
-
-        </div>
-
-    </div>
+    });
 
 
-    <!-- ALAMAT -->
-    <div class="detail-card address-card">
+    document.addEventListener("keydown", function (event) {
 
-        <div class="detail-card-header">
+        if (event.key === "Escape") {
 
-            <div class="detail-card-icon">
-                📍
-            </div>
+            modal.classList.remove("show");
 
-            <div>
-                <h3>Alamat</h3>
-                <p>Alamat tempat tinggal siswa</p>
-            </div>
+        }
 
-        </div>
+    });
 
-        <div class="address-content">
+});
 
-            {% if student.alamat %}
-                {{ student.alamat }}
-            {% else %}
-                <span class="text-muted">
-                    Alamat belum tersedia.
-                </span>
-            {% endif %}
-
-        </div>
-
-    </div>
-
-
-</div>
-
-</div>
+</script>
 
 {% endblock %}
