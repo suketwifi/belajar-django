@@ -4,103 +4,261 @@
 Salin Mata Pelajaran
 {% endblock %}
 
-
 {% block content %}
 
 <div class="salin-mapel-page">
 
-    <!-- =====================================================
-         HEADER
-         ===================================================== -->
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
 
-    <div class="page-header salin-mapel-header">
+<div class="page-header salin-mapel-header">
 
-        <div>
+    <div>
 
-            <h1>
-                Salin Mata Pelajaran
-            </h1>
+        <h1>
+            Salin Mata Pelajaran
+        </h1>
 
-            <p>
-                Salin mata pelajaran yang dipilih ke tahun ajaran lain
-            </p>
-
-        </div>
+        <p>
+            Salin mata pelajaran yang dipilih ke tahun ajaran lain
+        </p>
 
     </div>
 
+</div>
 
-    <!-- =====================================================
-         CARD
-         ===================================================== -->
 
-    <div class="salin-mapel-card">
+<!-- =====================================================
+     CARD
+     ===================================================== -->
 
-        <form
-            method="POST"
-            action="{% url 'salin_mata_pelajaran' %}"
-        >
+<div class="salin-mapel-card">
 
-            {% csrf_token %}
+    <form
+        method="POST"
+        action="{% url 'salin_mata_pelajaran' %}"
+        id="form-salin-mapel"
+    >
+
+        {% csrf_token %}
+
+
+        <!-- =================================================
+             MAPEL TERPILIH
+             ================================================= -->
+
+        <div class="salin-mapel-section">
+
+            <div class="salin-mapel-section-title">
+                Mata Pelajaran Dipilih
+            </div>
+
+
+            <div class="salin-mapel-list">
+
+                {% for mapel in mata_pelajarans_dipilih %}
+
+                    <div class="salin-mapel-item">
+
+                        <input
+                            type="hidden"
+                            name="mapel_ids"
+                            value="{{ mapel.id }}"
+                        >
+
+
+                        <div>
+
+                            <strong>
+                                {{ mapel.nama }}
+                            </strong>
+
+
+                            <span>
+                                Tahun asal:
+                                {{ mapel.tahun_ajaran.nama }}
+                            </span>
+
+                        </div>
+
+
+                        <div class="salin-mapel-kelas">
+
+                            {% for kelas in mapel.kelas.all %}
+
+                                <span>
+                                    {{ kelas.nama }}
+                                </span>
+
+                            {% empty %}
+
+                                <span class="kelas-semua">
+                                    Semua kelas
+                                </span>
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TAHUN TUJUAN
+             ================================================= -->
+
+        <div class="salin-mapel-section">
+
+            <label
+                class="salin-mapel-label"
+                for="tahun_tujuan"
+            >
+                Tahun Ajaran Tujuan
+            </label>
+
+
+            <select
+                name="tahun_tujuan"
+                id="tahun_tujuan"
+                class="salin-mapel-select"
+                required
+            >
+
+                <option value="">
+                    -- Pilih Tahun Ajaran --
+                </option>
+
+
+                {% for tahun in tahun_ajarans %}
+
+                    <option value="{{ tahun.id }}">
+
+                        {{ tahun.nama }}
+
+                        {% if tahun.aktif %}
+                            (Aktif)
+                        {% endif %}
+
+                    </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <!-- =================================================
+             KELAS
+             ================================================= -->
+
+        <div class="salin-mapel-section">
+
+            <div class="salin-mapel-label">
+                Kelas Tujuan
+            </div>
 
 
             <!-- =================================================
-                 MAPEL TERPILIH
+                 IKUTI KELAS ASAL
                  ================================================= -->
 
-            <div class="salin-mapel-section">
+            <label class="salin-mapel-radio-option">
 
-                <div class="salin-mapel-section-title">
-                    Mata Pelajaran Dipilih
+                <input
+                    type="radio"
+                    name="kelas_mode"
+                    value="asal"
+                    id="kelas-mode-asal"
+                    checked
+                >
+
+                <span>
+
+                    <strong>
+                        Ikuti kelas asal
+                    </strong>
+
+                    <small>
+                        Kelas mata pelajaran akan mengikuti kelas pada tahun asal.
+                    </small>
+
+                </span>
+
+            </label>
+
+
+            <!-- =================================================
+                 PILIH KELAS SENDIRI
+                 ================================================= -->
+
+            <label class="salin-mapel-radio-option">
+
+                <input
+                    type="radio"
+                    name="kelas_mode"
+                    value="pilih"
+                    id="kelas-mode-pilih"
+                >
+
+                <span>
+
+                    <strong>
+                        Pilih kelas tujuan sendiri
+                    </strong>
+
+                    <small>
+                        Tentukan sendiri kelas yang akan menerima mata pelajaran.
+                    </small>
+
+                </span>
+
+            </label>
+
+
+            <!-- =================================================
+                 PILIHAN KELAS
+                 ================================================= -->
+
+            <div
+                class="salin-mapel-kelas-container"
+                id="salin-kelas-container"
+            >
+
+                <div class="salin-mapel-kelas-title">
+                    Pilih kelas tujuan
                 </div>
 
 
-                <div class="salin-mapel-list">
+                <div class="salin-mapel-kelas-grid">
 
-                    {% for mapel in mata_pelajarans_dipilih %}
+                    {% for kelas in kelass %}
 
-                        <div class="salin-mapel-item">
+                        <label class="salin-mapel-kelas-option">
 
                             <input
-                                type="hidden"
-                                name="mapel_ids"
-                                value="{{ mapel.id }}"
+                                type="checkbox"
+                                name="kelas_tujuan"
+                                value="{{ kelas.id }}"
                             >
 
+                            <span>
+                                {{ kelas.nama }}
+                            </span>
 
-                            <div>
+                        </label>
 
-                                <strong>
-                                    {{ mapel.nama }}
-                                </strong>
+                    {% empty %}
 
-
-                                <span>
-                                    Tahun asal:
-                                    {{ mapel.tahun_ajaran.nama }}
-                                </span>
-
-                            </div>
-
-
-                            <div class="salin-mapel-kelas">
-
-                                {% for kelas in mapel.kelas.all %}
-
-                                    <span>
-                                        {{ kelas.nama }}
-                                    </span>
-
-                                {% empty %}
-
-                                    <span class="kelas-semua">
-                                        Semua kelas
-                                    </span>
-
-                                {% endfor %}
-
-                            </div>
-
+                        <div class="salin-mapel-empty">
+                            Belum ada data kelas.
                         </div>
 
                     {% endfor %}
@@ -109,201 +267,59 @@ Salin Mata Pelajaran
 
             </div>
 
+        </div>
 
-            <!-- =================================================
-                 TAHUN TUJUAN
-                 ================================================= -->
 
-            <div class="salin-mapel-section">
+        <!-- =================================================
+             INFORMASI
+             ================================================= -->
 
-                <label
-                    class="salin-mapel-label"
-                    for="tahun_tujuan"
-                >
-                    Tahun Ajaran Tujuan
-                </label>
+        <div class="salin-mapel-info">
 
+            <strong>
+                Informasi
+            </strong>
 
-                <select
-                    name="tahun_tujuan"
-                    id="tahun_tujuan"
-                    class="salin-mapel-select"
-                    required
-                >
+            <p>
+                Data nilai siswa tidak ikut disalin.
+                Fitur ini hanya membuat atau menyesuaikan
+                data mata pelajaran pada tahun ajaran tujuan.
+            </p>
 
-                    <option value="">
-                        -- Pilih Tahun Ajaran --
-                    </option>
+        </div>
 
 
-                    {% for tahun in tahun_ajarans %}
+        <!-- =================================================
+             ACTION
+             ================================================= -->
 
-                        <option value="{{ tahun.id }}">
+        <div class="salin-mapel-actions">
 
-                            {{ tahun.nama }}
+            <a
+                href="{% url 'data_mata_pelajaran' %}"
+                class="salin-mapel-cancel"
+            >
+                Batal
+            </a>
 
-                            {% if tahun.aktif %}
-                                (Aktif)
-                            {% endif %}
 
-                        </option>
+            <button
+                type="submit"
+                class="salin-mapel-submit"
+            >
+                Salin Mata Pelajaran
+            </button>
 
-                    {% endfor %}
+        </div>
 
-                </select>
+    </form>
 
-            </div>
+</div>
 
-
-            <!-- =================================================
-                 KELAS
-                 ================================================= -->
-
-            <div class="salin-mapel-section">
-
-                <div class="salin-mapel-label">
-                    Kelas Tujuan
-                </div>
-
-
-                <!-- IKUTI KELAS ASAL -->
-
-                <label class="salin-mapel-radio-option">
-
-                    <input
-                        type="radio"
-                        name="kelas_mode"
-                        value="asal"
-                        checked
-                    >
-
-                    <span>
-
-                        <strong>
-                            Ikuti kelas asal
-                        </strong>
-
-                        <small>
-                            Kelas mata pelajaran akan mengikuti kelas pada tahun asal.
-                        </small>
-
-                    </span>
-
-                </label>
-
-
-                <!-- PILIH KELAS SENDIRI -->
-
-                <label class="salin-mapel-radio-option">
-
-                    <input
-                        type="radio"
-                        name="kelas_mode"
-                        value="pilih"
-                        id="kelas-mode-pilih"
-                    >
-
-                    <span>
-
-                        <strong>
-                            Pilih kelas tujuan sendiri
-                        </strong>
-
-                        <small>
-                            Tentukan sendiri kelas yang akan menerima mata pelajaran.
-                        </small>
-
-                    </span>
-
-                </label>
-
-
-                <!-- PILIHAN KELAS -->
-
-                <div
-                    class="salin-mapel-kelas-container"
-                    id="salin-kelas-container"
-                    style="display: none;"
-                >
-
-                    <div class="salin-mapel-kelas-grid">
-
-                        {% for kelas in kelass %}
-
-                            <label class="salin-mapel-kelas-option">
-
-                                <input
-                                    type="checkbox"
-                                    name="kelas_tujuan"
-                                    value="{{ kelas.id }}"
-                                >
-
-                                <span>
-                                    {{ kelas.nama }}
-                                </span>
-
-                            </label>
-
-                        {% endfor %}
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =================================================
-                 INFORMASI
-                 ================================================= -->
-
-            <div class="salin-mapel-info">
-
-                <strong>
-                    Informasi
-                </strong>
-
-                <p>
-                    Data nilai siswa tidak ikut disalin.
-                    Fitur ini hanya membuat atau menyesuaikan
-                    data mata pelajaran pada tahun ajaran tujuan.
-                </p>
-
-            </div>
-
-
-            <!-- =================================================
-                 ACTION
-                 ================================================= -->
-
-            <div class="salin-mapel-actions">
-
-                <a
-                    href="{% url 'data_mata_pelajaran' %}"
-                    class="salin-mapel-cancel"
-                >
-                    Batal
-                </a>
-
-
-                <button
-                    type="submit"
-                    class="salin-mapel-submit"
-                >
-                    Salin Mata Pelajaran
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
 
 </div>
 
 {% endblock %}
-
-
 
 {% block extra_css %}
 
@@ -508,12 +524,25 @@ Salin Mata Pelajaran
    ========================================================= */
 
 .salin-mapel-kelas-container {
+    display: none;
     margin-top: 15px;
     padding: 16px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
 }
+
+.salin-mapel-kelas-title {
+    margin-bottom: 12px;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   KELAS GRID
+   ========================================================= */
 
 .salin-mapel-kelas-grid {
     display: flex;
@@ -542,6 +571,23 @@ Salin Mata Pelajaran
     width: 15px;
     height: 15px;
     accent-color: #2563eb;
+}
+
+.salin-mapel-kelas-option:has(input:checked) {
+    border-color: #2563eb;
+    background: #eff6ff;
+}
+
+.salin-mapel-kelas-option:has(input:checked) span {
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+.salin-mapel-empty {
+    width: 100%;
+    padding: 12px;
+    color: #94a3b8;
+    font-size: 12px;
 }
 
 
@@ -664,3 +710,112 @@ Salin Mata Pelajaran
 
 {% endblock %}
 
+{% block extra_js %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const modeAsal = document.getElementById("kelas-mode-asal");
+    const modePilih = document.getElementById("kelas-mode-pilih");
+
+    const container = document.getElementById("salin-kelas-container");
+
+    const form = document.getElementById("form-salin-mapel");
+
+
+    /* =====================================================
+       TAMPILKAN / SEMBUNYIKAN PILIHAN KELAS
+       ===================================================== */
+
+    function updateKelasContainer() {
+
+        if (modePilih.checked) {
+
+            container.style.display = "block";
+
+        } else {
+
+            container.style.display = "none";
+
+            /* Hapus semua pilihan ketika kembali ke kelas asal */
+
+            const checkboxKelas = container.querySelectorAll(
+                'input[name="kelas_tujuan"]'
+            );
+
+            checkboxKelas.forEach(function (checkbox) {
+
+                checkbox.checked = false;
+
+            });
+
+        }
+
+    }
+
+
+    /* =====================================================
+       RADIO KELAS ASAL
+       ===================================================== */
+
+    modeAsal.addEventListener("change", function () {
+
+        updateKelasContainer();
+
+    });
+
+
+    /* =====================================================
+       RADIO PILIH KELAS SENDIRI
+       ===================================================== */
+
+    modePilih.addEventListener("change", function () {
+
+        updateKelasContainer();
+
+    });
+
+
+    /* =====================================================
+       VALIDASI FORM
+       ===================================================== */
+
+    form.addEventListener("submit", function (event) {
+
+        if (modePilih.checked) {
+
+            const kelasDipilih = container.querySelectorAll(
+                'input[name="kelas_tujuan"]:checked'
+            );
+
+            if (kelasDipilih.length === 0) {
+
+                event.preventDefault();
+
+                alert(
+                    "Silakan pilih minimal satu kelas tujuan."
+                );
+
+                container.style.display = "block";
+
+                return;
+
+            }
+
+        }
+
+    });
+
+
+    /* =====================================================
+       KONDISI AWAL
+       ===================================================== */
+
+    updateKelasContainer();
+
+});
+
+</script>
+
+{% endblock %}

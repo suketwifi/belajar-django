@@ -6125,6 +6125,7 @@ def download_format_siswa(request):
 
 def kenaikan_siswa(request):
 
+    
     tahun_ajarans = TahunAjaran.objects.all().order_by('-nama')
     kelass = Kelas.objects.all().order_by('nama')
 
@@ -6150,40 +6151,169 @@ def kenaikan_siswa(request):
 
     if request.method == 'POST':
 
+        # =====================================================
+        # AMBIL DATA POST
+        # =====================================================
+
         siswa_ids = request.POST.getlist('students')
         tahun_tujuan_id = request.POST.get('tahun_tujuan')
 
+
+        # =====================================================
+        # VALIDASI TAHUN AJARAN TUJUAN
+        # =====================================================
+
         if not tahun_tujuan_id:
+
             messages.error(
                 request,
                 'Tahun ajaran tujuan wajib dipilih.'
             )
+
             return redirect('kenaikan_siswa')
 
+
+        # =====================================================
+        # VALIDASI SISWA
+        # =====================================================
+
+        if not siswa_ids:
+
+            messages.error(
+                request,
+                'Silakan pilih minimal satu siswa yang akan dinaikkan.'
+            )
+
+            return redirect('kenaikan_siswa')
+
+
+        # =====================================================
+        # VALIDASI TAHUN AJARAN TUJUAN
+        # =====================================================
+
+        try:
+
+            tahun_tujuan = TahunAjaran.objects.get(
+                id=tahun_tujuan_id
+            )
+
+        except TahunAjaran.DoesNotExist:
+
+            messages.error(
+                request,
+                'Tahun ajaran tujuan tidak ditemukan.'
+            )
+
+            return redirect('kenaikan_siswa')
+
+
+        # =====================================================
+        # VALIDASI SEMUA KELAS TUJUAN
+        # =====================================================
+
+        data_kenaikan = []
+
         for student_id in siswa_ids:
+
+            kelas_tujuan_id = request.POST.get(
+                f'kelas_tujuan_{student_id}'
+            )
+
+
+            # -------------------------------------------------
+            # KELAS WAJIB DIPILIH
+            # -------------------------------------------------
+
+            if not kelas_tujuan_id:
+
+                student = get_object_or_404(
+                    Student,
+                    id=student_id
+                )
+
+                messages.error(
+                    request,
+                    f'Kelas tujuan untuk siswa "{student.nama}" wajib dipilih.'
+                )
+
+                return redirect('kenaikan_siswa')
+
+
+            # -------------------------------------------------
+            # CEK KELAS TUJUAN BENAR-BENAR ADA
+            # -------------------------------------------------
+
+            try:
+
+                kelas_tujuan = Kelas.objects.get(
+                    id=kelas_tujuan_id
+                )
+
+            except Kelas.DoesNotExist:
+
+                student = get_object_or_404(
+                    Student,
+                    id=student_id
+                )
+
+                messages.error(
+                    request,
+                    f'Kelas tujuan untuk siswa "{student.nama}" tidak valid.'
+                )
+
+                return redirect('kenaikan_siswa')
+
+
+            # -------------------------------------------------
+            # SIMPAN SEMENTARA
+            # -------------------------------------------------
+
+            data_kenaikan.append(
+                (
+                    student_id,
+                    kelas_tujuan
+                )
+            )
+
+
+        # =====================================================
+        # SEMUA VALID
+        # BARU PROSES KENAIKAN
+        # =====================================================
+
+        jumlah_diproses = 0
+
+        for student_id, kelas_tujuan in data_kenaikan:
 
             student = get_object_or_404(
                 Student,
                 id=student_id
             )
 
-            kelas_tujuan_id = request.POST.get(
-                f'kelas_tujuan_{student_id}'
-            )
 
-            if not kelas_tujuan_id:
-                continue
+            # =================================================
+            # SIMPAN HISTORI PENDIDIKAN
+            # =================================================
 
             RiwayatKelasSiswa.objects.update_or_create(
+
                 student=student,
-                tahun_ajaran_id=tahun_tujuan_id,
+
+                tahun_ajaran=tahun_tujuan,
+
                 defaults={
-                    'kelas_id': kelas_tujuan_id
+                    'kelas': kelas_tujuan
                 }
+
             )
 
-            student.tahun_ajaran_id = tahun_tujuan_id
-            student.kelas_id = kelas_tujuan_id
+
+            # =================================================
+            # UPDATE DATA SISWA
+            # =================================================
+
+            student.tahun_ajaran = tahun_tujuan
+            student.kelas = kelas_tujuan
 
             student.save(
                 update_fields=[
@@ -6192,12 +6322,25 @@ def kenaikan_siswa(request):
                 ]
             )
 
+
+            jumlah_diproses += 1
+
+
+        # =====================================================
+        # PESAN BERHASIL
+        # =====================================================
+
         messages.success(
             request,
-            'Kenaikan siswa berhasil diproses.'
+            f'Kenaikan {jumlah_diproses} siswa berhasil diproses.'
         )
 
         return redirect('kenaikan_siswa')
+
+
+    # =========================================================
+    # TAMPILKAN HALAMAN
+    # =========================================================
 
     return render(
         request,
@@ -6210,6 +6353,7 @@ def kenaikan_siswa(request):
             'kelas_id': kelas_id,
         }
     )
+    
 
 def tahun_ajaran(request):
 

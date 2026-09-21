@@ -11,7 +11,9 @@ Kenaikan Siswa
 
 <div>
 
-    <h1>Kenaikan Siswa</h1>
+    <h1>
+        Kenaikan Siswa
+    </h1>
 
     <p>
         Kelola kenaikan siswa ke tahun ajaran dan kelas berikutnya.
@@ -26,7 +28,10 @@ Kenaikan Siswa
      FILTER SISWA
 ========================================================= -->
 
-<form method="get" class="student-filter">
+<form
+    method="get"
+    class="student-filter"
+>
 
 
 <div class="filter-item">
@@ -49,9 +54,7 @@ Kenaikan Siswa
                     selected
                 {% endif %}
             >
-
                 {{ tahun.nama }}
-
             </option>
 
         {% endfor %}
@@ -81,9 +84,7 @@ Kenaikan Siswa
                     selected
                 {% endif %}
             >
-
                 {{ kelas.nama }}
-
             </option>
 
         {% endfor %}
@@ -102,6 +103,7 @@ Kenaikan Siswa
         Tampilkan
     </button>
 
+
     <a
         href="{% url 'kenaikan_siswa' %}"
         class="btn-reset"
@@ -118,10 +120,14 @@ Kenaikan Siswa
      PROSES KENAIKAN
 ========================================================= -->
 
-<form method="post">
+<form
+    method="post"
+    id="form-kenaikan"
+>
 
 
 {% csrf_token %}
+
 
 <div class="table-card">
 
@@ -138,7 +144,9 @@ Kenaikan Siswa
     </div>
 
 
-    <!-- TAHUN TUJUAN -->
+    <!-- =================================================
+         TAHUN TUJUAN
+    ================================================= -->
 
     <div
         class="filter-item"
@@ -149,9 +157,10 @@ Kenaikan Siswa
             Tahun Ajaran Tujuan
         </label>
 
+
         <select
             name="tahun_tujuan"
-            required
+            id="tahun-tujuan"
             style="
                 width: auto;
                 min-width: 180px;
@@ -162,12 +171,11 @@ Kenaikan Siswa
                 Pilih Tahun Ajaran Tujuan
             </option>
 
+
             {% for tahun in tahun_ajarans %}
 
                 <option value="{{ tahun.id }}">
-
                     {{ tahun.nama }}
-
                 </option>
 
             {% endfor %}
@@ -177,7 +185,9 @@ Kenaikan Siswa
     </div>
 
 
-    <!-- TABEL -->
+    <!-- =================================================
+         TABEL
+    ================================================= -->
 
     <div class="table-container">
 
@@ -196,21 +206,26 @@ Kenaikan Siswa
 
                     </th>
 
+
                     <th style="width: 60px;">
                         No
                     </th>
+
 
                     <th>
                         NIM
                     </th>
 
+
                     <th>
                         Nama Siswa
                     </th>
 
+
                     <th>
                         Kelas Sekarang
                     </th>
+
 
                     <th>
                         Kelas Tujuan
@@ -240,16 +255,12 @@ Kenaikan Siswa
 
 
                     <td>
-
                         {{ forloop.counter }}
-
                     </td>
 
 
                     <td>
-
                         {{ student.nim }}
-
                     </td>
 
 
@@ -267,17 +278,13 @@ Kenaikan Siswa
                         {% if student.kelas %}
 
                             <span class="class-badge">
-
                                 {{ student.kelas.nama }}
-
                             </span>
 
                         {% else %}
 
                             <span class="text-muted">
-
                                 -
-
                             </span>
 
                         {% endif %}
@@ -289,6 +296,8 @@ Kenaikan Siswa
 
                         <select
                             name="kelas_tujuan_{{ student.id }}"
+                            class="kelas-tujuan"
+                            data-student-id="{{ student.id }}"
                             style="
                                 width: auto;
                                 min-width: 120px;
@@ -306,12 +315,11 @@ Kenaikan Siswa
                                 Pilih Kelas
                             </option>
 
+
                             {% for kelas in kelass %}
 
                                 <option value="{{ kelas.id }}">
-
                                     {{ kelas.nama }}
-
                                 </option>
 
                             {% endfor %}
@@ -330,9 +338,7 @@ Kenaikan Siswa
                         colspan="6"
                         class="empty"
                     >
-
                         Belum ada siswa.
-
                     </td>
 
                 </tr>
@@ -346,7 +352,29 @@ Kenaikan Siswa
     </div>
 
 
-    <!-- TOMBOL PROSES -->
+    <!-- =================================================
+         PESAN VALIDASI
+    ================================================= -->
+
+    <div
+        id="kenaikan-warning"
+        style="
+            display: none;
+            margin-top: 18px;
+            padding: 12px 15px;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-size: 13px;
+            font-weight: 600;
+        "
+    ></div>
+
+
+    <!-- =================================================
+         TOMBOL PROSES
+    ================================================= -->
 
     <div
         style="
@@ -360,9 +388,7 @@ Kenaikan Siswa
             type="submit"
             class="btn-add"
         >
-
             Proses Kenaikan
-
         </button>
 
     </div>
@@ -372,30 +398,307 @@ Kenaikan Siswa
 
 </form>
 
+<!-- =========================================================
+     JAVASCRIPT
+========================================================= -->
+
 <script>
 
-const checkAll =
-    document.getElementById("checkAll");
+document.addEventListener("DOMContentLoaded", function () {
 
-if (checkAll) {
+    const form =
+        document.getElementById("form-kenaikan");
 
-    checkAll.addEventListener(
-        "change",
-        function () {
+    const checkAll =
+        document.getElementById("checkAll");
+
+    const tahunTujuan =
+        document.getElementById("tahun-tujuan");
+
+    const warning =
+        document.getElementById("kenaikan-warning");
+
+
+    /* =====================================================
+       CHECK ALL
+    ===================================================== */
+
+    if (checkAll) {
+
+        checkAll.addEventListener(
+            "change",
+            function () {
+
+                document
+                    .querySelectorAll(".student-checkbox")
+                    .forEach(function (checkbox) {
+
+                        checkbox.checked =
+                            checkAll.checked;
+
+                    });
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       UPDATE CHECK ALL
+    ===================================================== */
+
+    document
+        .querySelectorAll(".student-checkbox")
+        .forEach(function (checkbox) {
+
+            checkbox.addEventListener(
+                "change",
+                function () {
+
+                    const semua =
+                        document.querySelectorAll(
+                            ".student-checkbox"
+                        );
+
+                    const terpilih =
+                        document.querySelectorAll(
+                            ".student-checkbox:checked"
+                        );
+
+                    if (checkAll) {
+
+                        checkAll.checked =
+                            semua.length > 0 &&
+                            semua.length === terpilih.length;
+
+                    }
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       HILANGKAN WARNING
+    ===================================================== */
+
+    function hideWarning() {
+
+        warning.style.display = "none";
+
+        warning.textContent = "";
+
+    }
+
+
+    /* =====================================================
+       TAMPILKAN WARNING
+    ===================================================== */
+
+    function showWarning(message) {
+
+        warning.textContent = message;
+
+        warning.style.display = "block";
+
+        warning.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+
+    }
+
+
+    /* =====================================================
+       VALIDASI FORM
+    ===================================================== */
+
+    form.addEventListener(
+        "submit",
+        function (event) {
+
+            hideWarning();
+
+
+            /* =================================================
+               1. CEK TAHUN AJARAN TUJUAN
+            ================================================= */
+
+            if (!tahunTujuan.value) {
+
+                event.preventDefault();
+
+                showWarning(
+                    "Silakan pilih tahun ajaran tujuan terlebih dahulu."
+                );
+
+                tahunTujuan.focus();
+
+                return;
+
+            }
+
+
+            /* =================================================
+               2. CEK SISWA
+            ================================================= */
+
+            const siswaDipilih =
+                document.querySelectorAll(
+                    ".student-checkbox:checked"
+                );
+
+
+            if (siswaDipilih.length === 0) {
+
+                event.preventDefault();
+
+                showWarning(
+                    "Silakan pilih minimal satu siswa yang akan dinaikkan."
+                );
+
+                return;
+
+            }
+
+
+            /* =================================================
+               3. CEK KELAS TUJUAN SETIAP SISWA
+            ================================================= */
+
+            for (
+                let i = 0;
+                i < siswaDipilih.length;
+                i++
+            ) {
+
+                const studentId =
+                    siswaDipilih[i].value;
+
+
+                const kelasTujuan =
+                    document.querySelector(
+                        '.kelas-tujuan[data-student-id="' +
+                        studentId +
+                        '"]'
+                    );
+
+
+                if (
+                    !kelasTujuan ||
+                    !kelasTujuan.value
+                ) {
+
+                    event.preventDefault();
+
+                    const row =
+                        siswaDipilih[i]
+                            .closest("tr");
+
+
+                    const namaSiswa =
+                        row.querySelector(
+                            "td:nth-child(4)"
+                        );
+
+
+                    let nama =
+                        "siswa tersebut";
+
+
+                    if (namaSiswa) {
+
+                        nama =
+                            namaSiswa
+                                .textContent
+                                .trim();
+
+                    }
+
+
+                    showWarning(
+                        "Silakan pilih kelas tujuan untuk " +
+                        nama +
+                        "."
+                    );
+
+
+                    if (kelasTujuan) {
+
+                        kelasTujuan.focus();
+
+                        kelasTujuan.style.borderColor =
+                            "#dc2626";
+
+                    }
+
+                    return;
+
+                }
+
+            }
+
+
+            /* =================================================
+               4. SEMUA VALID
+            ================================================= */
 
             document
-                .querySelectorAll(".student-checkbox")
-                .forEach(function (checkbox) {
+                .querySelectorAll(".kelas-tujuan")
+                .forEach(function (select) {
 
-                    checkbox.checked =
-                        checkAll.checked;
+                    select.style.borderColor =
+                        "#cbd5e1";
 
                 });
 
         }
     );
 
-}
+
+    /* =====================================================
+       RESET WARNA KELAS KETIKA DIPILIH
+    ===================================================== */
+
+    document
+        .querySelectorAll(".kelas-tujuan")
+        .forEach(function (select) {
+
+            select.addEventListener(
+                "change",
+                function () {
+
+                    if (select.value) {
+
+                        select.style.borderColor =
+                            "#cbd5e1";
+
+                    }
+
+                    hideWarning();
+
+                }
+            );
+
+        });
+
+
+    /* =====================================================
+       RESET WARNING KETIKA TAHUN DIUBAH
+    ===================================================== */
+
+    tahunTujuan.addEventListener(
+        "change",
+        function () {
+
+            hideWarning();
+
+        }
+    );
+
+});
 
 </script>
 
