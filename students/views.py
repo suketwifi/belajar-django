@@ -30,13 +30,17 @@ from .models import (
 
 def dashboard(request):
     total_siswa = Student.objects.count()
+    total_guru = Guru.objects.count()
     total_kelas = Kelas.objects.count()
     total_mata_pelajaran = MataPelajaran.objects.count()
-    tahun_ajaran = TahunAjaran.objects.filter(aktif=True).first()
+
+    tahun_ajaran = TahunAjaran.objects.filter(
+        aktif=True
+    ).first()
 
     context = {
         'total_siswa': total_siswa,
-        'total_guru': 0,
+        'total_guru': total_guru,
         'total_kelas': total_kelas,
         'total_mata_pelajaran': total_mata_pelajaran,
         'tahun_ajaran': tahun_ajaran,
@@ -47,6 +51,7 @@ def dashboard(request):
         'students/dashboard.html',
         context
     )
+
 
 def pilih_tahun_ajaran(request):
 
@@ -215,6 +220,10 @@ def student_list(request):
         'students/data_siswa.html',
         context
     )
+
+# =========================================================
+# LIHAT SISWA
+# =========================================================
 
 def student_detail(request, id):
     student = get_object_or_404(
@@ -534,7 +543,6 @@ def student_edit(request, id):
         .order_by('-nama')
     )
 
-
     if request.method == 'POST':
 
         student.nama = request.POST.get(
@@ -607,10 +615,58 @@ def student_edit(request, id):
                 }
             )
 
-        student.jk = request.POST.get(
+        # =================================================
+        # JENIS KELAMIN
+        # =================================================
+        # Database harus selalu menyimpan:
+        # L = Laki-laki
+        # P = Perempuan
+        #
+        # Form boleh mengirim:
+        # L / Laki-laki
+        # P / Perempuan
+        # =================================================
+
+        jk_input = request.POST.get(
             'jk',
             ''
-        ).strip()
+        ).strip().lower()
+
+        if jk_input in [
+            'l',
+            'laki-laki',
+            'laki laki',
+            'laki',
+            'male',
+        ]:
+
+            student.jk = 'L'
+
+        elif jk_input in [
+            'p',
+            'perempuan',
+            'female',
+        ]:
+
+            student.jk = 'P'
+
+        else:
+
+            return render(
+                request,
+                'students/student_form.html',
+                {
+                    'student': student,
+                    'asramas': asramas,
+                    'kelass': kelass,
+                    'tahun_ajarans': tahun_ajarans,
+                    'edit_mode': True,
+                    'error': (
+                        'Jenis kelamin harus '
+                        'Laki-laki atau Perempuan.'
+                    )
+                }
+            )
 
         student.tempat_lahir = request.POST.get(
             'tempat_lahir',
@@ -666,6 +722,7 @@ def student_edit(request, id):
         ) or None
 
         if not tahun_ajaran_id:
+
             return render(
                 request,
                 'students/student_form.html',
@@ -679,7 +736,10 @@ def student_edit(request, id):
                 }
             )
 
-        if not TahunAjaran.objects.filter(id=tahun_ajaran_id).exists():
+        if not TahunAjaran.objects.filter(
+            id=tahun_ajaran_id
+        ).exists():
+
             return render(
                 request,
                 'students/student_form.html',
@@ -725,11 +785,10 @@ def student_edit(request, id):
             'student': student,
             'asramas': asramas,
             'kelass': kelass,
-                    'tahun_ajarans': tahun_ajarans,
+            'tahun_ajarans': tahun_ajarans,
             'edit_mode': True,
         }
     )
-
 
 # =========================================================
 # HAPUS SISWA
@@ -3375,6 +3434,190 @@ def data_kelas(request):
         }
     )
 
+def data_asrama(request):
+
+    if request.method == "POST":
+
+        aksi = request.POST.get("aksi")
+
+        # =====================================================
+        # TAMBAH ASRAMA
+        # =====================================================
+
+        if aksi == "tambah":
+
+            nama = request.POST.get(
+                "nama",
+                ""
+            ).strip()
+
+            if not nama:
+
+                messages.error(
+                    request,
+                    "Nama asrama wajib diisi."
+                )
+
+            elif Asrama.objects.filter(
+                nama__iexact=nama
+            ).exists():
+
+                messages.error(
+                    request,
+                    f"Asrama '{nama}' sudah terdaftar."
+                )
+
+            else:
+
+                Asrama.objects.create(
+                    nama=nama
+                )
+
+                messages.success(
+                    request,
+                    f"Asrama '{nama}' berhasil ditambahkan."
+                )
+
+        # =====================================================
+        # EDIT ASRAMA
+        # =====================================================
+
+        elif aksi == "edit":
+
+            asrama_id = request.POST.get(
+                "asrama_id"
+            )
+
+            nama = request.POST.get(
+                "nama",
+                ""
+            ).strip()
+
+            if not asrama_id:
+
+                messages.error(
+                    request,
+                    "Data asrama tidak ditemukan."
+                )
+
+            elif not nama:
+
+                messages.error(
+                    request,
+                    "Nama asrama wajib diisi."
+                )
+
+            else:
+
+                try:
+
+                    asrama = Asrama.objects.get(
+                        id=asrama_id
+                    )
+
+                    # Cek nama duplikat
+                    if Asrama.objects.filter(
+                        nama__iexact=nama
+                    ).exclude(
+                        id=asrama.id
+                    ).exists():
+
+                        messages.error(
+                            request,
+                            f"Asrama '{nama}' sudah terdaftar."
+                        )
+
+                    else:
+
+                        nama_lama = asrama.nama
+
+                        asrama.nama = nama
+
+                        asrama.save(
+                            update_fields=[
+                                "nama"
+                            ]
+                        )
+
+                        messages.success(
+                            request,
+                            f"Asrama '{nama_lama}' berhasil "
+                            f"diubah menjadi '{nama}'."
+                        )
+
+                except Asrama.DoesNotExist:
+
+                    messages.error(
+                        request,
+                        "Data asrama tidak ditemukan."
+                    )
+
+        # =====================================================
+        # HAPUS ASRAMA
+        # =====================================================
+
+        elif aksi == "hapus":
+
+            asrama_id = request.POST.get(
+                "asrama_id"
+            )
+
+            if not asrama_id:
+
+                messages.error(
+                    request,
+                    "Data asrama tidak ditemukan."
+                )
+
+            else:
+
+                try:
+
+                    asrama = Asrama.objects.get(
+                        id=asrama_id
+                    )
+
+                    nama = asrama.nama
+
+                    asrama.delete()
+
+                    messages.success(
+                        request,
+                        f"Asrama '{nama}' berhasil dihapus."
+                    )
+
+                except Asrama.DoesNotExist:
+
+                    messages.error(
+                        request,
+                        "Data asrama tidak ditemukan."
+                    )
+
+        return redirect(
+            "data_asrama"
+        )
+
+    # =========================================================
+    # DATA ASRAMA
+    # =========================================================
+
+    asramas = (
+        Asrama.objects
+        .all()
+        .order_by("nama")
+    )
+
+    context = {
+        "asramas": asramas,
+    }
+
+    return render(
+        request,
+        "students/data_asrama.html",
+        context
+    )
+
+
 # =========================================================
 # DATA GURU
 # =========================================================
@@ -4464,7 +4707,6 @@ def import_siswa(request):
     if request.method != 'POST':
         return redirect('student_list')
 
-
     # =====================================================
     # FILE EXCEL
     # =====================================================
@@ -4472,24 +4714,18 @@ def import_siswa(request):
     file = request.FILES.get('file')
 
     if not file:
-
         messages.error(
             request,
             'Silakan pilih file Excel.'
         )
-
         return redirect('student_list')
 
-
     if not file.name.lower().endswith('.xlsx'):
-
         messages.error(
             request,
             'File harus berformat Excel .xlsx.'
         )
-
         return redirect('student_list')
-
 
     try:
 
@@ -4499,7 +4735,6 @@ def import_siswa(request):
         )
 
         sheet = workbook.active
-
 
         # =================================================
         # HEADER EXCEL
@@ -4517,9 +4752,8 @@ def import_siswa(request):
             for header in headers
         ]
 
-
         # =================================================
-        # FORMAT HEADER BARU
+        # FORMAT HEADER YANG WAJIB
         # =================================================
 
         required_headers = [
@@ -4539,7 +4773,6 @@ def import_siswa(request):
             'Alamat',
         ]
 
-
         # =================================================
         # CEK HEADER
         # =================================================
@@ -4554,10 +4787,7 @@ def import_siswa(request):
                     f'dalam file Excel.'
                 )
 
-                return redirect(
-                    'student_list'
-                )
-
+                return redirect('student_list')
 
         # =================================================
         # INDEX HEADER
@@ -4565,25 +4795,64 @@ def import_siswa(request):
 
         header_index = {
             header: index
-            for index, header
-            in enumerate(headers)
+            for index, header in enumerate(headers)
         }
 
-
         berhasil = 0
-
         dilewati = 0
+        alasan_dilewati = []
 
+        # =================================================
+        # NORMALISASI KELAS
+        # =================================================
+
+        def normalisasi_kelas(value):
+
+            value = str(value or '').strip().upper()
+
+            # Hilangkan kata KELAS
+            if value.startswith('KELAS '):
+                value = value[6:].strip()
+
+            return value
+
+        # =================================================
+        # NORMALISASI JENIS KELAMIN
+        # =================================================
+
+        def normalisasi_jk(value):
+
+            value = str(value or '').strip().lower()
+
+            if value in [
+                'l',
+                'laki-laki',
+                'laki laki',
+                'laki',
+                'male',
+            ]:
+                return 'L'
+
+            if value in [
+                'p',
+                'perempuan',
+                'female',
+            ]:
+                return 'P'
+
+            return None
 
         # =================================================
         # PROSES SETIAP BARIS
         # =================================================
 
-        for row in sheet.iter_rows(
-            min_row=2,
-            values_only=True
+        for nomor_baris, row in enumerate(
+            sheet.iter_rows(
+                min_row=2,
+                values_only=True
+            ),
+            start=2
         ):
-
 
             # =============================================
             # LEWATI BARIS KOSONG
@@ -4591,7 +4860,6 @@ def import_siswa(request):
 
             if not any(row):
                 continue
-
 
             # =============================================
             # FUNGSI AMBIL DATA
@@ -4607,52 +4875,32 @@ def import_siswa(request):
                     index is None
                     or index >= len(row)
                 ):
-
                     return ''
-
 
                 value = row[index]
 
-
                 if value is None:
-
                     return ''
 
-
                 return str(value).strip()
-
 
             # =============================================
             # DATA SISWA
             # =============================================
 
-            nama = get_value(
-                'Nama'
-            )
+            nama = get_value('Nama')
 
-            asrama_nama = get_value(
-                'Asrama'
-            )
+            asrama_nama = get_value('Asrama')
 
-            nama_ayah = get_value(
-                'Nama Ayah'
-            )
+            nama_ayah = get_value('Nama Ayah')
 
-            semester = get_value(
-                'Semester'
-            )
+            semester = get_value('Semester')
 
-            nim = get_value(
-                'NIM'
-            )
+            nim = get_value('NIM')
 
-            status = get_value(
-                'Status'
-            )
+            status = get_value('Status')
 
-            jk = get_value(
-                'Jenis Kelamin'
-            )
+            jk = get_value('Jenis Kelamin')
 
             kelas_nama = get_value(
                 'Kelas Awal Masuk'
@@ -4666,9 +4914,7 @@ def import_siswa(request):
                 'Tempat Lahir'
             )
 
-            prodi = get_value(
-                'Prodi'
-            )
+            prodi = get_value('Prodi')
 
             tanggal_lahir = row[
                 header_index[
@@ -4680,41 +4926,45 @@ def import_siswa(request):
                 'No. Telp / WA'
             )
 
-            alamat = get_value(
-                'Alamat'
-            )
-
+            alamat = get_value('Alamat')
 
             # =============================================
             # LEWATI BARIS CONTOH
             # =============================================
 
-            if nama.upper().startswith(
-                'CONTOH'
-            ):
-
+            if nama.upper().startswith('CONTOH'):
                 continue
-
 
             # =============================================
             # VALIDASI NAMA & NIM
             # =============================================
 
-            if not nama or not nim:
+            if not nama:
 
                 dilewati += 1
 
+                alasan_dilewati.append(
+                    f'Baris {nomor_baris}: Nama kosong.'
+                )
+
                 continue
 
+            if not nim:
+
+                dilewati += 1
+
+                alasan_dilewati.append(
+                    f'Baris {nomor_baris}: NIM kosong.'
+                )
+
+                continue
 
             # =============================================
-            # NIM
+            # NORMALISASI NIM
             # =============================================
 
             if nim.endswith('.0'):
-
                 nim = nim[:-2]
-
 
             # =============================================
             # NIM HARUS UNIK
@@ -4726,39 +4976,29 @@ def import_siswa(request):
 
                 dilewati += 1
 
-                continue
+                alasan_dilewati.append(
+                    f'Baris {nomor_baris}: '
+                    f'NIM {nim} sudah terdaftar.'
+                )
 
+                continue
 
             # =============================================
             # JENIS KELAMIN
             # =============================================
 
-            jk_lower = jk.lower()
+            jk = normalisasi_jk(jk)
 
-
-            if jk_lower in [
-                'l',
-                'laki-laki',
-                'laki laki',
-            ]:
-
-                jk = 'L'
-
-
-            elif jk_lower in [
-                'p',
-                'perempuan',
-            ]:
-
-                jk = 'P'
-
-
-            else:
+            if not jk:
 
                 dilewati += 1
 
-                continue
+                alasan_dilewati.append(
+                    f'Baris {nomor_baris}: '
+                    f'Jenis kelamin tidak valid.'
+                )
 
+                continue
 
             # =============================================
             # TANGGAL LAHIR
@@ -4775,7 +5015,6 @@ def import_siswa(request):
                         tanggal_lahir.date()
                     )
 
-
                 elif hasattr(
                     tanggal_lahir,
                     'year'
@@ -4783,7 +5022,6 @@ def import_siswa(request):
 
                     # Sudah berupa date
                     pass
-
 
                 else:
 
@@ -4796,7 +5034,6 @@ def import_siswa(request):
                         ).date()
                     )
 
-
             except (
                 ValueError,
                 TypeError
@@ -4804,8 +5041,12 @@ def import_siswa(request):
 
                 dilewati += 1
 
-                continue
+                alasan_dilewati.append(
+                    f'Baris {nomor_baris}: '
+                    f'Tanggal lahir tidak valid.'
+                )
 
+                continue
 
             # =============================================
             # SEMESTER
@@ -4824,8 +5065,12 @@ def import_siswa(request):
 
                 dilewati += 1
 
-                continue
+                alasan_dilewati.append(
+                    f'Baris {nomor_baris}: '
+                    f'Semester harus berupa angka.'
+                )
 
+                continue
 
             # =============================================
             # KELAS AWAL MASUK
@@ -4833,28 +5078,55 @@ def import_siswa(request):
 
             kelas = None
 
+            kelas_nama_normal = (
+                normalisasi_kelas(
+                    kelas_nama
+                )
+            )
 
-            if kelas_nama:
+            if kelas_nama_normal:
+
+                # Cari berdasarkan nama standar.
+                # Database disarankan menyimpan:
+                # 1A, 1B, 2A, 2B, dst.
 
                 kelas = (
                     Kelas.objects
                     .filter(
-                        nama__iexact=kelas_nama
+                        nama__iexact=
+                            kelas_nama_normal
                     )
                     .first()
                 )
 
+                # Jika database masih memiliki
+                # "KELAS 1A", tetap diterima.
+                if not kelas:
+
+                    kelas = (
+                        Kelas.objects
+                        .filter(
+                            nama__iexact=
+                                f'KELAS {kelas_nama_normal}'
+                        )
+                        .first()
+                    )
 
                 if not kelas:
 
                     dilewati += 1
 
+                    alasan_dilewati.append(
+                        f'Baris {nomor_baris}: '
+                        f'Kelas "{kelas_nama}" '
+                        f'tidak ditemukan.'
+                    )
+
                     continue
 
-
-            # =============================================
+            # =================================================
             # TAHUN AJARAN MASUK
-            # =============================================
+            # =================================================
 
             tahun_ajaran = (
                 TahunAjaran.objects
@@ -4865,20 +5137,24 @@ def import_siswa(request):
                 .first()
             )
 
-
             if not tahun_ajaran:
 
                 dilewati += 1
 
+                alasan_dilewati.append(
+                    f'Baris {nomor_baris}: '
+                    f'Tahun Ajaran '
+                    f'"{tahun_ajaran_nama}" '
+                    f'tidak ditemukan.'
+                )
+
                 continue
 
-
-            # =============================================
+            # =================================================
             # ASRAMA
-            # =============================================
+            # =================================================
 
             asrama_master = None
-
 
             if asrama_nama:
 
@@ -4891,22 +5167,25 @@ def import_siswa(request):
                     .first()
                 )
 
-
                 if not asrama_master:
 
                     dilewati += 1
 
+                    alasan_dilewati.append(
+                        f'Baris {nomor_baris}: '
+                        f'Asrama "{asrama_nama}" '
+                        f'tidak ditemukan.'
+                    )
+
                     continue
 
-
-            # =============================================
+            # =================================================
             # STATUS
-            # =============================================
+            # =================================================
 
             status_lower = (
                 status.strip().lower()
             )
-
 
             if status_lower in [
                 'aktif',
@@ -4917,7 +5196,6 @@ def import_siswa(request):
 
                 status_value = True
 
-
             elif status_lower in [
                 'tidak aktif',
                 'inactive',
@@ -4927,16 +5205,15 @@ def import_siswa(request):
 
                 status_value = False
 
-
             else:
 
-                # Default jika kosong
+                # Jika kosong atau tidak dikenali,
+                # default menjadi aktif.
                 status_value = True
 
-
-            # =============================================
+            # =================================================
             # BUAT SISWA
-            # =============================================
+            # =================================================
 
             student = Student.objects.create(
 
@@ -4971,10 +5248,9 @@ def import_siswa(request):
                 prodi=prodi,
             )
 
-
-            # =============================================
+            # =================================================
             # RIWAYAT PENDIDIKAN / KELAS AWAL
-            # =============================================
+            # =================================================
 
             if kelas:
 
@@ -4991,25 +5267,45 @@ def import_siswa(request):
                     status=status_value,
                 )
 
-
-            # =============================================
+            # =================================================
             # BERHASIL
-            # =============================================
+            # =================================================
 
             berhasil += 1
 
-
-        # =================================================
+        # =====================================================
         # PESAN HASIL
-        # =================================================
+        # =====================================================
 
-        messages.success(
-            request,
-            f'Import selesai. '
-            f'{berhasil} siswa berhasil diimpor, '
-            f'{dilewati} baris dilewati.'
-        )
+        if berhasil > 0:
 
+            messages.success(
+                request,
+                f'Import selesai. '
+                f'{berhasil} siswa berhasil diimpor, '
+                f'{dilewati} baris dilewati.'
+            )
+
+        else:
+
+            if dilewati > 0:
+
+                alasan = alasan_dilewati[0]
+
+                messages.warning(
+                    request,
+                    f'Import selesai. '
+                    f'0 siswa berhasil diimpor, '
+                    f'{dilewati} baris dilewati. '
+                    f'{alasan}'
+                )
+
+            else:
+
+                messages.warning(
+                    request,
+                    'Tidak ada data siswa yang dapat diimpor.'
+                )
 
     except Exception as e:
 
@@ -5018,15 +5314,7 @@ def import_siswa(request):
             f'Import gagal: {str(e)}'
         )
 
-
-    # =====================================================
-    # KEMBALI
-    # =====================================================
-
-    return redirect(
-        'student_list'
-    )
-
+    return redirect('student_list')
 
 
 def export_siswa(request):
@@ -5140,84 +5428,219 @@ def export_siswa(request):
 
     sheet = workbook.active
 
-    sheet.title = "Data Siswa"
+    sheet.title = 'Data Siswa'
 
     # =========================================
     # HEADER
+    #
+    # HARUS SAMA PERSIS DENGAN IMPORT
     # =========================================
 
     headers = [
         'Nama',
-        'Nama Ayah',
-        'NIM',
-        'JK',
-        'Tempat Lahir',
-        'Tanggal Lahir',
-        'Alamat',
-        'No. Telepon/WA',
-        'Status',
         'Asrama',
+        'Nama Ayah',
         'Semester',
-        'Kelas',
-        'Tahun Ajaran',
+        'NIM',
+        'Status',
+        'Jenis Kelamin',
+        'Kelas Awal Masuk',
+        'Tahun Ajaran Masuk',
+        'Tempat Lahir',
         'Prodi',
+        'Tanggal Lahir',
+        'No. Telp / WA',
+        'Alamat',
     ]
 
     sheet.append(headers)
 
     # =========================================
-    # DATA
+    # DATA SISWA
     # =========================================
 
     for student in students:
+
+        # =====================================
+        # ASRAMA
+        # =====================================
+
+        if student.asrama_master:
+
+            asrama = student.asrama_master.nama
+
+        else:
+
+            asrama = student.asrama or ''
+
+        # =====================================
+        # JENIS KELAMIN
+        # =====================================
+
+        if student.jk == 'L':
+
+            jenis_kelamin = 'Laki-laki'
+
+        elif student.jk == 'P':
+
+            jenis_kelamin = 'Perempuan'
+
+        else:
+
+            jenis_kelamin = ''
+
+        # =====================================
+        # KELAS
+        #
+        # Standar export:
+        # 1A, 1B, 2A, 2B, dst.
+        #
+        # Jika database lama masih menyimpan
+        # "KELAS 1A", otomatis menjadi "1A".
+        # =====================================
+
+        kelas = ''
+
+        if student.kelas:
+
+            kelas = str(
+                student.kelas.nama or ''
+            ).strip()
+
+            if kelas.upper().startswith(
+                'KELAS '
+            ):
+
+                kelas = kelas[6:].strip()
+
+        # =====================================
+        # TAHUN AJARAN
+        # =====================================
+
+        tahun_ajaran = ''
+
+        if student.tahun_ajaran:
+
+            tahun_ajaran = (
+                student.tahun_ajaran.nama
+            )
+
+        # =====================================
+        # TANGGAL LAHIR
+        # =====================================
+
+        tanggal_lahir = (
+            student.tanggal_lahir
+            if student.tanggal_lahir
+            else None
+        )
+
+        # =====================================
+        # STATUS
+        # =====================================
+
+        status_siswa = (
+            'Aktif'
+            if student.status
+            else 'Tidak Aktif'
+        )
+
+        # =====================================
+        # MASUKKAN DATA
+        # =====================================
 
         sheet.append([
 
             student.nama,
 
+            asrama,
+
             student.nama_ayah,
-
-            student.nim,
-
-            student.jk,
-
-            student.tempat_lahir,
-
-            student.tanggal_lahir,
-
-            student.alamat,
-
-            student.no_tlpn_wa,
-
-            (
-                'Aktif'
-                if student.status
-                else 'Nonaktif'
-            ),
-
-            (
-                student.asrama_master.nama
-                if student.asrama_master
-                else student.asrama
-            ),
 
             student.semester,
 
-            (
-                student.kelas.nama
-                if student.kelas
-                else ''
-            ),
+            student.nim,
 
-            (
-                student.tahun_ajaran.nama
-                if student.tahun_ajaran
-                else ''
-            ),
+            status_siswa,
+
+            jenis_kelamin,
+
+            kelas,
+
+            tahun_ajaran,
+
+            student.tempat_lahir,
 
             student.prodi,
 
+            tanggal_lahir,
+
+            student.no_tlpn_wa,
+
+            student.alamat,
+
         ])
+
+    # =========================================
+    # FORMAT TANGGAL
+    # =========================================
+
+    tanggal_lahir_column = 12
+
+    for row in sheet.iter_rows(
+        min_row=2,
+        min_col=tanggal_lahir_column,
+        max_col=tanggal_lahir_column
+    ):
+
+        cell = row[0]
+
+        if cell.value:
+
+            cell.number_format = 'dd/mm/yyyy'
+
+    # =========================================
+    # FORMAT HEADER
+    # =========================================
+
+    for cell in sheet[1]:
+
+        cell.font = cell.font.copy(
+            bold=True
+        )
+
+    # =========================================
+    # ATUR LEBAR KOLOM
+    # =========================================
+
+    column_widths = {
+        'A': 25,
+        'B': 20,
+        'C': 25,
+        'D': 12,
+        'E': 18,
+        'F': 15,
+        'G': 18,
+        'H': 18,
+        'I': 22,
+        'J': 20,
+        'K': 30,
+        'L': 16,
+        'M': 20,
+        'N': 40,
+    }
+
+    for column, width in column_widths.items():
+
+        sheet.column_dimensions[
+            column
+        ].width = width
+
+    # =========================================
+    # FREEZE HEADER
+    # =========================================
+
+    sheet.freeze_panes = 'A2'
 
     # =========================================
     # RESPONSE
@@ -5239,6 +5662,7 @@ def export_siswa(request):
 
     return response
 
+
 def download_format_siswa(request):
 
     import openpyxl
@@ -5251,9 +5675,7 @@ def download_format_siswa(request):
         Border,
         Side,
     )
-    from openpyxl.worksheet.datavalidation import (
-        DataValidation
-    )
+    from openpyxl.worksheet.datavalidation import DataValidation
     from openpyxl.utils import get_column_letter
 
     from .models import (
@@ -5262,20 +5684,16 @@ def download_format_siswa(request):
         TahunAjaran,
     )
 
-
     # =====================================================
     # BUAT WORKBOOK
     # =====================================================
 
     workbook = Workbook()
-
     sheet = workbook.active
-
     sheet.title = "Data Siswa"
 
-
     # =====================================================
-    # HEADER SESUAI FORM TAMBAH SISWA
+    # HEADER
     # =====================================================
 
     headers = [
@@ -5297,7 +5715,6 @@ def download_format_siswa(request):
 
     sheet.append(headers)
 
-
     # =====================================================
     # CONTOH DATA
     # =====================================================
@@ -5311,14 +5728,13 @@ def download_format_siswa(request):
         'Aktif',
         'Laki-laki',
         '1A',
-        '2027/2028 Ganjil',
+        '2026/2027 Ganjil',
         'Kediri',
         'Manajemen',
         '01/01/2005',
         '081234567890',
         'Jl. Contoh No. 1, Kediri',
     ])
-
 
     # =====================================================
     # STYLE HEADER
@@ -5347,76 +5763,60 @@ def download_format_siswa(request):
         bottom=Side(style='thin', color='D1D5DB'),
     )
 
-
     for cell in sheet[1]:
-
         cell.fill = header_fill
-
         cell.font = header_font
-
         cell.alignment = header_alignment
-
         cell.border = thin_border
-
 
     # =====================================================
     # STYLE DATA CONTOH
     # =====================================================
 
     for cell in sheet[2]:
-
         cell.alignment = Alignment(
             vertical='top',
             wrap_text=True
         )
-
         cell.border = thin_border
-
 
     # =====================================================
     # TINGGI BARIS
     # =====================================================
 
     sheet.row_dimensions[1].height = 30
-
     sheet.row_dimensions[2].height = 40
-
 
     # =====================================================
     # LEBAR KOLOM
     # =====================================================
 
     widths = {
-        'A': 30,   # Nama
-        'B': 22,   # Asrama
-        'C': 28,   # Nama Ayah
-        'D': 12,   # Semester
-        'E': 18,   # NIM
-        'F': 15,   # Status
-        'G': 18,   # Jenis Kelamin
-        'H': 22,   # Kelas Awal Masuk
-        'I': 25,   # Tahun Ajaran Masuk
-        'J': 22,   # Tempat Lahir
-        'K': 35,   # Prodi
-        'L': 18,   # Tanggal Lahir
-        'M': 20,   # No Telp
-        'N': 40,   # Alamat
+        'A': 30,
+        'B': 22,
+        'C': 28,
+        'D': 12,
+        'E': 18,
+        'F': 15,
+        'G': 18,
+        'H': 22,
+        'I': 25,
+        'J': 22,
+        'K': 35,
+        'L': 18,
+        'M': 20,
+        'N': 40,
     }
 
-
     for column, width in widths.items():
-
         sheet.column_dimensions[column].width = width
 
-
     # =====================================================
-    # FORMAT NIM & NOMOR TELEPON SEBAGAI TEXT
+    # FORMAT TEXT
     # =====================================================
 
     sheet['E2'].number_format = '@'
-
     sheet['M2'].number_format = '@'
-
 
     # =====================================================
     # FORMAT TANGGAL
@@ -5424,25 +5824,20 @@ def download_format_siswa(request):
 
     sheet['L2'].number_format = 'dd/mm/yyyy'
 
-
     # =====================================================
     # FREEZE HEADER
     # =====================================================
 
     sheet.freeze_panes = 'A2'
 
-
     # =====================================================
     # FILTER
     # =====================================================
 
-    sheet.auto_filter.ref = (
-        f"A1:N{sheet.max_row}"
-    )
-
+    sheet.auto_filter.ref = f"A1:N{sheet.max_row}"
 
     # =====================================================
-    # AMBIL DATA MASTER
+    # DATA MASTER DARI DATABASE
     # =====================================================
 
     asrama_list = list(
@@ -5463,107 +5858,59 @@ def download_format_siswa(request):
         .values_list('nama', flat=True)
     )
 
-
     # =====================================================
     # SHEET REFERENSI
     # =====================================================
 
-    referensi = workbook.create_sheet(
-        "Referensi"
-    )
+    referensi = workbook.create_sheet("Referensi")
 
-
-    # =====================================================
-    # REFERENSI ASRAMA
-    # =====================================================
-
+    # ASRAMA
     referensi['A1'] = 'Asrama'
 
-    for index, nama in enumerate(
-        asrama_list,
-        start=2
-    ):
-
+    for index, nama in enumerate(asrama_list, start=2):
         referensi.cell(
             row=index,
             column=1
         ).value = nama
 
-
-    # =====================================================
-    # REFERENSI KELAS
-    # =====================================================
-
+    # KELAS
     referensi['B1'] = 'Kelas'
 
-    for index, nama in enumerate(
-        kelas_list,
-        start=2
-    ):
-
+    for index, nama in enumerate(kelas_list, start=2):
         referensi.cell(
             row=index,
             column=2
         ).value = nama
 
-
-    # =====================================================
-    # REFERENSI TAHUN AJARAN
-    # =====================================================
-
+    # TAHUN AJARAN
     referensi['C1'] = 'Tahun Ajaran'
 
-    for index, nama in enumerate(
-        tahun_ajaran_list,
-        start=2
-    ):
-
+    for index, nama in enumerate(tahun_ajaran_list, start=2):
         referensi.cell(
             row=index,
             column=3
         ).value = nama
 
-
-    # =====================================================
-    # REFERENSI STATUS
-    # =====================================================
-
+    # STATUS
     referensi['D1'] = 'Status'
-
     referensi['D2'] = 'Aktif'
-
     referensi['D3'] = 'Tidak Aktif'
 
-
-    # =====================================================
-    # REFERENSI JENIS KELAMIN
-    # =====================================================
-
+    # JENIS KELAMIN
     referensi['E1'] = 'Jenis Kelamin'
-
     referensi['E2'] = 'Laki-laki'
-
     referensi['E3'] = 'Perempuan'
 
-
-    # =====================================================
-    # REFERENSI SEMESTER
-    # =====================================================
-
+    # SEMESTER
     referensi['F1'] = 'Semester'
 
     for semester in range(1, 15):
-
         referensi.cell(
             row=semester + 1,
             column=6
         ).value = semester
 
-
-    # =====================================================
-    # REFERENSI PRODI
-    # =====================================================
-
+    # PRODI
     referensi['G1'] = 'Prodi'
 
     prodi_list = [
@@ -5584,40 +5931,28 @@ def download_format_siswa(request):
         'Agribisnis',
     ]
 
-
-    for index, nama in enumerate(
-        prodi_list,
-        start=2
-    ):
-
+    for index, nama in enumerate(prodi_list, start=2):
         referensi.cell(
             row=index,
             column=7
         ).value = nama
 
-
     # =====================================================
-    # STYLE SHEET REFERENSI
+    # STYLE REFERENSI
     # =====================================================
 
     for cell in referensi[1]:
-
-        cell.font = Font(
-            bold=True
-        )
-
+        cell.font = Font(bold=True)
         cell.fill = PatternFill(
             fill_type='solid',
             fgColor='E5E7EB'
         )
 
-
     # =====================================================
-    # HIDE SHEET REFERENSI
+    # SEMBUNYIKAN REFERENSI
     # =====================================================
 
     referensi.sheet_state = 'hidden'
-
 
     # =====================================================
     # DROPDOWN ASRAMA
@@ -5628,20 +5963,13 @@ def download_format_siswa(request):
         dv_asrama = DataValidation(
             type='list',
             formula1=(
-                f"'Referensi'!$A$2:$A$"
-                f"{len(asrama_list) + 1}"
+                f"'Referensi'!$A$2:$A${len(asrama_list) + 1}"
             ),
             allow_blank=True
         )
 
-        sheet.add_data_validation(
-            dv_asrama
-        )
-
-        dv_asrama.add(
-            'B2:B1000'
-        )
-
+        sheet.add_data_validation(dv_asrama)
+        dv_asrama.add('B2:B1000')
 
     # =====================================================
     # DROPDOWN SEMESTER
@@ -5649,20 +5977,12 @@ def download_format_siswa(request):
 
     dv_semester = DataValidation(
         type='list',
-        formula1=(
-            "'Referensi'!$F$2:$F$15"
-        ),
+        formula1="'Referensi'!$F$2:$F$15",
         allow_blank=True
     )
 
-    sheet.add_data_validation(
-        dv_semester
-    )
-
-    dv_semester.add(
-        'D2:D1000'
-    )
-
+    sheet.add_data_validation(dv_semester)
+    dv_semester.add('D2:D1000')
 
     # =====================================================
     # DROPDOWN STATUS
@@ -5670,20 +5990,12 @@ def download_format_siswa(request):
 
     dv_status = DataValidation(
         type='list',
-        formula1=(
-            "'Referensi'!$D$2:$D$3"
-        ),
+        formula1="'Referensi'!$D$2:$D$3",
         allow_blank=True
     )
 
-    sheet.add_data_validation(
-        dv_status
-    )
-
-    dv_status.add(
-        'F2:F1000'
-    )
-
+    sheet.add_data_validation(dv_status)
+    dv_status.add('F2:F1000')
 
     # =====================================================
     # DROPDOWN JENIS KELAMIN
@@ -5691,20 +6003,12 @@ def download_format_siswa(request):
 
     dv_jk = DataValidation(
         type='list',
-        formula1=(
-            "'Referensi'!$E$2:$E$3"
-        ),
+        formula1="'Referensi'!$E$2:$E$3",
         allow_blank=True
     )
 
-    sheet.add_data_validation(
-        dv_jk
-    )
-
-    dv_jk.add(
-        'G2:G1000'
-    )
-
+    sheet.add_data_validation(dv_jk)
+    dv_jk.add('G2:G1000')
 
     # =====================================================
     # DROPDOWN KELAS
@@ -5715,20 +6019,13 @@ def download_format_siswa(request):
         dv_kelas = DataValidation(
             type='list',
             formula1=(
-                f"'Referensi'!$B$2:$B$"
-                f"{len(kelas_list) + 1}"
+                f"'Referensi'!$B$2:$B${len(kelas_list) + 1}"
             ),
             allow_blank=True
         )
 
-        sheet.add_data_validation(
-            dv_kelas
-        )
-
-        dv_kelas.add(
-            'H2:H1000'
-        )
-
+        sheet.add_data_validation(dv_kelas)
+        dv_kelas.add('H2:H1000')
 
     # =====================================================
     # DROPDOWN TAHUN AJARAN
@@ -5739,20 +6036,13 @@ def download_format_siswa(request):
         dv_tahun = DataValidation(
             type='list',
             formula1=(
-                f"'Referensi'!$C$2:$C$"
-                f"{len(tahun_ajaran_list) + 1}"
+                f"'Referensi'!$C$2:$C${len(tahun_ajaran_list) + 1}"
             ),
             allow_blank=True
         )
 
-        sheet.add_data_validation(
-            dv_tahun
-        )
-
-        dv_tahun.add(
-            'I2:I1000'
-        )
-
+        sheet.add_data_validation(dv_tahun)
+        dv_tahun.add('I2:I1000')
 
     # =====================================================
     # DROPDOWN PRODI
@@ -5761,93 +6051,41 @@ def download_format_siswa(request):
     dv_prodi = DataValidation(
         type='list',
         formula1=(
-            f"'Referensi'!$G$2:$G$"
-            f"{len(prodi_list) + 1}"
+            f"'Referensi'!$G$2:$G${len(prodi_list) + 1}"
         ),
         allow_blank=True
     )
 
-    sheet.add_data_validation(
-        dv_prodi
-    )
-
-    dv_prodi.add(
-        'K2:K1000'
-    )
-
+    sheet.add_data_validation(dv_prodi)
+    dv_prodi.add('K2:K1000')
 
     # =====================================================
-    # CATATAN DI BAGIAN BAWAH
+    # SHEET PETUNJUK
     # =====================================================
 
-    catatan = workbook.create_sheet(
-        "Petunjuk"
-    )
-
+    catatan = workbook.create_sheet("Petunjuk")
 
     catatan_data = [
-        [
-            'PETUNJUK PENGISIAN FORMAT DATA SISWA'
-        ],
-        [
-            ''
-        ],
-        [
-            '1.',
-            'Isi data siswa mulai dari baris ke-2.'
-        ],
-        [
-            '2.',
-            'Jangan mengubah nama atau urutan kolom.'
-        ],
-        [
-            '3.',
-            'Kolom yang memiliki pilihan dapat dipilih melalui dropdown.'
-        ],
-        [
-            '4.',
-            'NIM harus berupa angka dan tidak boleh sama.'
-        ],
-        [
-            '5.',
-            'Tanggal lahir menggunakan format DD/MM/YYYY.'
-        ],
-        [
-            '6.',
-            'Status pilih Aktif atau Tidak Aktif.'
-        ],
-        [
-            '7.',
-            'Jenis Kelamin pilih Laki-laki atau Perempuan.'
-        ],
-        [
-            '8.',
-            'Semester diisi sesuai semester siswa.'
-        ],
-        [
-            '9.',
-            'Kelas Awal Masuk adalah kelas ketika siswa pertama kali masuk.'
-        ],
-        [
-            '10.',
-            'Tahun Ajaran Masuk adalah tahun ajaran ketika siswa pertama kali masuk.'
-        ],
-        [
-            '11.',
-            'Setelah selesai mengisi, hapus baris contoh sebelum import.'
-        ],
+        ['PETUNJUK PENGISIAN FORMAT DATA SISWA'],
+        [''],
+        ['1.', 'Isi data siswa mulai dari baris ke-2.'],
+        ['2.', 'Jangan mengubah nama atau urutan kolom.'],
+        ['3.', 'Kolom yang memiliki pilihan dapat dipilih melalui dropdown.'],
+        ['4.', 'NIM harus berupa angka dan tidak boleh sama.'],
+        ['5.', 'Tanggal lahir menggunakan format DD/MM/YYYY.'],
+        ['6.', 'Status pilih Aktif atau Tidak Aktif.'],
+        ['7.', 'Jenis Kelamin pilih Laki-laki atau Perempuan.'],
+        ['8.', 'Semester diisi sesuai semester siswa.'],
+        ['9.', 'Kelas Awal Masuk adalah kelas ketika siswa pertama kali masuk.'],
+        ['10.', 'Tahun Ajaran Masuk adalah tahun ajaran ketika siswa pertama kali masuk.'],
+        ['11.', 'Setelah selesai mengisi, hapus baris contoh sebelum import.'],
     ]
 
-
     for row in catatan_data:
-
         catatan.append(row)
 
-
     catatan.column_dimensions['A'].width = 10
-
     catatan.column_dimensions['B'].width = 90
-
 
     # =====================================================
     # STYLE PETUNJUK
@@ -5858,14 +6096,11 @@ def download_format_siswa(request):
         size=14
     )
 
-    catatan.merge_cells(
-        'A1:B1'
-    )
+    catatan.merge_cells('A1:B1')
 
     catatan['A1'].alignment = Alignment(
         horizontal='center'
     )
-
 
     # =====================================================
     # RESPONSE DOWNLOAD
@@ -5883,10 +6118,10 @@ def download_format_siswa(request):
         'filename="format_data_siswa.xlsx"'
     )
 
-
     workbook.save(response)
 
     return response
+
 
 def kenaikan_siswa(request):
 

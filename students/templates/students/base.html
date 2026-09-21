@@ -2574,6 +2574,18 @@
 
 
     <a
+        href="{% url 'data_asrama' %}"
+        class="{% if '/asrama/' in request.path %}active{% endif %}"
+    >
+
+        <span class="menu-text">
+            Data Asrama
+        </span>
+
+    </a>
+
+
+    <a
         href="{% url 'data_mata_pelajaran' %}"
         class="{% if '/mata-pelajaran/' in request.path %}active{% endif %}"
     >
@@ -2586,7 +2598,7 @@
 
 
     <!-- =================================================
-         AKADEMIK
+        AKADEMIK
     ================================================== -->
 
     <div class="menu-title">
@@ -2604,8 +2616,7 @@
         </span>
 
     </a>
-
-
+   
     <a
         href="{% url 'rapot' %}"
         class="{% if request.path == '/rapot/' %}active{% endif %}"

@@ -5,17 +5,9 @@
 {% block title %}
 
 {% if edit_mode %}
-
-
-Edit Siswa
-
-
+    Edit Siswa
 {% else %}
-
-
-Tambah Siswa
-
-
+    Tambah Siswa
 {% endif %}
 
 {% endblock %}
@@ -26,12 +18,9 @@ Tambah Siswa
 
 {% if edit_mode %}
 
-
 <h2>Edit Siswa</h2>
 
-
 {% else %}
-
 
 <h2
     style="
@@ -55,612 +44,610 @@ Tambah Siswa
     Masukkan data siswa baru
 </h3>
 
-
 {% endif %}
+
 
 <div class="table-card">
 
+    {% if error %}
 
-{% if error %}
-
-    <div class="student-form-error">
-        {{ error }}
-    </div>
-
-{% endif %}
-
-
-<form method="post">
-
-    {% csrf_token %}
-
-    <div class="student-form-grid">
-
-
-        <!-- =====================================================
-             NAMA
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="nama">
-                Nama
-            </label>
-
-            <input
-                type="text"
-                name="nama"
-                id="nama"
-                value="{{ student.nama|default:'' }}"
-                required
-            >
-
+        <div class="student-form-error">
+            {{ error }}
         </div>
 
+    {% endif %}
 
-        <!-- =====================================================
-             ASRAMA
-        ====================================================== -->
 
-        <div class="student-form-field">
+    <form method="post">
 
-            <label for="asrama_master">
-                Asrama
-            </label>
+        {% csrf_token %}
 
-            <select
-                name="asrama_master"
-                id="asrama_master"
-            >
+        <div class="student-form-grid">
 
-                <option value="">
-                    -- Pilih Asrama --
-                </option>
 
-                {% for asrama in asramas %}
+            <!-- =====================================================
+                 NAMA
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="nama">
+                    Nama
+                </label>
+
+                <input
+                    type="text"
+                    name="nama"
+                    id="nama"
+                    value="{{ student.nama|default:'' }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =====================================================
+                 ASRAMA
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="asrama_master">
+                    Asrama
+                </label>
+
+                <select
+                    name="asrama_master"
+                    id="asrama_master"
+                >
+
+                    <option value="">
+                        -- Pilih Asrama --
+                    </option>
+
+                    {% for asrama in asramas %}
+
+                        <option
+                            value="{{ asrama.id }}"
+                            {% if student.asrama_master_id == asrama.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ asrama.nama }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- =====================================================
+                 NAMA AYAH
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="nama_ayah">
+                    Nama Ayah
+                </label>
+
+                <input
+                    type="text"
+                    name="nama_ayah"
+                    id="nama_ayah"
+                    value="{{ student.nama_ayah|default:'' }}"
+                >
+
+            </div>
+
+
+            <!-- =====================================================
+                 SEMESTER
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="semester">
+                    Semester
+                </label>
+
+                <input
+                    type="number"
+                    name="semester"
+                    id="semester"
+                    value="{{ student.semester|default:'' }}"
+                    min="1"
+                    max="20"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =====================================================
+                 NIM
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="nim">
+                    NIM
+                </label>
+
+                <input
+                    type="text"
+                    name="nim"
+                    id="nim"
+                    value="{{ student.nim|default:'' }}"
+                    inputmode="numeric"
+                    pattern="[0-9]+"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =====================================================
+                 STATUS
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="status">
+                    Status
+                </label>
+
+                <select
+                    name="status"
+                    id="status"
+                    required
+                >
 
                     <option
-                        value="{{ asrama.id }}"
-                        {% if student.asrama_master_id == asrama.id %}
+                        value="True"
+                        {% if student.status %}
                             selected
                         {% endif %}
                     >
-                        {{ asrama.nama }}
+                        Aktif
                     </option>
 
-                {% endfor %}
-
-            </select>
-
-        </div>
-
-
-        <!-- =====================================================
-             NAMA AYAH
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="nama_ayah">
-                Nama Ayah
-            </label>
-
-            <input
-                type="text"
-                name="nama_ayah"
-                id="nama_ayah"
-                value="{{ student.nama_ayah|default:'' }}"
-            >
-
-        </div>
-
-
-        <!-- =====================================================
-             SEMESTER
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="semester">
-                Semester
-            </label>
-
-            <input
-                type="number"
-                name="semester"
-                id="semester"
-                value="{{ student.semester|default:'' }}"
-                min="1"
-                max="20"
-                required
-            >
-
-        </div>
-
-
-        <!-- =====================================================
-             NIM
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="nim">
-                NIM
-            </label>
-
-            <input
-                type="text"
-                name="nim"
-                id="nim"
-                value="{{ student.nim|default:'' }}"
-                inputmode="numeric"
-                pattern="[0-9]+"
-                required
-            >
-
-        </div>
-
-
-        <!-- =====================================================
-             STATUS
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="status">
-                Status
-            </label>
-
-            <select
-                name="status"
-                id="status"
-                required
-            >
-
-                <option
-                    value="True"
-                    {% if student.status %}
-                        selected
-                    {% endif %}
-                >
-                    Aktif
-                </option>
-
-                <option
-                    value="False"
-                    {% if student.status == False %}
-                        selected
-                    {% endif %}
-                >
-                    Tidak Aktif
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- =====================================================
-             JENIS KELAMIN
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="jk">
-                Jenis Kelamin
-            </label>
-
-            <select
-                name="jk"
-                id="jk"
-                required
-            >
-
-                <option value="">
-                    -- Pilih Jenis Kelamin --
-                </option>
-
-                <option
-                    value="Laki-laki"
-                    {% if student.jk == "Laki-laki" %}
-                        selected
-                    {% endif %}
-                >
-                    Laki-laki
-                </option>
-
-                <option
-                    value="Perempuan"
-                    {% if student.jk == "Perempuan" %}
-                        selected
-                    {% endif %}
-                >
-                    Perempuan
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- =====================================================
-             KELAS
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="kelas">
-                Kelas
-            </label>
-
-            <select
-                name="kelas"
-                id="kelas"
-                required
-            >
-
-                <option value="">
-                    -- Pilih Kelas --
-                </option>
-
-                {% for kelas in kelass %}
-
                     <option
-                        value="{{ kelas.id }}"
-                        {% if student.kelas_id == kelas.id %}
+                        value="False"
+                        {% if not student.status %}
                             selected
                         {% endif %}
                     >
-                        {{ kelas.nama }}
+                        Tidak Aktif
                     </option>
 
-                {% endfor %}
+                </select>
 
-            </select>
-
-        </div>
+            </div>
 
 
-        <!-- =====================================================
-             TAHUN AJARAN
-        ====================================================== -->
+            <!-- =====================================================
+                 JENIS KELAMIN
+            ====================================================== -->
 
-        <div class="form-group">
+            <div class="student-form-field">
 
-            <label for="tahun_ajaran">
-                Tahun Ajaran Masuk
-            </label>
+                <label for="jk">
+                    Jenis Kelamin
+                </label>
 
-            <select
-                name="tahun_ajaran"
-                id="tahun_ajaran"
-                required
-            >
+                <select
+                    name="jk"
+                    id="jk"
+                    required
+                >
 
-                <option value="">
-                    -- Pilih Tahun Ajaran Masuk --
-                </option>
+                    <option value="">
+                        -- Pilih Jenis Kelamin --
+                    </option>
 
-                {% for tahun in tahun_ajarans %}
+                    <!-- DATABASE: L = Laki-laki -->
 
                     <option
-                        value="{{ tahun.id }}"
-                        {% if student and student.tahun_ajaran_id == tahun.id %}
+                        value="L"
+                        {% if student.jk == "L" %}
                             selected
                         {% endif %}
                     >
-                        {{ tahun.nama }}
-
-                        {% if tahun.aktif %}
-                            (Aktif)
-                        {% endif %}
-
+                        Laki-laki
                     </option>
 
-                {% endfor %}
+                    <!-- DATABASE: P = Perempuan -->
 
-            </select>
+                    <option
+                        value="P"
+                        {% if student.jk == "P" %}
+                            selected
+                        {% endif %}
+                    >
+                        Perempuan
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- =====================================================
+                 KELAS
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="kelas">
+                    Kelas
+                </label>
+
+                <select
+                    name="kelas"
+                    id="kelas"
+                    required
+                >
+
+                    <option value="">
+                        -- Pilih Kelas --
+                    </option>
+
+                    {% for kelas in kelass %}
+
+                        <option
+                            value="{{ kelas.id }}"
+                            {% if student.kelas_id == kelas.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ kelas.nama }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- =====================================================
+                 TAHUN AJARAN
+            ====================================================== -->
+
+            <div class="form-group">
+
+                <label for="tahun_ajaran">
+                    Tahun Ajaran Masuk
+                </label>
+
+                <select
+                    name="tahun_ajaran"
+                    id="tahun_ajaran"
+                    required
+                >
+
+                    <option value="">
+                        -- Pilih Tahun Ajaran Masuk --
+                    </option>
+
+                    {% for tahun in tahun_ajarans %}
+
+                        <option
+                            value="{{ tahun.id }}"
+                            {% if student and student.tahun_ajaran_id == tahun.id %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ tahun.nama }}
+
+                            {% if tahun.aktif %}
+                                (Aktif)
+                            {% endif %}
+
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- =====================================================
+                 TEMPAT LAHIR
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="tempat_lahir">
+                    Tempat Lahir
+                </label>
+
+                <input
+                    type="text"
+                    name="tempat_lahir"
+                    id="tempat_lahir"
+                    value="{{ student.tempat_lahir|default:'' }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =====================================================
+                 PRODI
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="prodi">
+                    Prodi
+                </label>
+
+                <select
+                    name="prodi"
+                    id="prodi"
+                    required
+                >
+
+                    <option value="">
+                        -- Pilih Prodi --
+                    </option>
+
+
+                    <option
+                        value="Hukum Keluarga Islam (Ahwal Syakhshiyyah)"
+                        {% if student.prodi == "Hukum Keluarga Islam (Ahwal Syakhshiyyah)" %}
+                            selected
+                        {% endif %}
+                    >
+                        Hukum Keluarga Islam (Ahwal Syakhshiyyah)
+                    </option>
+
+
+                    <option
+                        value="Akuntansi"
+                        {% if student.prodi == "Akuntansi" %}
+                            selected
+                        {% endif %}
+                    >
+                        Akuntansi
+                    </option>
+
+
+                    <option
+                        value="Manajemen"
+                        {% if student.prodi == "Manajemen" %}
+                            selected
+                        {% endif %}
+                    >
+                        Manajemen
+                    </option>
+
+
+                    <option
+                        value="Pendidikan Kimia"
+                        {% if student.prodi == "Pendidikan Kimia" %}
+                            selected
+                        {% endif %}
+                    >
+                        Pendidikan Kimia
+                    </option>
+
+
+                    <option
+                        value="Pendidikan Bahasa Inggris"
+                        {% if student.prodi == "Pendidikan Bahasa Inggris" %}
+                            selected
+                        {% endif %}
+                    >
+                        Pendidikan Bahasa Inggris
+                    </option>
+
+
+                    <option
+                        value="Pendidikan Matematika"
+                        {% if student.prodi == "Pendidikan Matematika" %}
+                            selected
+                        {% endif %}
+                    >
+                        Pendidikan Matematika
+                    </option>
+
+
+                    <option
+                        value="Pendidikan Guru PAUD"
+                        {% if student.prodi == "Pendidikan Guru PAUD" %}
+                            selected
+                        {% endif %}
+                    >
+                        Pendidikan Guru PAUD
+                    </option>
+
+
+                    <option
+                        value="Kebidanan"
+                        {% if student.prodi == "Kebidanan" %}
+                            selected
+                        {% endif %}
+                    >
+                        Kebidanan
+                    </option>
+
+
+                    <option
+                        value="Keperawatan"
+                        {% if student.prodi == "Keperawatan" %}
+                            selected
+                        {% endif %}
+                    >
+                        Keperawatan
+                    </option>
+
+
+                    <option
+                        value="Teknik Informatika"
+                        {% if student.prodi == "Teknik Informatika" %}
+                            selected
+                        {% endif %}
+                    >
+                        Teknik Informatika
+                    </option>
+
+
+                    <option
+                        value="Teknik Industri"
+                        {% if student.prodi == "Teknik Industri" %}
+                            selected
+                        {% endif %}
+                    >
+                        Teknik Industri
+                    </option>
+
+
+                    <option
+                        value="Teknik Mesin"
+                        {% if student.prodi == "Teknik Mesin" %}
+                            selected
+                        {% endif %}
+                    >
+                        Teknik Mesin
+                    </option>
+
+
+                    <option
+                        value="Teknik Sipil"
+                        {% if student.prodi == "Teknik Sipil" %}
+                            selected
+                        {% endif %}
+                    >
+                        Teknik Sipil
+                    </option>
+
+
+                    <option
+                        value="Agroteknologi"
+                        {% if student.prodi == "Agroteknologi" %}
+                            selected
+                        {% endif %}
+                    >
+                        Agroteknologi
+                    </option>
+
+
+                    <option
+                        value="Agribisnis"
+                        {% if student.prodi == "Agribisnis" %}
+                            selected
+                        {% endif %}
+                    >
+                        Agribisnis
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- =====================================================
+                 TANGGAL LAHIR
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="tanggal_lahir">
+                    Tanggal Lahir
+                </label>
+
+                <input
+                    type="date"
+                    name="tanggal_lahir"
+                    id="tanggal_lahir"
+                    value="{{ student.tanggal_lahir|date:'Y-m-d' }}"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =====================================================
+                 NO TELP / WA
+            ====================================================== -->
+
+            <div class="student-form-field">
+
+                <label for="no_tlpn_wa">
+                    No. Telp / WA
+                </label>
+
+                <input
+                    type="text"
+                    name="no_tlpn_wa"
+                    id="no_tlpn_wa"
+                    value="{{ student.no_tlpn_wa|default:'' }}"
+                    inputmode="numeric"
+                    pattern="[0-9]+"
+                >
+
+            </div>
+
+
+            <!-- =====================================================
+                 ALAMAT FULL WIDTH
+            ====================================================== -->
+
+            <div class="student-form-field student-form-full">
+
+                <label for="alamat">
+                    Alamat
+                </label>
+
+                <textarea
+                    name="alamat"
+                    id="alamat"
+                    rows="4"
+                    required
+                >{{ student.alamat|default:'' }}</textarea>
+
+            </div>
+
+
+            <!-- =====================================================
+                 TOMBOL
+            ====================================================== -->
+
+            <div class="student-form-actions">
+
+                <button
+                    type="submit"
+                    class="btn-add"
+                >
+
+                    {% if edit_mode %}
+                        Update Siswa
+                    {% else %}
+                        Simpan Siswa
+                    {% endif %}
+
+                </button>
+
+
+                <a
+                    href="{% url 'student_list' %}"
+                    class="btn-view"
+                >
+                    Batal
+                </a>
+
+            </div>
+
 
         </div>
 
-
-        <!-- =====================================================
-             TEMPAT LAHIR
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="tempat_lahir">
-                Tempat Lahir
-            </label>
-
-            <input
-                type="text"
-                name="tempat_lahir"
-                id="tempat_lahir"
-                value="{{ student.tempat_lahir|default:'' }}"
-                required
-            >
-
-        </div>
-
-
-        <!-- =====================================================
-             PRODI
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="prodi">
-                Prodi
-            </label>
-
-            <select
-                name="prodi"
-                id="prodi"
-                required
-            >
-
-                <option value="">
-                    -- Pilih Prodi --
-                </option>
-
-
-                <option
-                    value="Hukum Keluarga Islam (Ahwal Syakhshiyyah)"
-                    {% if student.prodi == "Hukum Keluarga Islam (Ahwal Syakhshiyyah)" %}
-                        selected
-                    {% endif %}
-                >
-                    Hukum Keluarga Islam (Ahwal Syakhshiyyah)
-                </option>
-
-
-                <option
-                    value="Akuntansi"
-                    {% if student.prodi == "Akuntansi" %}
-                        selected
-                    {% endif %}
-                >
-                    Akuntansi
-                </option>
-
-
-                <option
-                    value="Manajemen"
-                    {% if student.prodi == "Manajemen" %}
-                        selected
-                    {% endif %}
-                >
-                    Manajemen
-                </option>
-
-
-                <option
-                    value="Pendidikan Kimia"
-                    {% if student.prodi == "Pendidikan Kimia" %}
-                        selected
-                    {% endif %}
-                >
-                    Pendidikan Kimia
-                </option>
-
-
-                <option
-                    value="Pendidikan Bahasa Inggris"
-                    {% if student.prodi == "Pendidikan Bahasa Inggris" %}
-                        selected
-                    {% endif %}
-                >
-                    Pendidikan Bahasa Inggris
-                </option>
-
-
-                <option
-                    value="Pendidikan Matematika"
-                    {% if student.prodi == "Pendidikan Matematika" %}
-                        selected
-                    {% endif %}
-                >
-                    Pendidikan Matematika
-                </option>
-
-
-                <option
-                    value="Pendidikan Guru PAUD"
-                    {% if student.prodi == "Pendidikan Guru PAUD" %}
-                        selected
-                    {% endif %}
-                >
-                    Pendidikan Guru PAUD
-                </option>
-
-
-                <option
-                    value="Kebidanan"
-                    {% if student.prodi == "Kebidanan" %}
-                        selected
-                    {% endif %}
-                >
-                    Kebidanan
-                </option>
-
-
-                <option
-                    value="Keperawatan"
-                    {% if student.prodi == "Keperawatan" %}
-                        selected
-                    {% endif %}
-                >
-                    Keperawatan
-                </option>
-
-
-                <option
-                    value="Teknik Informatika"
-                    {% if student.prodi == "Teknik Informatika" %}
-                        selected
-                    {% endif %}
-                >
-                    Teknik Informatika
-                </option>
-
-
-                <option
-                    value="Teknik Industri"
-                    {% if student.prodi == "Teknik Industri" %}
-                        selected
-                    {% endif %}
-                >
-                    Teknik Industri
-                </option>
-
-
-                <option
-                    value="Teknik Mesin"
-                    {% if student.prodi == "Teknik Mesin" %}
-                        selected
-                    {% endif %}
-                >
-                    Teknik Mesin
-                </option>
-
-
-                <option
-                    value="Teknik Sipil"
-                    {% if student.prodi == "Teknik Sipil" %}
-                        selected
-                    {% endif %}
-                >
-                    Teknik Sipil
-                </option>
-
-
-                <option
-                    value="Agroteknologi"
-                    {% if student.prodi == "Agroteknologi" %}
-                        selected
-                    {% endif %}
-                >
-                    Agroteknologi
-                </option>
-
-
-                <option
-                    value="Agribisnis"
-                    {% if student.prodi == "Agribisnis" %}
-                        selected
-                    {% endif %}
-                >
-                    Agribisnis
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <!-- =====================================================
-             TANGGAL LAHIR
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="tanggal_lahir">
-                Tanggal Lahir
-            </label>
-
-            <input
-                type="date"
-                name="tanggal_lahir"
-                id="tanggal_lahir"
-                value="{{ student.tanggal_lahir|date:'Y-m-d' }}"
-                required
-            >
-
-        </div>
-
-
-        <!-- =====================================================
-             NO TELP / WA
-        ====================================================== -->
-
-        <div class="student-form-field">
-
-            <label for="no_tlpn_wa">
-                No. Telp / WA
-            </label>
-
-            <input
-                type="text"
-                name="no_tlpn_wa"
-                id="no_tlpn_wa"
-                value="{{ student.no_tlpn_wa|default:'' }}"
-                inputmode="numeric"
-                pattern="[0-9]+"
-            >
-
-        </div>
-
-
-        <!-- =====================================================
-             ALAMAT FULL WIDTH
-        ====================================================== -->
-
-        <div class="student-form-field student-form-full">
-
-            <label for="alamat">
-                Alamat
-            </label>
-
-            <textarea
-                name="alamat"
-                id="alamat"
-                rows="4"
-                required
-            >{{ student.alamat|default:'' }}</textarea>
-
-        </div>
-
-
-        <!-- =====================================================
-             TOMBOL
-        ====================================================== -->
-
-        <div class="student-form-actions">
-
-            <button
-                type="submit"
-                class="btn-add"
-            >
-
-                {% if edit_mode %}
-
-                    Update Siswa
-
-                {% else %}
-
-                    Simpan Siswa
-
-                {% endif %}
-
-            </button>
-
-
-            <a
-                href="{% url 'student_list' %}"
-                class="btn-view"
-            >
-                Batal
-            </a>
-
-        </div>
-
-
-    </div>
-
-</form>
-
+    </form>
 
 </div>
 

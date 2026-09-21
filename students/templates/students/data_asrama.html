@@ -1,0 +1,1231 @@
+{% extends "students/base.html" %}
+
+{% block title %}
+Data Asrama
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+/* =========================================================
+   HALAMAN
+   ========================================================= */
+
+.asrama-page {
+    width: 100%;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.asrama-page .page-header {
+    margin-bottom: 26px;
+}
+
+.asrama-page .page-header h1 {
+    margin: 0 0 6px;
+    font-size: 30px;
+    font-weight: 700;
+    color: #172554;
+}
+
+.asrama-page .page-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* =========================================================
+   FORM TAMBAH
+   ========================================================= */
+
+.asrama-form-card {
+    width: 100%;
+    max-width: 600px;
+    margin-bottom: 26px;
+    padding: 0;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+    overflow: hidden;
+}
+
+.asrama-form-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.asrama-form-header h2 {
+    margin: 0 0 5px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.asrama-form-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.asrama-form-body {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    padding: 22px 24px;
+}
+
+.asrama-form-group {
+    flex: 1;
+}
+
+.asrama-form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.asrama-form-group input {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 14px;
+    outline: none;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.asrama-form-group input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+/* =========================================================
+   TOMBOL TAMBAH / SIMPAN
+   ========================================================= */
+
+.asrama-save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 17px;
+    border: none;
+    border-radius: 7px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+
+.asrama-save-button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   STATISTIK
+   ========================================================= */
+
+.asrama-stat-card {
+    width: 290px;
+    min-height: 128px;
+    box-sizing: border-box;
+    padding: 24px 26px;
+    margin-bottom: 26px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
+}
+
+.asrama-stat-label {
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.asrama-stat-number {
+    margin-bottom: 7px;
+    font-size: 34px;
+    line-height: 1;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.asrama-stat-description {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.asrama-table-card {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.035);
+    overflow: hidden;
+}
+
+/* =========================================================
+   TABLE HEADER
+   ========================================================= */
+
+.asrama-table-header {
+    padding: 25px 26px 22px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.asrama-table-header h2 {
+    margin: 0 0 6px;
+    font-size: 19px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.asrama-table-header p {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* =========================================================
+   TABLE WRAPPER
+   ========================================================= */
+
+.asrama-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+
+.asrama-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 14px;
+}
+
+.asrama-table thead th {
+    height: 48px;
+    padding: 0 20px;
+    background: #ffffff;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.asrama-table thead th:nth-child(1) {
+    width: 70px;
+}
+
+.asrama-table thead th:nth-child(2) {
+    width: auto;
+}
+
+.asrama-table thead th:nth-child(3) {
+    width: 130px;
+}
+
+.asrama-table thead th:nth-child(4) {
+    width: 170px;
+    text-align: center;
+}
+
+/* =========================================================
+   TABLE BODY
+   ========================================================= */
+
+.asrama-table tbody tr {
+    height: 66px;
+}
+
+.asrama-table tbody td {
+    padding: 0 20px;
+    border-bottom: 1px solid #edf0f4;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.asrama-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* =========================================================
+   NAMA ASRAMA
+   ========================================================= */
+
+.asrama-name {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.asrama-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 55px;
+    height: 28px;
+    padding: 0 9px;
+    border-radius: 6px;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =========================================================
+   AKSI
+   ========================================================= */
+
+.asrama-action {
+    text-align: center;
+}
+
+.asrama-action-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
+/* =========================================================
+   TOMBOL AKSI
+   ========================================================= */
+
+.asrama-edit-button,
+.asrama-delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        background 0.2s ease,
+        color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+/* =========================================================
+   EDIT
+   ========================================================= */
+
+.asrama-edit-button {
+    min-width: 50px;
+    border: 1px solid #cbd5e1;
+    background: #f1f5f9;
+    color: #334155;
+}
+
+.asrama-edit-button:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+/* =========================================================
+   HAPUS
+   ========================================================= */
+
+.asrama-delete-button {
+    min-width: 58px;
+    border: 1px solid #dc2626;
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.asrama-delete-button:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+    border-color: #b91c1c;
+}
+
+/* =========================================================
+   BARIS EDIT
+   ========================================================= */
+
+.asrama-edit-row {
+    background: #f8fafc !important;
+}
+
+.asrama-edit-row td {
+    padding: 20px 24px !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.asrama-edit-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.asrama-edit-form .asrama-form-group {
+    width: 250px;
+    flex: none;
+}
+
+.asrama-edit-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* =========================================================
+   BATAL EDIT
+   ========================================================= */
+
+.asrama-cancel-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 15px;
+    border: none;
+    border-radius: 7px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.asrama-cancel-button:hover {
+    background: #e2e8f0;
+}
+
+/* =========================================================
+   DATA KOSONG
+   ========================================================= */
+
+.asrama-empty {
+    text-align: center;
+    padding: 55px 20px !important;
+}
+
+.asrama-empty-title {
+    margin-bottom: 7px;
+    color: #475569;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.asrama-empty-text {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+/* =========================================================
+   POPUP HAPUS
+   ========================================================= */
+
+.asrama-delete-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.asrama-delete-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+}
+
+.asrama-delete-box {
+    position: relative;
+    z-index: 1;
+    width: 420px;
+    max-width: calc(100% - 40px);
+    padding: 30px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 13px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+    text-align: center;
+    animation: asramaDeletePopup 0.18s ease-out;
+}
+
+@keyframes asramaDeletePopup {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.asrama-delete-box h3 {
+    margin: 0 0 10px;
+    color: #1e293b;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.asrama-delete-box p {
+    margin: 0 auto 8px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.asrama-delete-box p strong {
+    color: #1e293b;
+}
+
+.asrama-delete-warning {
+    display: block;
+    margin-bottom: 25px;
+    color: #94a3b8;
+    font-size: 12px;
+}
+
+/* =========================================================
+   TOMBOL POPUP
+   ========================================================= */
+
+.asrama-delete-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.asrama-delete-cancel,
+.asrama-delete-confirm {
+    min-width: 105px;
+    height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.asrama-delete-cancel {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.asrama-delete-cancel:hover {
+    background: #e2e8f0;
+}
+
+.asrama-delete-confirm {
+    background: #dc2626;
+    color: #ffffff;
+}
+
+.asrama-delete-confirm:hover {
+    background: #b91c1c;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .asrama-page .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .asrama-form-body {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .asrama-form-group {
+        width: 100%;
+    }
+
+    .asrama-save-button {
+        width: fit-content;
+    }
+
+    .asrama-stat-card {
+        width: 100%;
+    }
+
+    .asrama-table {
+        min-width: 650px;
+    }
+
+    .asrama-edit-form {
+        align-items: stretch;
+    }
+
+    .asrama-edit-form .asrama-form-group {
+        width: 100%;
+    }
+
+    .asrama-edit-actions {
+        width: 100%;
+    }
+
+    .asrama-delete-box {
+        width: 360px;
+        padding: 25px 20px;
+    }
+}
+
+</style>
+
+<div class="asrama-page">
+
+
+<!-- =====================================================
+     HEADER
+     ===================================================== -->
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Data Asrama
+        </h1>
+
+        <p>
+            Kelola daftar asrama yang tersedia di madrasah.
+        </p>
+
+    </div>
+
+</div>
+
+<!-- =====================================================
+     TAMBAH ASRAMA
+     ===================================================== -->
+
+<div class="asrama-form-card">
+
+    <div class="asrama-form-header">
+
+        <h2>
+            Tambah Asrama
+        </h2>
+
+        <p>
+            Masukkan nama asrama baru.
+        </p>
+
+    </div>
+
+    <form method="post">
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="aksi"
+            value="tambah"
+        >
+
+        <div class="asrama-form-body">
+
+            <div class="asrama-form-group">
+
+                <label>
+                    Nama Asrama
+                </label>
+
+                <input
+                    type="text"
+                    name="nama"
+                    placeholder="Contoh: Al-Barokah"
+                    required
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="asrama-save-button"
+            >
+                Tambah
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- =====================================================
+     STATISTIK
+     ===================================================== -->
+
+<div class="asrama-stat-card">
+
+    <div class="asrama-stat-label">
+        Total Asrama
+    </div>
+
+    <div class="asrama-stat-number">
+        {{ asramas|length }}
+    </div>
+
+    <div class="asrama-stat-description">
+        Asrama terdaftar
+    </div>
+
+</div>
+
+<!-- =====================================================
+     DATA ASRAMA
+     ===================================================== -->
+
+<div class="asrama-table-card">
+
+    <div class="asrama-table-header">
+
+        <div>
+
+            <h2>
+                Daftar Asrama
+            </h2>
+
+            <p>
+                Data asrama yang terdaftar dalam sistem.
+            </p>
+
+        </div>
+
+    </div>
+
+    <div class="asrama-table-wrapper">
+
+        <table class="asrama-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        NO
+                    </th>
+
+                    <th>
+                        NAMA ASRAMA
+                    </th>
+
+                    <th>
+                        STATUS
+                    </th>
+
+                    <th>
+                        AKSI
+                    </th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% for asrama in asramas %}
+
+                <!-- =================================================
+                     DATA ASRAMA
+                     ================================================= -->
+
+                <tr>
+
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+
+                    <td class="asrama-name">
+                        {{ asrama.nama }}
+                    </td>
+
+                    <td>
+
+                        <span class="asrama-status">
+                            Aktif
+                        </span>
+
+                    </td>
+
+                    <td class="asrama-action">
+
+                        <div class="asrama-action-buttons">
+
+                            <!-- EDIT -->
+
+                            <button
+                                type="button"
+                                class="asrama-edit-button btn-edit-asrama"
+                                data-id="{{ asrama.id }}"
+                            >
+                                Edit
+                            </button>
+
+                            <!-- HAPUS -->
+
+                            <button
+                                type="button"
+                                class="asrama-delete-button btn-hapus-asrama"
+                                data-id="{{ asrama.id }}"
+                                data-nama="{{ asrama.nama }}"
+                            >
+                                Hapus
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                <!-- =================================================
+                     FORM EDIT
+                     ================================================= -->
+
+                <tr
+                    id="edit-{{ asrama.id }}"
+                    class="asrama-edit-row"
+                    style="display: none;"
+                >
+
+                    <td>
+                        {{ forloop.counter }}
+                    </td>
+
+                    <td colspan="3">
+
+                        <form method="post">
+
+                            {% csrf_token %}
+
+                            <input
+                                type="hidden"
+                                name="aksi"
+                                value="edit"
+                            >
+
+                            <input
+                                type="hidden"
+                                name="asrama_id"
+                                value="{{ asrama.id }}"
+                            >
+
+                            <div class="asrama-edit-form">
+
+                                <div class="asrama-form-group">
+
+                                    <label>
+                                        Nama Asrama
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        name="nama"
+                                        value="{{ asrama.nama }}"
+                                        required
+                                    >
+
+                                </div>
+
+                                <div class="asrama-edit-actions">
+
+                                    <button
+                                        type="submit"
+                                        class="asrama-save-button"
+                                    >
+                                        Simpan
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="asrama-cancel-button btn-batal-asrama"
+                                        data-id="{{ asrama.id }}"
+                                    >
+                                        Batal
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </form>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+
+                    <td
+                        colspan="4"
+                        class="asrama-empty"
+                    >
+
+                        <div class="asrama-empty-title">
+                            Belum ada data asrama
+                        </div>
+
+                        <div class="asrama-empty-text">
+                            Silakan tambahkan asrama terlebih dahulu.
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+</div>
+
+<!-- =========================================================
+     POPUP HAPUS ASRAMA
+     ========================================================= -->
+
+<div
+    id="asrama-delete-modal"
+    class="asrama-delete-modal"
+    style="display: none;"
+>
+
+
+<div
+    class="asrama-delete-overlay"
+    id="asrama-delete-overlay"
+></div>
+
+<div class="asrama-delete-box">
+
+    <h3>
+        Hapus Data Asrama?
+    </h3>
+
+    <p>
+
+        Apakah Anda yakin ingin menghapus
+
+        <strong id="asrama-delete-nama"></strong>?
+
+    </p>
+
+    <span class="asrama-delete-warning">
+        Data yang sudah dihapus tidak dapat dikembalikan.
+    </span>
+
+    <form
+        method="POST"
+        id="asrama-delete-form"
+    >
+
+        {% csrf_token %}
+
+        <input
+            type="hidden"
+            name="aksi"
+            value="hapus"
+        >
+
+        <input
+            type="hidden"
+            name="asrama_id"
+            id="asrama-delete-id"
+        >
+
+        <div class="asrama-delete-actions">
+
+            <button
+                type="button"
+                class="asrama-delete-cancel"
+                id="asrama-delete-cancel"
+            >
+                Batal
+            </button>
+
+            <button
+                type="submit"
+                class="asrama-delete-confirm"
+            >
+                Ya, Hapus
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+</div>
+
+<!-- =========================================================
+     JAVASCRIPT
+     ========================================================= -->
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        /* =====================================================
+           EDIT ASRAMA
+           ===================================================== */
+
+        document
+            .querySelectorAll('.btn-edit-asrama')
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        'click',
+                        function () {
+
+                            const id =
+                                this.dataset.id;
+
+                            const editRow =
+                                document.getElementById(
+                                    'edit-' + id
+                                );
+
+                            /* Tutup form edit lainnya */
+
+                            document
+                                .querySelectorAll(
+                                    '.asrama-edit-row'
+                                )
+                                .forEach(
+                                    function (row) {
+
+                                        if (
+                                            row !== editRow
+                                        ) {
+
+                                            row.style.display =
+                                                'none';
+
+                                        }
+
+                                    }
+                                );
+
+                            /* Tampilkan form edit */
+
+                            editRow.style.display =
+                                'table-row';
+
+                        }
+                    );
+
+                }
+            );
+
+        /* =====================================================
+           BATAL EDIT
+           ===================================================== */
+
+        document
+            .querySelectorAll('.btn-batal-asrama')
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        'click',
+                        function () {
+
+                            const id =
+                                this.dataset.id;
+
+                            const editRow =
+                                document.getElementById(
+                                    'edit-' + id
+                                );
+
+                            editRow.style.display =
+                                'none';
+
+                        }
+                    );
+
+                }
+            );
+
+        /* =====================================================
+           POPUP HAPUS
+           ===================================================== */
+
+        const deleteModal =
+            document.getElementById(
+                'asrama-delete-modal'
+            );
+
+        const deleteOverlay =
+            document.getElementById(
+                'asrama-delete-overlay'
+            );
+
+        const deleteNama =
+            document.getElementById(
+                'asrama-delete-nama'
+            );
+
+        const deleteId =
+            document.getElementById(
+                'asrama-delete-id'
+            );
+
+        const deleteCancel =
+            document.getElementById(
+                'asrama-delete-cancel'
+            );
+
+        /* =====================================================
+           BUKA POPUP
+           ===================================================== */
+
+        document
+            .querySelectorAll('.btn-hapus-asrama')
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        'click',
+                        function () {
+
+                            const id =
+                                this.dataset.id;
+
+                            const nama =
+                                this.dataset.nama;
+
+                            deleteId.value =
+                                id;
+
+                            deleteNama.textContent =
+                                nama;
+
+                            deleteModal.style.display =
+                                'flex';
+
+                        }
+                    );
+
+                }
+            );
+
+        /* =====================================================
+           BATAL HAPUS
+           ===================================================== */
+
+        deleteCancel.addEventListener(
+            'click',
+            function () {
+
+                deleteModal.style.display =
+                    'none';
+
+                deleteId.value =
+                    '';
+
+            }
+        );
+
+        /* =====================================================
+           KLIK AREA LUAR POPUP
+           ===================================================== */
+
+        deleteOverlay.addEventListener(
+            'click',
+            function () {
+
+                deleteModal.style.display =
+                    'none';
+
+                deleteId.value =
+                    '';
+
+            }
+        );
+
+        /* =====================================================
+           ESC
+           ===================================================== */
+
+        document.addEventListener(
+            'keydown',
+            function (event) {
+
+                if (
+                    event.key === 'Escape' &&
+                    deleteModal.style.display === 'flex'
+                ) {
+
+                    deleteModal.style.display =
+                        'none';
+
+                    deleteId.value =
+                        '';
+
+                }
+
+            }
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}
