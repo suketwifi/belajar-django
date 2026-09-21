@@ -33,6 +33,7 @@ def dashboard(request):
     total_guru = Guru.objects.count()
     total_kelas = Kelas.objects.count()
     total_mata_pelajaran = MataPelajaran.objects.count()
+    total_asrama = Asrama.objects.count()
 
     tahun_ajaran = TahunAjaran.objects.filter(
         aktif=True
@@ -44,6 +45,7 @@ def dashboard(request):
         'total_kelas': total_kelas,
         'total_mata_pelajaran': total_mata_pelajaran,
         'tahun_ajaran': tahun_ajaran,
+        'total_asrama': total_asrama,
     }
 
     return render(

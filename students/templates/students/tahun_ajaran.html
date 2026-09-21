@@ -1069,13 +1069,29 @@ Tahun Ajaran
 
 @media (max-width: 700px) {
 
+    /* =================================================
+       HALAMAN
+    ================================================= */
+
+    .tahun-page {
+        width: 100%;
+        min-width: 0;
+    }
+
+
+    /* =================================================
+       FORM TAMBAH
+    ================================================= */
+
     .tahun-form-card {
         padding: 18px;
+        margin-bottom: 18px;
     }
 
     .tahun-form-row {
         flex-direction: column !important;
         align-items: stretch !important;
+        gap: 14px !important;
     }
 
     .tahun-field {
@@ -1085,6 +1101,7 @@ Tahun Ajaran
     .tahun-field input,
     .tahun-field select {
         width: 100%;
+        max-width: 100%;
     }
 
     .tahun-add-wrap {
@@ -1096,19 +1113,185 @@ Tahun Ajaran
         min-width: 100% !important;
     }
 
-    .tahun-table th,
-    .tahun-table td {
-        padding-left: 12px;
-        padding-right: 12px;
+
+    /* =================================================
+       HEADER TABEL
+    ================================================= */
+
+    .tahun-table-header {
+        padding: 18px;
     }
+
+    .tahun-table-header h2 {
+        font-size: 16px;
+    }
+
+    .tahun-table-header p {
+        font-size: 12px;
+    }
+
+
+    /* =================================================
+       TABEL HP
+       TABEL TETAP UTUH DAN BISA DIGESER
+       AGAR TIDAK BERTUMPUK
+    ================================================= */
+
+    .tahun-table-wrapper {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .tahun-table {
+        width: 100%;
+        min-width: 650px;
+        table-layout: fixed;
+        border-collapse: collapse;
+    }
+
+    .tahun-table th {
+        height: 46px;
+        padding: 0 12px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .tahun-table td {
+        height: 60px;
+        padding: 10px 12px;
+        font-size: 13px;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+
+    /* =================================================
+       LEBAR KOLOM TABEL
+    ================================================= */
+
+    .tahun-table th:nth-child(1),
+    .tahun-table td:nth-child(1) {
+        width: 55px;
+        min-width: 55px;
+        text-align: center;
+    }
+
+    .tahun-table th:nth-child(2),
+    .tahun-table td:nth-child(2) {
+        width: 240px;
+        min-width: 240px;
+    }
+
+    .tahun-table th:nth-child(3),
+    .tahun-table td:nth-child(3) {
+        width: 130px;
+        min-width: 130px;
+    }
+
+    .tahun-table th:nth-child(4),
+    .tahun-table td:nth-child(4) {
+        width: 225px;
+        min-width: 225px;
+    }
+
+
+    /* =================================================
+       DATA TAHUN
+    ================================================= */
+
+    .tahun-view-data {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        width: 100%;
+        white-space: nowrap;
+    }
+
+    .tahun-view-data strong {
+        display: block;
+        font-size: 13px;
+        white-space: nowrap;
+    }
+
+
+    /* =================================================
+       STATUS
+    ================================================= */
+
+    .tahun-status {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 82px;
+        height: 30px;
+        padding: 0 12px;
+        white-space: nowrap;
+    }
+
+
+    /* =================================================
+       TOMBOL AKSI
+    ================================================= */
 
     .tahun-action-buttons,
     .tahun-edit-actions {
-        flex-wrap: wrap;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-wrap: nowrap !important;
+        gap: 8px;
+        width: max-content;
+        white-space: nowrap;
     }
 
+    .tahun-edit-button,
+    .tahun-delete-button,
+    .tahun-save-button,
+    .tahun-cancel-button {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+
+    /* =================================================
+       MODE EDIT
+    ================================================= */
+
+    .tahun-edit-row {
+        width: 100%;
+    }
+
+    .tahun-edit-input {
+        width: 220px;
+        max-width: none;
+    }
+
+    .tahun-status-edit {
+        width: max-content;
+    }
+
+    .tahun-edit-select {
+        width: 120px;
+    }
+
+
+    /* =================================================
+       POPUP HAPUS
+    ================================================= */
+
     .tahun-delete-box {
+        width: calc(100% - 32px);
+        max-width: 420px;
         padding: 24px 20px;
+    }
+
+    .tahun-delete-actions {
+        flex-wrap: wrap;
     }
 
 }

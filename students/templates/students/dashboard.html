@@ -79,6 +79,24 @@ Dashboard
         </div>
 
 
+        <!-- TOTAL ASRAMA -->
+        <div class="dashboard-card">
+
+            <div class="dashboard-card-content">
+
+                <h2>
+                    {{ total_asrama }}
+                </h2>
+
+                <p>
+                    Total Asrama
+                </p>
+
+            </div>
+
+        </div>
+
+
         <!-- MATA PELAJARAN -->
         <div class="dashboard-card">
 
@@ -243,10 +261,38 @@ Dashboard
 
 
 /* =========================================
+   DESKTOP
+========================================= */
+
+@media (min-width: 1200px) {
+
+    .dashboard-cards {
+        grid-template-columns:
+            repeat(5, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================
    TABLET
 ========================================= */
 
-@media (max-width: 1000px) {
+@media (max-width: 1199px) {
+
+    .dashboard-cards {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================
+   TABLET KECIL
+========================================= */
+
+@media (max-width: 900px) {
 
     .dashboard-cards {
         grid-template-columns:
