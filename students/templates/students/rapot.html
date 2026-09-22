@@ -3,582 +3,1060 @@
 {% load static %}
 
 {% block title %}
-
 Rapot Siswa
-
 {% endblock %}
 
 {% block content %}
 
 <div class="rapot-page">
 
+    <!-- =====================================================
+         FILTER
+    ====================================================== -->
 
-<div class="rapot-filter-area no-print">
+    <div class="rapot-filter-area no-print">
 
-    <div class="filter-card">
+        <div class="filter-card">
 
-        <form method="get" class="rapot-filter">
+            <form method="get" class="rapot-filter">
 
-            <div class="filter-group">
+                <!-- TAHUN AJARAN -->
 
-                <label for="tahun_ajaran">
-                    Tahun Ajaran
-                </label>
+                <div class="filter-group">
 
-                <select
-                    name="tahun_ajaran"
-                    id="tahun_ajaran"
-                    required
-                >
+                    <label for="tahun_ajaran">
+                        Tahun Ajaran
+                    </label>
 
-                    <option value="">
-                        -- Pilih Tahun Ajaran --
-                    </option>
+                    <select
+                        name="tahun_ajaran"
+                        id="tahun_ajaran"
+                        required
+                    >
 
-                    {% for tahun in tahun_ajarans %}
-
-                        <option
-                            value="{{ tahun.id }}"
-                            {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ tahun.nama }}{% if tahun.aktif %} (Aktif){% endif %}
+                        <option value="">
+                            -- Pilih Tahun Ajaran --
                         </option>
 
-                    {% endfor %}
+                        {% for tahun in tahun_ajarans %}
 
-                </select>
+                            <option
+                                value="{{ tahun.id }}"
+                                {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ tahun.nama }}{% if tahun.aktif %} (Aktif){% endif %}
+                            </option>
 
-            </div>
+                        {% endfor %}
+
+                    </select>
+
+                </div>
 
 
-            <div class="filter-group">
+                <!-- KELAS -->
 
-                <label for="kelas">
-                    Kelas
-                </label>
+                <div class="filter-group">
 
-                <select
-                    name="kelas"
-                    id="kelas"
-                    required
-                >
+                    <label for="kelas">
+                        Kelas
+                    </label>
 
-                    <option value="">
-                        -- Pilih Kelas --
-                    </option>
+                    <select
+                        name="kelas"
+                        id="kelas"
+                        required
+                    >
 
-                    {% for kelas in kelass %}
-
-                        <option
-                            value="{{ kelas.id }}"
-                            {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
-                                selected
-                            {% endif %}
-                        >
-                            {{ kelas.nama }}
+                        <option value="">
+                            -- Pilih Kelas --
                         </option>
 
-                    {% endfor %}
+                        {% for kelas in kelass %}
 
-                </select>
+                            <option
+                                value="{{ kelas.id }}"
+                                {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ kelas.nama }}
+                            </option>
 
-            </div>
+                        {% endfor %}
 
+                    </select>
 
-            <div class="filter-buttons">
-
-                <button
-                    type="submit"
-                    class="btn-tampilkan"
-                >
-                    Tampilkan
-                </button>
-
-                <a
-                    href="{% url 'rapot' %}"
-                    class="btn-reset"
-                >
-                    Reset
-                </a>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
+                </div>
 
 
-{% if tahun_ajaran_id and kelas_id %}
+                <!-- BUTTON -->
 
-    <div class="rapot-search-card no-print">
+                <div class="filter-buttons">
 
-        <div class="rapot-search-title">
+                    <button
+                        type="submit"
+                        class="btn-tampilkan"
+                    >
+                        Tampilkan
+                    </button>
 
-            <h3>
-                Pencarian Siswa
-            </h3>
+                    <a
+                        href="{% url 'rapot' %}"
+                        class="btn-reset"
+                    >
+                        Reset
+                    </a>
 
-            <p>
-                Cari berdasarkan nama atau NIM.
-            </p>
+                </div>
+
+            </form>
 
         </div>
 
-
-        <form
-            method="get"
-            class="rapot-search-form"
-        >
-
-            <input
-                type="hidden"
-                name="tahun_ajaran"
-                value="{{ tahun_ajaran_id }}"
-            >
-
-            <input
-                type="hidden"
-                name="kelas"
-                value="{{ kelas_id }}"
-            >
-
-            <input
-                type="text"
-                name="search"
-                value="{{ search }}"
-                placeholder="Cari nama atau NIM..."
-                class="rapot-search-input"
-            >
-
-            <button
-                type="submit"
-                class="btn-cari-siswa"
-            >
-                Cari
-            </button>
-
-            {% if search %}
-
-                <a
-                    href="?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}"
-                    class="btn-reset-search"
-                >
-                    Reset
-                </a>
-
-            {% endif %}
-
-        </form>
-
     </div>
 
 
-    <div class="siswa-rapot-card no-print">
+    <!-- =====================================================
+         HASIL FILTER
+    ====================================================== -->
 
-        <div class="siswa-rapot-header">
+    {% if tahun_ajaran_id and kelas_id %}
 
-            <div>
 
-                <h2>
-                    Daftar Siswa
-                </h2>
+        <!-- =================================================
+             PENCARIAN SISWA
+        ================================================== -->
+
+        <div class="rapot-search-card no-print">
+
+            <div class="rapot-search-title">
+
+                <h3>
+                    Pencarian Siswa
+                </h3>
 
                 <p>
-                    Siswa aktif pada tahun ajaran dan kelas yang dipilih.
+                    Cari berdasarkan nama atau NIM.
                 </p>
 
             </div>
 
-            <strong>
-                {{ students|length }} Siswa
-            </strong>
+
+            <form
+                method="get"
+                class="rapot-search-form"
+            >
+
+                <input
+                    type="hidden"
+                    name="tahun_ajaran"
+                    value="{{ tahun_ajaran_id }}"
+                >
+
+                <input
+                    type="hidden"
+                    name="kelas"
+                    value="{{ kelas_id }}"
+                >
+
+
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Cari nama atau NIM..."
+                    class="rapot-search-input"
+                >
+
+
+                <button
+                    type="submit"
+                    class="btn-cari-siswa"
+                >
+                    Cari
+                </button>
+
+
+                {% if search %}
+
+                    <a
+                        href="?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}"
+                        class="btn-reset-search"
+                    >
+                        Reset
+                    </a>
+
+                {% endif %}
+
+            </form>
 
         </div>
 
 
-        <div class="table-wrapper">
+        <!-- =================================================
+             DAFTAR SISWA
+        ================================================== -->
 
-            <table class="siswa-rapot-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>
-                            No
-                        </th>
-
-                        <th>
-                            NIM
-                        </th>
-
-                        <th>
-                            Nama
-                        </th>
-
-                        <th>
-                            Kelas
-                        </th>
-
-                        <th>
-                            Tahun Ajaran
-                        </th>
-
-                        <th>
-                            Aksi
-                        </th>
-
-                    </tr>
-
-                </thead>
+        <div class="siswa-rapot-card no-print">
 
 
-                <tbody>
+            <!-- HEADER -->
 
-                    {% for student in students %}
+            <div class="siswa-rapot-header">
 
-                        <tr>
+                <div>
 
-                            <td>
-                                {{ forloop.counter }}
-                            </td>
+                    <h2>
+                        Daftar Siswa
+                    </h2>
 
-                            <td>
-                                <strong>
-                                    {{ student.nim }}
-                                </strong>
-                            </td>
+                    <p>
+                        Siswa aktif berdasarkan histori tahun ajaran dan kelas yang dipilih.
+                    </p>
 
-                            <td>
-                                {{ student.nama }}
-                            </td>
+                </div>
 
-                            <td>
-                                {% if student.kelas %}
-                                    {{ student.kelas.nama }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
 
-                            <td>
-                                {% if student.tahun_ajaran %}
-                                    {{ student.tahun_ajaran.nama }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
+                <strong>
+                    {{ students|length }} Siswa
+                </strong>
 
-                            <td>
+            </div>
 
-                                <a
-                                    href="{% url 'cetak_rapot_siswa' student.id %}?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}"
-                                    class="btn-cetak-rapot"
-                                >
-                                    Cetak Rapot
-                                </a>
 
-                            </td>
+            <!-- =================================================
+                 INFO PERIODE YANG DIPILIH
+            ================================================== -->
 
-                        </tr>
+            <div class="rapot-periode-info">
 
-                    {% empty %}
+                <div class="periode-item">
 
-                        <tr>
+                    <span>
+                        Tahun Ajaran
+                    </span>
 
-                            <td
-                                colspan="6"
-                                class="empty-cell"
-                            >
-                                Tidak ada siswa pada tahun ajaran dan kelas tersebut.
-                            </td>
+                    {% for tahun in tahun_ajarans %}
 
-                        </tr>
+                        {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}
+
+                            <strong>
+                                {{ tahun.nama }}
+                            </strong>
+
+                        {% endif %}
 
                     {% endfor %}
 
-                </tbody>
+                </div>
 
-            </table>
+
+                <div class="periode-divider"></div>
+
+
+                <div class="periode-item">
+
+                    <span>
+                        Kelas
+                    </span>
+
+                    {% for kelas in kelass %}
+
+                        {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
+
+                            <strong>
+                                {{ kelas.nama }}
+                            </strong>
+
+                        {% endif %}
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TABLE
+            ================================================== -->
+
+            <div class="table-wrapper">
+
+                <table class="siswa-rapot-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                No
+                            </th>
+
+                            <th>
+                                NIM
+                            </th>
+
+                            <th>
+                                Nama
+                            </th>
+
+                            <th>
+                                Kelas
+                            </th>
+
+                            <th>
+                                Tahun Ajaran
+                            </th>
+
+                            <th>
+                                Aksi
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for student in students %}
+
+                            <tr>
+
+                                <!-- NO -->
+
+                                <td>
+                                    {{ forloop.counter }}
+                                </td>
+
+
+                                <!-- NIM -->
+
+                                <td>
+
+                                    <strong>
+                                        {{ student.nim }}
+                                    </strong>
+
+                                </td>
+
+
+                                <!-- NAMA -->
+
+                                <td>
+                                    {{ student.nama }}
+                                </td>
+
+
+                                <!-- =================================================
+                                     KELAS DARI HISTORI
+                                ================================================== -->
+
+                               <!-- KELAS -->
+
+                                <td>
+
+                                    {% if student.kelas_rapot %}
+
+                                        <span class="class-badge">
+                                            {{ student.kelas_rapot.nama }}
+                                        </span>
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- =================================================
+                                    TAHUN AJARAN DARI HISTORI
+                                ================================================== -->
+
+                                <td>
+
+                                    {% if student.tahun_ajaran_rapot %}
+
+                                        <span class="tahun-ajaran-badge">
+                                            {{ student.tahun_ajaran_rapot.nama }}
+                                        </span>
+
+                                    {% else %}
+
+                                        -
+
+                                    {% endif %}
+
+                                </td>
+
+
+                                <!-- AKSI -->
+
+                                <td>
+
+                                    <a
+                                        href="{% url 'cetak_rapot_siswa' student.id %}?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}"
+                                        class="btn-cetak-rapot"
+                                    >
+                                        Cetak Rapot
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        {% empty %}
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="empty-cell"
+                                >
+                                    Tidak ada siswa pada tahun ajaran dan kelas tersebut.
+                                </td>
+
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
-    </div>
-
-{% endif %}
-
+    {% endif %}
 
 </div>
 
+
 <style>
 
+/* =========================================================
+   HALAMAN
+========================================================= */
+
 .rapot-page {
+
     width: 100%;
+
     max-width: 1100px;
+
     margin: 0 auto;
+
 }
 
+
+/* =========================================================
+   FILTER
+========================================================= */
+
 .rapot-filter-area {
+
     margin-bottom: 20px;
+
 }
 
 .filter-card {
-    background: #fff;
+
+    background: #ffffff;
+
     border: 1px solid #e2e8f0;
+
     border-radius: 12px;
+
     padding: 20px;
+
 }
 
 .rapot-filter {
+
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr))
+        auto;
+
     gap: 15px;
+
     align-items: end;
+
 }
 
 .filter-group label {
+
     display: block;
+
     margin-bottom: 7px;
+
     color: #475569;
+
     font-size: 13px;
+
     font-weight: 600;
+
 }
 
 .filter-group select {
+
     width: 100%;
+
     height: 42px;
+
     padding: 0 12px;
+
     border: 1px solid #cbd5e1;
+
     border-radius: 8px;
-    background: #fff;
+
+    background: #ffffff;
+
     color: #1e293b;
+
     outline: none;
+
     font-size: 13px;
+
 }
 
+.filter-group select:focus {
+
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.10);
+
+}
+
+
+/* =========================================================
+   BUTTON FILTER
+========================================================= */
+
 .filter-buttons {
+
     display: flex;
+
     gap: 8px;
+
 }
 
 .btn-tampilkan,
 .btn-reset,
 .btn-cari-siswa,
 .btn-reset-search {
+
     height: 42px;
+
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
+
     padding: 0 16px;
+
     border-radius: 8px;
+
     font-size: 13px;
+
     font-weight: 600;
+
     text-decoration: none;
+
     cursor: pointer;
+
     white-space: nowrap;
+
 }
 
 .btn-tampilkan,
 .btn-cari-siswa {
-    background: #2563eb;
-    color: #fff;
-    border: 1px solid #2563eb;
-}
 
-.btn-reset,
-.btn-reset-search {
-    background: #fff;
-    color: #475569;
-    border: 1px solid #d1d5db;
+    background: #2563eb;
+
+    color: #ffffff;
+
+    border: 1px solid #2563eb;
+
 }
 
 .btn-tampilkan:hover,
 .btn-cari-siswa:hover {
+
     background: #1d4ed8;
+
+    border-color: #1d4ed8;
+
+}
+
+.btn-reset,
+.btn-reset-search {
+
+    background: #ffffff;
+
+    color: #475569;
+
+    border: 1px solid #d1d5db;
+
 }
 
 .btn-reset:hover,
 .btn-reset-search:hover {
+
     background: #f8fafc;
+
 }
 
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
 .rapot-search-card {
+
     margin-bottom: 20px;
+
     padding: 18px;
-    background: #fff;
+
+    background: #ffffff;
+
     border: 1px solid #e2e8f0;
+
     border-radius: 12px;
+
 }
 
 .rapot-search-title {
+
     margin-bottom: 12px;
+
 }
 
 .rapot-search-title h3 {
+
     margin: 0 0 4px;
+
     font-size: 15px;
+
     color: #0f172a;
+
 }
 
 .rapot-search-title p {
+
     margin: 0;
+
     color: #64748b;
+
     font-size: 12px;
+
 }
 
 .rapot-search-form {
+
     display: flex;
+
     gap: 8px;
+
     align-items: center;
+
 }
 
 .rapot-search-input {
+
     flex: 1;
+
     height: 40px;
+
     padding: 0 12px;
+
     border: 1px solid #cbd5e1;
+
     border-radius: 8px;
+
     outline: none;
+
     font-size: 13px;
+
 }
 
 .rapot-search-input:focus {
+
     border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, .10);
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.10);
+
 }
 
+
+/* =========================================================
+   CARD SISWA
+========================================================= */
+
 .siswa-rapot-card {
+
     margin-bottom: 22px;
+
     padding: 20px;
-    background: #fff;
+
+    background: #ffffff;
+
     border: 1px solid #e2e8f0;
+
     border-radius: 12px;
-    box-shadow: 0 3px 10px rgba(15, 23, 42, .04);
+
+    box-shadow:
+        0 3px 10px
+        rgba(15, 23, 42, 0.04);
+
 }
 
 .siswa-rapot-header {
+
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
+
     gap: 15px;
+
     margin-bottom: 15px;
+
 }
 
 .siswa-rapot-header h2 {
+
     margin: 0 0 4px;
+
     color: #0f172a;
+
     font-size: 17px;
+
 }
 
 .siswa-rapot-header p {
+
     margin: 0;
+
     color: #64748b;
+
     font-size: 12px;
+
 }
 
 .siswa-rapot-header > strong {
+
     padding: 7px 11px;
+
     border-radius: 7px;
+
     background: #eff6ff;
+
     color: #2563eb;
+
     font-size: 12px;
+
     white-space: nowrap;
+
 }
 
+
+/* =========================================================
+   INFO PERIODE
+========================================================= */
+
+.rapot-periode-info {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 15px;
+
+    padding: 13px 15px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e2e8f0;
+
+    border-radius: 8px;
+
+}
+
+.periode-item {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 3px;
+
+}
+
+.periode-item span {
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    font-weight: 500;
+
+}
+
+.periode-item strong {
+
+    color: #0f172a;
+
+    font-size: 13px;
+
+}
+
+.periode-divider {
+
+    width: 1px;
+
+    height: 32px;
+
+    background: #cbd5e1;
+
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
 .table-wrapper {
+
     width: 100%;
+
     overflow-x: auto;
+
     -webkit-overflow-scrolling: touch;
+
 }
 
 .siswa-rapot-table {
+
     width: 100%;
+
     min-width: 720px;
+
     border-collapse: collapse;
+
 }
 
 .siswa-rapot-table th,
 .siswa-rapot-table td {
+
     padding: 11px 12px;
+
     border-bottom: 1px solid #e2e8f0;
+
     font-size: 13px;
+
     color: #334155;
+
     vertical-align: middle;
+
 }
 
 .siswa-rapot-table th {
+
     background: #f8fafc;
+
     color: #475569;
+
     font-size: 11px;
+
     font-weight: 700;
+
     text-align: left;
+
     white-space: nowrap;
+
     text-transform: uppercase;
+
 }
 
 .siswa-rapot-table tbody tr:hover {
+
     background: #f8fafc;
+
 }
 
+
+/* =========================================================
+   CETAK RAPOT
+========================================================= */
+
 .btn-cetak-rapot {
+
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
+
     min-width: 105px;
+
     height: 35px;
+
     padding: 0 12px;
+
     border: 1px solid #2563eb;
+
     border-radius: 7px;
+
     background: #2563eb;
-    color: #fff;
+
+    color: #ffffff;
+
     font-size: 12px;
+
     font-weight: 600;
+
     text-decoration: none;
+
     white-space: nowrap;
+
 }
 
 .btn-cetak-rapot:hover {
+
     background: #1d4ed8;
+
     border-color: #1d4ed8;
+
 }
 
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
 .empty-cell {
+
     text-align: center !important;
+
     padding: 28px !important;
+
     color: #94a3b8 !important;
+
 }
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
 @media (max-width: 700px) {
 
     .rapot-filter {
+
         grid-template-columns: 1fr;
+
     }
 
     .filter-buttons {
+
         flex-direction: column;
+
     }
 
     .rapot-search-form {
+
         flex-direction: column;
+
         align-items: stretch;
+
     }
 
     .rapot-search-input,
     .btn-cari-siswa,
     .btn-reset-search {
+
         width: 100%;
+
     }
 
     .siswa-rapot-header {
+
         align-items: flex-start;
+
         flex-direction: column;
+
+    }
+
+    .rapot-periode-info {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 10px;
+
+    }
+
+    .periode-divider {
+
+        width: 100%;
+
+        height: 1px;
+
     }
 
 }
+
+.tahun-ajaran-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 105px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+
+.class-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 
 </style>
 

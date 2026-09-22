@@ -6,699 +6,951 @@ Kenaikan Siswa
 
 {% block content %}
 
-<div class="page-header">
+<style>
+
+    /* =========================================================
+       HALAMAN
+    ========================================================= */
+
+    .kenaikan-page {
+        width: 100%;
+    }
 
 
-<div>
+    /* =========================================================
+       HEADER
+    ========================================================= */
 
-    <h1>
-        Kenaikan Siswa
-    </h1>
+    .kenaikan-header {
+        margin-bottom: 20px;
+    }
 
-    <p>
-        Kelola kenaikan siswa ke tahun ajaran dan kelas berikutnya.
-    </p>
+    .kenaikan-header h1 {
+        margin: 0;
+        font-size: 26px;
+        font-weight: 700;
+        color: #111827;
+    }
 
-</div>
-
-
-</div>
-
-<!-- =========================================================
-     FILTER SISWA
-========================================================= -->
-
-<form
-    method="get"
-    class="student-filter"
->
+    .kenaikan-header p {
+        margin: 6px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
 
 
-<div class="filter-item">
+    /* =========================================================
+       FILTER CARD
+    ========================================================= */
 
-    <label>
-        Tahun Ajaran
-    </label>
+    .filter-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
 
-    <select name="tahun_ajaran">
+    .filter-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr auto;
+        gap: 16px;
+        align-items: end;
+    }
 
-        <option value="">
-            Semua Tahun Ajaran
-        </option>
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
 
-        {% for tahun in tahun_ajarans %}
+    .filter-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+    }
 
-            <option
-                value="{{ tahun.id }}"
-                {% if tahun_id == tahun.id|stringformat:"s" %}
-                    selected
-                {% endif %}
+    .filter-group select {
+        width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #111827;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .filter-group select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+    }
+
+
+    /* =========================================================
+       TOMBOL FILTER
+    ========================================================= */
+
+    .filter-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-tampilkan {
+        height: 42px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .btn-tampilkan:hover {
+        background: #1d4ed8;
+    }
+
+    .btn-reset {
+        height: 42px;
+        padding: 0 20px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        background: #ffffff;
+        color: #374151;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-reset:hover {
+        background: #f9fafb;
+    }
+
+
+    /* =========================================================
+       TABLE CARD
+    ========================================================= */
+
+    .table-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+
+    /* =========================================================
+       TABLE HEADER
+    ========================================================= */
+
+    .table-header {
+        padding: 18px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .table-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .table-subtitle {
+        margin: 5px 0 0;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+
+    /* =========================================================
+       TAHUN AJARAN TUJUAN
+    ========================================================= */
+
+    .tujuan-wrapper {
+        padding: 16px 20px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .tujuan-group {
+        max-width: 360px;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+    }
+
+    .tujuan-group label {
+        font-size: 13px;
+        font-weight: 700;
+        color: #374151;
+    }
+
+    .tujuan-group select {
+        width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #ffffff;
+        color: #111827;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .tujuan-group select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+    }
+
+
+    /* =========================================================
+       TOMBOL KENAIKAN
+    ========================================================= */
+
+    .btn-kenaikan {
+        height: 42px;
+        padding: 0 20px;
+        border: none;
+        border-radius: 8px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: 0.2s;
+    }
+
+    .btn-kenaikan:hover {
+        background: #1d4ed8;
+    }
+
+
+    /* =========================================================
+       TABLE
+    ========================================================= */
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .siswa-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+    }
+
+    .siswa-table th {
+        background: #f8fafc;
+        color: #374151;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 13px 14px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .siswa-table td {
+        padding: 13px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #374151;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+
+    .siswa-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .siswa-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+
+    /* =========================================================
+       NOMOR
+    ========================================================= */
+
+    .col-no {
+        width: 60px;
+        text-align: center !important;
+    }
+
+
+    /* =========================================================
+       CHECKBOX
+    ========================================================= */
+
+    .checkbox-siswa {
+        width: 17px;
+        height: 17px;
+        cursor: pointer;
+    }
+
+
+    /* =========================================================
+       KELAS SEKARANG
+    ========================================================= */
+
+    .kelas-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 10px;
+        border-radius: 6px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+
+    /* =========================================================
+       KELAS TUJUAN
+    ========================================================= */
+
+    .kelas-tujuan {
+        width: 180px;
+        height: 38px;
+        padding: 0 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        background: #ffffff;
+        color: #111827;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .kelas-tujuan:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+    }
+
+
+    /* =========================================================
+       EMPTY
+    ========================================================= */
+
+    .empty-row {
+        text-align: center !important;
+        padding: 40px 20px !important;
+        color: #6b7280 !important;
+    }
+
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media (max-width: 900px) {
+
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            width: 100%;
+        }
+
+        .btn-tampilkan,
+        .btn-reset {
+            flex: 1;
+        }
+
+        .table-header {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn-kenaikan {
+            width: 100%;
+        }
+
+        .tujuan-group {
+            max-width: none;
+        }
+    }
+
+    .tahun-ajaran-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 105px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+
+.class-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+</style>
+
+
+<div class="kenaikan-page">
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="kenaikan-header">
+
+        <h1>
+            Kenaikan Siswa
+        </h1>
+
+        <p>
+            Kelola kenaikan siswa berdasarkan histori pendidikan.
+        </p>
+
+    </div>
+
+
+    <!-- =====================================================
+         FILTER
+         HANYA TAHUN ASAL + KELAS ASAL
+    ====================================================== -->
+
+    <div class="filter-card">
+
+        <form method="GET">
+
+            <div class="filter-grid">
+
+
+                <!-- TAHUN AJARAN ASAL -->
+
+                <div class="filter-group">
+
+                    <label>
+                        Tahun Ajaran Asal
+                    </label>
+
+                    <select name="tahun_ajaran">
+
+                        <option value="">
+                            Semua Tahun Ajaran
+                        </option>
+
+                        {% for tahun in tahun_ajarans %}
+
+                            <option
+                                value="{{ tahun.id }}"
+                                {% if tahun_id|stringformat:"s" == tahun.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ tahun.nama }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- KELAS ASAL -->
+
+                <div class="filter-group">
+
+                    <label>
+                        Kelas Asal
+                    </label>
+
+                    <select name="kelas">
+
+                        <option value="">
+                            Semua Kelas
+                        </option>
+
+                        {% for kelas in kelass %}
+
+                            <option
+                                value="{{ kelas.id }}"
+                                {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ kelas.nama }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- BUTTON -->
+
+                <div class="filter-actions">
+
+                    <button
+                        type="submit"
+                        class="btn-tampilkan"
+                    >
+                        Tampilkan
+                    </button>
+
+                    <a
+                        href="{% url 'kenaikan_siswa' %}"
+                        class="btn-reset"
+                    >
+                        Reset
+                    </a>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- =====================================================
+         TABLE CARD
+    ====================================================== -->
+
+    <div class="table-card">
+
+
+        <!-- HEADER TABLE -->
+
+        <div class="table-header">
+
+            <div>
+
+                <h2 class="table-title">
+                    Daftar Siswa
+                </h2>
+
+                <p class="table-subtitle">
+                    Pilih siswa yang akan dinaikkan ke kelas berikutnya.
+                </p>
+
+            </div>
+
+
+            <!-- BUTTON KENAIKAN -->
+
+            <button
+                type="submit"
+                form="form-kenaikan"
+                class="btn-kenaikan"
             >
-                {{ tahun.nama }}
-            </option>
-
-        {% endfor %}
-
-    </select>
-
-</div>
-
-
-<div class="filter-item">
-
-    <label>
-        Kelas
-    </label>
-
-    <select name="kelas">
-
-        <option value="">
-            Semua Kelas
-        </option>
-
-        {% for kelas in kelass %}
-
-            <option
-                value="{{ kelas.id }}"
-                {% if kelas_id == kelas.id|stringformat:"s" %}
-                    selected
-                {% endif %}
-            >
-                {{ kelas.nama }}
-            </option>
-
-        {% endfor %}
-
-    </select>
-
-</div>
-
-
-<div class="filter-buttons">
-
-    <button
-        type="submit"
-        class="btn-filter"
-    >
-        Tampilkan
-    </button>
-
-
-    <a
-        href="{% url 'kenaikan_siswa' %}"
-        class="btn-reset"
-    >
-        Reset
-    </a>
-
-</div>
-
-
-</form>
-
-<!-- =========================================================
-     PROSES KENAIKAN
-========================================================= -->
-
-<form
-    method="post"
-    id="form-kenaikan"
->
-
-
-{% csrf_token %}
-
-
-<div class="table-card">
-
-    <div class="table-header">
-
-        <div>
-
-            <h2>
-                Daftar Siswa
-            </h2>
+                Kenaikan Kelas
+            </button>
 
         </div>
 
-    </div>
+
+        <!-- =================================================
+             TAHUN AJARAN TUJUAN
+             HANYA ADA DI SINI
+        ================================================== -->
+
+        <div class="tujuan-wrapper">
+
+            <div class="tujuan-group">
+
+                <label>
+                    Tahun Ajaran Tujuan
+                </label>
+
+                <select
+                    id="tahun-tujuan-select"
+                    name="tahun_tujuan"
+                    form="form-kenaikan"
+                    required
+                >
+
+                    <option value="">
+                        Pilih Tahun Tujuan
+                    </option>
+
+                    {% for tahun in tahun_ajarans %}
+
+                        <option
+                            value="{{ tahun.id }}"
+                            {% if tahun_tujuan_id|stringformat:"s" == tahun.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ tahun.nama }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
 
 
-    <!-- =================================================
-         TAHUN TUJUAN
-    ================================================= -->
+        <!-- =================================================
+             FORM KENAIKAN
+        ================================================== -->
 
-    <div
-        class="filter-item"
-        style="margin-bottom: 20px;"
-    >
-
-        <label>
-            Tahun Ajaran Tujuan
-        </label>
-
-
-        <select
-            name="tahun_tujuan"
-            id="tahun-tujuan"
-            style="
-                width: auto;
-                min-width: 180px;
-            "
+        <form
+            method="POST"
+            id="form-kenaikan"
         >
 
-            <option value="">
-                Pilih Tahun Ajaran Tujuan
-            </option>
+            {% csrf_token %}
 
+            <!-- simpan filter asal -->
 
-            {% for tahun in tahun_ajarans %}
+            <input
+                type="hidden"
+                name="tahun_asal"
+                value="{{ tahun_id|default:'' }}"
+            >
 
-                <option value="{{ tahun.id }}">
-                    {{ tahun.nama }}
-                </option>
+            <input
+                type="hidden"
+                name="kelas_asal"
+                value="{{ kelas_id|default:'' }}"
+            >
 
-            {% endfor %}
 
-        </select>
+            <div class="table-wrapper">
 
-    </div>
+                <table class="siswa-table">
 
+                    <thead>
 
-    <!-- =================================================
-         TABEL
-    ================================================= -->
+                        <tr>
 
-    <div class="table-container">
+                            <th class="col-no">
+                                No
+                            </th>
 
-        <table class="student-table">
+                            <th class="col-no">
+                                <input
+                                    type="checkbox"
+                                    id="check-all"
+                                    class="checkbox-siswa"
+                                >
+                            </th>
 
-            <thead>
+                            <th>
+                                NAMA SISWA
+                            </th>
 
-                <tr>
+                            <th>
+                                NIM
+                            </th>
 
-                    <th style="width: 45px;">
+                            <th>
+                                TAHUN AJARAN TER-UPDATE
+                            </th>
 
-                        <input
-                            type="checkbox"
-                            id="checkAll"
-                        >
+                            <th>
+                                KELAS TER-UPDATE
+                            </th>
 
-                    </th>
+                            <th>
+                                KELAS TUJUAN
+                            </th>
 
+                        </tr>
 
-                    <th style="width: 60px;">
-                        No
-                    </th>
+                    </thead>
 
 
-                    <th>
-                        NIM
-                    </th>
+                    <tbody>
 
+                        {% for student in siswa %}
 
-                    <th>
-                        Nama Siswa
-                    </th>
+                        <tr>
 
+                            <td class="col-no">
+                                {{ forloop.counter }}
+                            </td>
 
-                    <th>
-                        Kelas Sekarang
-                    </th>
 
+                            <td class="col-no">
 
-                    <th>
-                        Kelas Tujuan
-                    </th>
+                                <input
+                                    type="checkbox"
+                                    name="students"
+                                    value="{{ student.id }}"
+                                    class="checkbox-siswa check-siswa"
+                                >
 
-                </tr>
+                            </td>
 
-            </thead>
 
+                            <td>
+                                {{ student.nama }}
+                            </td>
 
-            <tbody>
 
-                {% for student in siswa %}
+                            <td>
+                                {{ student.nim }}
+                            </td>
 
-                <tr>
+                            <!-- TAHUN AJARAN TER-UPDATE -->
 
-                    <td>
+                                <td>
+                                    <span class="tahun-ajaran-badge">
+                                        {{ student.tahun_ajaran_sekarang_nama|default:"-" }}
+                                    </span>
+                                </td>
 
-                        <input
-                            type="checkbox"
-                            name="students"
-                            value="{{ student.id }}"
-                            class="student-checkbox"
-                        >
 
-                    </td>
+                                <!-- KELAS TER-UPDATE -->
 
+                                <td>
+                                    <span class="class-badge">
+                                        {{ student.kelas_sekarang_nama|default:"-" }}
+                                    </span>
+                                </td>
 
-                    <td>
-                        {{ forloop.counter }}
-                    </td>
 
+                            <td>
 
-                    <td>
-                        {{ student.nim }}
-                    </td>
+                                <select
+                                    name="kelas_tujuan_{{ student.id }}"
+                                    class="kelas-tujuan"
+                                >
 
+                                    <option value="">
+                                        Pilih Kelas Tujuan
+                                    </option>
 
-                    <td>
+                                    {% for kelas in kelass %}
 
-                        <strong>
-                            {{ student.nama }}
-                        </strong>
+                                        <option value="{{ kelas.id }}">
+                                            {{ kelas.nama }}
+                                        </option>
 
-                    </td>
+                                    {% endfor %}
 
+                                </select>
 
-                    <td>
+                            </td>
 
-                        {% if student.kelas %}
+                        </tr>
 
-                            <span class="class-badge">
-                                {{ student.kelas.nama }}
-                            </span>
+                        {% empty %}
 
-                        {% else %}
+                        <tr>
 
-                            <span class="text-muted">
-                                -
-                            </span>
+                            <td
+                                colspan="7"
+                                class="empty-row"
+                            >
+                                Tidak ada siswa yang tersedia untuk kenaikan.
+                            </td>
 
-                        {% endif %}
+                        </tr>
 
-                    </td>
+                        {% endfor %}
 
+                    </tbody>
 
-                    <td>
+                </table>
 
-                        <select
-                            name="kelas_tujuan_{{ student.id }}"
-                            class="kelas-tujuan"
-                            data-student-id="{{ student.id }}"
-                            style="
-                                width: auto;
-                                min-width: 120px;
-                                height: 38px;
-                                padding: 0 10px;
-                                border: 1px solid #cbd5e1;
-                                border-radius: 8px;
-                                background: #ffffff;
-                                color: #1e293b;
-                                font-size: 13px;
-                            "
-                        >
+            </div>
 
-                            <option value="">
-                                Pilih Kelas
-                            </option>
-
-
-                            {% for kelas in kelass %}
-
-                                <option value="{{ kelas.id }}">
-                                    {{ kelas.nama }}
-                                </option>
-
-                            {% endfor %}
-
-                        </select>
-
-                    </td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr>
-
-                    <td
-                        colspan="6"
-                        class="empty"
-                    >
-                        Belum ada siswa.
-                    </td>
-
-                </tr>
-
-                {% endfor %}
-
-            </tbody>
-
-        </table>
-
-    </div>
-
-
-    <!-- =================================================
-         PESAN VALIDASI
-    ================================================= -->
-
-    <div
-        id="kenaikan-warning"
-        style="
-            display: none;
-            margin-top: 18px;
-            padding: 12px 15px;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            background: #fef2f2;
-            color: #b91c1c;
-            font-size: 13px;
-            font-weight: 600;
-        "
-    ></div>
-
-
-    <!-- =================================================
-         TOMBOL PROSES
-    ================================================= -->
-
-    <div
-        style="
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 20px;
-        "
-    >
-
-        <button
-            type="submit"
-            class="btn-add"
-        >
-            Proses Kenaikan
-        </button>
+        </form>
 
     </div>
 
 </div>
 
 
-</form>
-
-<!-- =========================================================
-     JAVASCRIPT
-========================================================= -->
-
 <script>
 
-document.addEventListener("DOMContentLoaded", function () {
-
-    const form =
-        document.getElementById("form-kenaikan");
-
-    const checkAll =
-        document.getElementById("checkAll");
-
-    const tahunTujuan =
-        document.getElementById("tahun-tujuan");
-
-    const warning =
-        document.getElementById("kenaikan-warning");
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
 
 
-    /* =====================================================
-       CHECK ALL
-    ===================================================== */
+        /* =====================================================
+           CHECK ALL
+        ====================================================== */
 
-    if (checkAll) {
+        const checkAll =
+            document.getElementById('check-all');
 
-        checkAll.addEventListener(
-            "change",
-            function () {
-
-                document
-                    .querySelectorAll(".student-checkbox")
-                    .forEach(function (checkbox) {
-
-                        checkbox.checked =
-                            checkAll.checked;
-
-                    });
-
-            }
-        );
-
-    }
+        const checkSiswa =
+            document.querySelectorAll('.check-siswa');
 
 
-    /* =====================================================
-       UPDATE CHECK ALL
-    ===================================================== */
+        if (checkAll) {
 
-    document
-        .querySelectorAll(".student-checkbox")
-        .forEach(function (checkbox) {
-
-            checkbox.addEventListener(
-                "change",
+            checkAll.addEventListener(
+                'change',
                 function () {
 
-                    const semua =
+                    checkSiswa.forEach(
+                        function (checkbox) {
+
+                            checkbox.checked =
+                                checkAll.checked;
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* =====================================================
+           FORM VALIDATION
+        ====================================================== */
+
+        const form =
+            document.getElementById('form-kenaikan');
+
+        const tahunTujuan =
+            document.getElementById(
+                'tahun-tujuan-select'
+            );
+
+
+        if (form) {
+
+            form.addEventListener(
+                'submit',
+                function (event) {
+
+                    const selected =
                         document.querySelectorAll(
-                            ".student-checkbox"
+                            '.check-siswa:checked'
                         );
 
-                    const terpilih =
-                        document.querySelectorAll(
-                            ".student-checkbox:checked"
+
+                    /* -----------------------------
+                       TAHUN TUJUAN
+                    ----------------------------- */
+
+                    if (
+                        !tahunTujuan ||
+                        !tahunTujuan.value
+                    ) {
+
+                        event.preventDefault();
+
+                        alert(
+                            'Silakan pilih Tahun Ajaran Tujuan terlebih dahulu.'
                         );
 
-                    if (checkAll) {
+                        if (tahunTujuan) {
+                            tahunTujuan.focus();
+                        }
 
-                        checkAll.checked =
-                            semua.length > 0 &&
-                            semua.length === terpilih.length;
+                        return;
+
+                    }
+
+
+                    /* -----------------------------
+                       SISWA
+                    ----------------------------- */
+
+                    if (selected.length === 0) {
+
+                        event.preventDefault();
+
+                        alert(
+                            'Silakan pilih minimal satu siswa.'
+                        );
+
+                        return;
+
+                    }
+
+
+                    /* -----------------------------
+                       KELAS TUJUAN
+                    ----------------------------- */
+
+                    for (
+                        const checkbox
+                        of selected
+                    ) {
+
+                        const studentId =
+                            checkbox.value;
+
+                        const kelasSelect =
+                            document.querySelector(
+                                'select[name="kelas_tujuan_' +
+                                studentId +
+                                '"]'
+                            );
+
+
+                        if (
+                            !kelasSelect ||
+                            !kelasSelect.value
+                        ) {
+
+                            event.preventDefault();
+
+                            alert(
+                                'Silakan pilih kelas tujuan untuk setiap siswa yang dipilih.'
+                            );
+
+                            if (kelasSelect) {
+                                kelasSelect.focus();
+                            }
+
+                            return;
+
+                        }
 
                     }
 
                 }
             );
 
-        });
-
-
-    /* =====================================================
-       HILANGKAN WARNING
-    ===================================================== */
-
-    function hideWarning() {
-
-        warning.style.display = "none";
-
-        warning.textContent = "";
+        }
 
     }
-
-
-    /* =====================================================
-       TAMPILKAN WARNING
-    ===================================================== */
-
-    function showWarning(message) {
-
-        warning.textContent = message;
-
-        warning.style.display = "block";
-
-        warning.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-
-    }
-
-
-    /* =====================================================
-       VALIDASI FORM
-    ===================================================== */
-
-    form.addEventListener(
-        "submit",
-        function (event) {
-
-            hideWarning();
-
-
-            /* =================================================
-               1. CEK TAHUN AJARAN TUJUAN
-            ================================================= */
-
-            if (!tahunTujuan.value) {
-
-                event.preventDefault();
-
-                showWarning(
-                    "Silakan pilih tahun ajaran tujuan terlebih dahulu."
-                );
-
-                tahunTujuan.focus();
-
-                return;
-
-            }
-
-
-            /* =================================================
-               2. CEK SISWA
-            ================================================= */
-
-            const siswaDipilih =
-                document.querySelectorAll(
-                    ".student-checkbox:checked"
-                );
-
-
-            if (siswaDipilih.length === 0) {
-
-                event.preventDefault();
-
-                showWarning(
-                    "Silakan pilih minimal satu siswa yang akan dinaikkan."
-                );
-
-                return;
-
-            }
-
-
-            /* =================================================
-               3. CEK KELAS TUJUAN SETIAP SISWA
-            ================================================= */
-
-            for (
-                let i = 0;
-                i < siswaDipilih.length;
-                i++
-            ) {
-
-                const studentId =
-                    siswaDipilih[i].value;
-
-
-                const kelasTujuan =
-                    document.querySelector(
-                        '.kelas-tujuan[data-student-id="' +
-                        studentId +
-                        '"]'
-                    );
-
-
-                if (
-                    !kelasTujuan ||
-                    !kelasTujuan.value
-                ) {
-
-                    event.preventDefault();
-
-                    const row =
-                        siswaDipilih[i]
-                            .closest("tr");
-
-
-                    const namaSiswa =
-                        row.querySelector(
-                            "td:nth-child(4)"
-                        );
-
-
-                    let nama =
-                        "siswa tersebut";
-
-
-                    if (namaSiswa) {
-
-                        nama =
-                            namaSiswa
-                                .textContent
-                                .trim();
-
-                    }
-
-
-                    showWarning(
-                        "Silakan pilih kelas tujuan untuk " +
-                        nama +
-                        "."
-                    );
-
-
-                    if (kelasTujuan) {
-
-                        kelasTujuan.focus();
-
-                        kelasTujuan.style.borderColor =
-                            "#dc2626";
-
-                    }
-
-                    return;
-
-                }
-
-            }
-
-
-            /* =================================================
-               4. SEMUA VALID
-            ================================================= */
-
-            document
-                .querySelectorAll(".kelas-tujuan")
-                .forEach(function (select) {
-
-                    select.style.borderColor =
-                        "#cbd5e1";
-
-                });
-
-        }
-    );
-
-
-    /* =====================================================
-       RESET WARNA KELAS KETIKA DIPILIH
-    ===================================================== */
-
-    document
-        .querySelectorAll(".kelas-tujuan")
-        .forEach(function (select) {
-
-            select.addEventListener(
-                "change",
-                function () {
-
-                    if (select.value) {
-
-                        select.style.borderColor =
-                            "#cbd5e1";
-
-                    }
-
-                    hideWarning();
-
-                }
-            );
-
-        });
-
-
-    /* =====================================================
-       RESET WARNING KETIKA TAHUN DIUBAH
-    ===================================================== */
-
-    tahunTujuan.addEventListener(
-        "change",
-        function () {
-
-            hideWarning();
-
-        }
-    );
-
-});
+);
 
 </script>
 

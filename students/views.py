@@ -1,6 +1,7 @@
 import openpyxl
 from datetime import datetime, timedelta, date
 import calendar
+import re
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
@@ -9,6 +10,7 @@ from django.db.models.functions import TruncMonth
 from django.http import HttpResponse
 from django.urls import reverse
 from django.db.models import OuterRef, Subquery
+from django.db.models.deletion import ProtectedError
 
 from .models import (
     Student,
@@ -35,6 +37,9 @@ def dashboard(request):
     total_mata_pelajaran = MataPelajaran.objects.count()
     total_asrama = Asrama.objects.count()
 
+    # Total seluruh tahun ajaran
+    total_tahun_ajaran = TahunAjaran.objects.count()
+
     tahun_ajaran = TahunAjaran.objects.filter(
         aktif=True
     ).first()
@@ -44,8 +49,9 @@ def dashboard(request):
         'total_guru': total_guru,
         'total_kelas': total_kelas,
         'total_mata_pelajaran': total_mata_pelajaran,
-        'tahun_ajaran': tahun_ajaran,
         'total_asrama': total_asrama,
+        'total_tahun_ajaran': total_tahun_ajaran,
+        'tahun_ajaran': tahun_ajaran,
     }
 
     return render(
@@ -53,7 +59,6 @@ def dashboard(request):
         'students/dashboard.html',
         context
     )
-
 
 def pilih_tahun_ajaran(request):
 
@@ -77,19 +82,8 @@ def pilih_tahun_ajaran(request):
 
         return redirect('dashboard')
 
-    tahun_ajarans = (
-        TahunAjaran.objects
-        .all()
-        .order_by('-nama')
-    )
+    return redirect('dashboard')
 
-    return render(
-        request,
-        'students/pilih_tahun_ajaran.html',
-        {
-            'tahun_ajarans': tahun_ajarans,
-        }
-    )
 
 # =========================================================
 # DATA SISWA
@@ -527,6 +521,10 @@ def student_edit(request, id):
         id=id
     )
 
+    # =====================================================
+    # DATA MASTER
+    # =====================================================
+
     asramas = (
         Asrama.objects
         .all()
@@ -545,7 +543,57 @@ def student_edit(request, id):
         .order_by('-nama')
     )
 
+    # =====================================================
+    # AMBIL HISTORI PENDIDIKAN TERBARU
+    # =====================================================
+
+    histori_terbaru = (
+        get_histori_pendidikan_terbaru(student)
+    )
+
+    # =====================================================
+    # JIKA ADA HISTORI
+    # MAKA DATA KELAS DAN TAHUN AJARAN
+    # MENGIKUTI HISTORI TERBARU
+    # =====================================================
+
+    if histori_terbaru:
+
+        student.kelas_id = (
+            histori_terbaru.kelas_id
+        )
+
+        student.tahun_ajaran_id = (
+            histori_terbaru.tahun_ajaran_id
+        )
+
+        # Semester histori hanya dipakai
+        # jika memang tersedia
+        if histori_terbaru.semester is not None:
+
+            student.semester = (
+                histori_terbaru.semester
+            )
+
+    # =====================================================
+    # JIKA TIDAK ADA HISTORI
+    # KOSONGKAN KELAS DAN TAHUN AJARAN
+    # =====================================================
+
+    else:
+
+        student.kelas_id = None
+        student.tahun_ajaran_id = None
+
+    # =====================================================
+    # POST
+    # =====================================================
+
     if request.method == 'POST':
+
+        # =================================================
+        # DATA IDENTITAS
+        # =================================================
 
         student.nama = request.POST.get(
             'nama',
@@ -561,6 +609,10 @@ def student_edit(request, id):
             'nim',
             ''
         ).strip()
+
+        # =================================================
+        # VALIDASI NIM
+        # =================================================
 
         if not student.nim:
 
@@ -594,6 +646,10 @@ def student_edit(request, id):
                 }
             )
 
+        # =================================================
+        # CEK NIM DUPLIKAT
+        # =================================================
+
         if (
             Student.objects
             .filter(nim=student.nim)
@@ -619,14 +675,6 @@ def student_edit(request, id):
 
         # =================================================
         # JENIS KELAMIN
-        # =================================================
-        # Database harus selalu menyimpan:
-        # L = Laki-laki
-        # P = Perempuan
-        #
-        # Form boleh mengirim:
-        # L / Laki-laki
-        # P / Perempuan
         # =================================================
 
         jk_input = request.POST.get(
@@ -670,6 +718,10 @@ def student_edit(request, id):
                 }
             )
 
+        # =================================================
+        # DATA LAINNYA
+        # =================================================
+
         student.tempat_lahir = request.POST.get(
             'tempat_lahir',
             ''
@@ -689,6 +741,10 @@ def student_edit(request, id):
             'no_tlpn_wa',
             ''
         ).strip()
+
+        # =================================================
+        # VALIDASI TELEPON
+        # =================================================
 
         if (
             student.no_tlpn_wa
@@ -711,17 +767,37 @@ def student_edit(request, id):
                 }
             )
 
-        student.asrama_master_id = request.POST.get(
-            'asrama_master'
-        ) or None
+        # =================================================
+        # ASRAMA
+        # =================================================
 
-        student.kelas_id = request.POST.get(
-            'kelas'
-        ) or None
+        student.asrama_master_id = (
+            request.POST.get(
+                'asrama_master'
+            ) or None
+        )
 
-        tahun_ajaran_id = request.POST.get(
-            'tahun_ajaran'
-        ) or None
+        # =================================================
+        # KELAS
+        # =================================================
+
+        kelas_id = (
+            request.POST.get(
+                'kelas'
+            ) or None
+        )
+
+        student.kelas_id = kelas_id
+
+        # =================================================
+        # TAHUN AJARAN
+        # =================================================
+
+        tahun_ajaran_id = (
+            request.POST.get(
+                'tahun_ajaran'
+            ) or None
+        )
 
         if not tahun_ajaran_id:
 
@@ -738,9 +814,15 @@ def student_edit(request, id):
                 }
             )
 
-        if not TahunAjaran.objects.filter(
-            id=tahun_ajaran_id
-        ).exists():
+        tahun_ajaran = (
+            TahunAjaran.objects
+            .filter(
+                id=tahun_ajaran_id
+            )
+            .first()
+        )
+
+        if not tahun_ajaran:
 
             return render(
                 request,
@@ -751,34 +833,92 @@ def student_edit(request, id):
                     'kelass': kelass,
                     'tahun_ajarans': tahun_ajarans,
                     'edit_mode': True,
-                    'error': 'Tahun ajaran tidak ditemukan.'
+                    'error': (
+                        'Tahun ajaran tidak ditemukan.'
+                    )
                 }
             )
 
-        student.tahun_ajaran_id = tahun_ajaran_id
+        student.tahun_ajaran_id = (
+            tahun_ajaran.id
+        )
 
-        student.semester = request.POST.get(
+        # =================================================
+        # SEMESTER
+        # =================================================
+
+        semester_input = request.POST.get(
             'semester',
             ''
         ).strip()
+
+        if semester_input:
+            student.semester = semester_input
+
+        # =================================================
+        # PRODI
+        # =================================================
 
         student.prodi = request.POST.get(
             'prodi',
             ''
         ).strip()
 
+        # =================================================
+        # STATUS
+        # =================================================
+
         student.status = (
-            request.POST.get('status') == 'True'
+            request.POST.get(
+                'status'
+            ) == 'True'
         )
 
+        # =================================================
+        # SIMPAN STUDENT
+        # =================================================
+
         student.save()
+
+        # =================================================
+        # PERBARUI / BUAT HISTORI PENDIDIKAN
+        # =================================================
+
+        if kelas_id:
+
+            histori, created = (
+                RiwayatKelasSiswa.objects
+                .update_or_create(
+                    student=student,
+                    tahun_ajaran=tahun_ajaran,
+                    defaults={
+                        'kelas_id': kelas_id,
+                        'semester': (
+                            student.semester
+                            if student.semester
+                            else None
+                        ),
+                        'status': True,
+                    }
+                )
+            )
+
+        # =================================================
+        # PESAN
+        # =================================================
 
         messages.success(
             request,
             f'Data siswa {student.nama} berhasil diperbarui.'
         )
 
-        return redirect('student_list')
+        return redirect(
+            'student_list'
+        )
+
+    # =====================================================
+    # GET
+    # =====================================================
 
     return render(
         request,
@@ -817,15 +957,36 @@ def student_delete(request, id):
 
     return redirect('student_list')
 
-def hapus_histori_pendidikan(request, id, riwayat_id):
+def hapus_histori_pendidikan(
+    request,
+    id,
+    riwayat_id
+):
+
+    # =====================================================
+    # HANYA BOLEH POST
+    # =====================================================
 
     if request.method != 'POST':
-        return redirect('student_detail', id=id)
+
+        return redirect(
+            'student_detail',
+            id=id
+        )
+
+    # =====================================================
+    # SISWA
+    # =====================================================
 
     student = get_object_or_404(
         Student,
         id=id
     )
+
+    # =====================================================
+    # HISTORI YANG AKAN DIHAPUS
+    # HARUS MILIK SISWA TERSEBUT
+    # =====================================================
 
     riwayat = get_object_or_404(
         RiwayatKelasSiswa,
@@ -833,14 +994,98 @@ def hapus_histori_pendidikan(request, id, riwayat_id):
         student=student
     )
 
-    tahun_ajaran = riwayat.tahun_ajaran.nama
-    kelas = riwayat.kelas.nama
+    # =====================================================
+    # SIMPAN INFORMASI UNTUK PESAN
+    # SEBELUM DELETE
+    # =====================================================
+
+    tahun_ajaran = (
+        riwayat.tahun_ajaran.nama
+    )
+
+    kelas = (
+        riwayat.kelas.nama
+    )
+
+    # =====================================================
+    # HAPUS HISTORI
+    # =====================================================
 
     riwayat.delete()
 
+    # =====================================================
+    # CARI HISTORI TERBARU YANG MASIH TERSISA
+    # =====================================================
+
+    histori_terbaru = (
+        get_histori_pendidikan_terbaru(student)
+    )
+
+    # =====================================================
+    # JIKA MASIH ADA HISTORI
+    # =====================================================
+
+    if histori_terbaru:
+
+        student.kelas_id = (
+            histori_terbaru.kelas_id
+        )
+
+        student.tahun_ajaran_id = (
+            histori_terbaru.tahun_ajaran_id
+        )
+
+        # Semester mengikuti histori terbaru
+        if histori_terbaru.semester is not None:
+
+            student.semester = (
+                histori_terbaru.semester
+            )
+
+            student.save(
+                update_fields=[
+                    'kelas',
+                    'tahun_ajaran',
+                    'semester',
+                ]
+            )
+
+        else:
+
+            student.save(
+                update_fields=[
+                    'kelas',
+                    'tahun_ajaran',
+                ]
+            )
+
+    # =====================================================
+    # JIKA SEMUA HISTORI SUDAH DIHAPUS
+    # =====================================================
+
+    else:
+
+        student.kelas_id = None
+        student.tahun_ajaran_id = None
+
+        student.save(
+            update_fields=[
+                'kelas',
+                'tahun_ajaran',
+            ]
+        )
+
+    # =====================================================
+    # PESAN
+    # =====================================================
+
     messages.success(
         request,
-        f'Histori pendidikan {tahun_ajaran} - Kelas {kelas} berhasil dihapus.'
+        (
+            f'Histori pendidikan '
+            f'{tahun_ajaran} - Kelas {kelas} '
+            f'berhasil dihapus.'
+        )
     )
 
     return redirect(
@@ -848,26 +1093,141 @@ def hapus_histori_pendidikan(request, id, riwayat_id):
         id=student.id
     )
 
+def get_histori_pendidikan_terbaru(student):
+   
+    histori = list(
+        RiwayatKelasSiswa.objects
+        .filter(student=student)
+        .select_related(
+            'kelas',
+            'tahun_ajaran'
+        )
+    )
+
+    if not histori:
+        return None
+
+    def urutan_histori(item):
+
+        nama_tahun = (
+            item.tahun_ajaran.nama
+            or ''
+        ).strip()
+
+        # Ambil angka tahun pertama dan kedua
+        hasil_tahun = re.search(
+            r'(\d{4})\s*/\s*(\d{4})',
+            nama_tahun
+        )
+
+        if hasil_tahun:
+            tahun_awal = int(
+                hasil_tahun.group(1)
+            )
+
+            tahun_akhir = int(
+                hasil_tahun.group(2)
+            )
+        else:
+            tahun_awal = 0
+            tahun_akhir = 0
+
+        # Urutan semester:
+        # Ganjil = lebih dahulu
+        # Genap  = lebih baru
+        nama_lower = nama_tahun.lower()
+
+        if 'genap' in nama_lower:
+            semester_order = 2
+        elif 'ganjil' in nama_lower:
+            semester_order = 1
+        else:
+            semester_order = 0
+
+        return (
+            tahun_awal,
+            tahun_akhir,
+            semester_order,
+            item.id
+        )
+
+    histori.sort(
+        key=urutan_histori,
+        reverse=True
+    )
+
+    return histori[0]
+
+
 # =========================================================
-# ABSENSI SISWA
+# PRESENSI SISWA
 # =========================================================
 
 def absensi(request):
 
     # =====================================================
-    # POST - SIMPAN ABSENSI
+    # TAHUN AJARAN DARI NAVBAR / SESSION
+    # =====================================================
+
+    tahun_ajaran_id = request.session.get(
+        'tahun_ajaran_id'
+    )
+
+    tahun_ajaran = None
+
+    if tahun_ajaran_id:
+
+        tahun_ajaran = (
+            TahunAjaran.objects
+            .filter(
+                id=tahun_ajaran_id
+            )
+            .first()
+        )
+
+    # -----------------------------------------------------
+    # Jika session belum memiliki tahun ajaran,
+    # gunakan Tahun Ajaran yang aktif sebagai default
+    # -----------------------------------------------------
+
+    if tahun_ajaran is None:
+
+        tahun_ajaran = (
+            TahunAjaran.objects
+            .filter(
+                aktif=True
+            )
+            .first()
+        )
+
+        if tahun_ajaran:
+
+            request.session[
+                'tahun_ajaran_id'
+            ] = tahun_ajaran.id
+
+    # =====================================================
+    # POST - SIMPAN PRESENSI
     # =====================================================
 
     if request.method == 'POST':
 
-        tanggal = request.POST.get('tanggal', '').strip()
-        kelas_id = request.POST.get('kelas', '').strip()
+        tanggal = request.POST.get(
+            'tanggal',
+            ''
+        ).strip()
 
-        # ---------------------------------------------
-        # Validasi tanggal
-        # ---------------------------------------------
+        kelas_id = request.POST.get(
+            'kelas',
+            ''
+        ).strip()
+
+        # -------------------------------------------------
+        # VALIDASI TANGGAL
+        # -------------------------------------------------
 
         try:
+
             tanggal_obj = datetime.strptime(
                 tanggal,
                 '%Y-%m-%d'
@@ -876,27 +1236,56 @@ def absensi(request):
         except (ValueError, TypeError):
 
             tanggal_obj = timezone.localdate()
-            tanggal = tanggal_obj.strftime('%Y-%m-%d')
 
-        # ---------------------------------------------
-        # Ambil siswa aktif
-        # ---------------------------------------------
+            tanggal = tanggal_obj.strftime(
+                '%Y-%m-%d'
+            )
 
-        students = (
-            Student.objects
-            .filter(status=True)
-            .order_by('nama')
+        # -------------------------------------------------
+        # CEK TAHUN AJARAN
+        # -------------------------------------------------
+
+        if not tahun_ajaran:
+
+            messages.error(
+                request,
+                'Tahun ajaran belum dipilih.'
+            )
+
+            return redirect(
+                'presensi_siswa'
+            )
+
+        # =================================================
+        # AMBIL HISTORI SISWA
+        # SESUAI TAHUN AJARAN YANG DIPILIH
+        # =================================================
+
+        riwayat_qs = (
+            RiwayatKelasSiswa.objects
+            .filter(
+                tahun_ajaran=tahun_ajaran,
+                student__status=True
+            )
+            .select_related(
+                'student',
+                'kelas'
+            )
         )
 
-        # Jika memilih kelas
+        # -------------------------------------------------
+        # FILTER KELAS
+        # -------------------------------------------------
+
         if kelas_id:
-            students = students.filter(
+
+            riwayat_qs = riwayat_qs.filter(
                 kelas_id=kelas_id
             )
 
-        # ---------------------------------------------
-        # Status yang diperbolehkan
-        # ---------------------------------------------
+        # =================================================
+        # STATUS YANG DIPERBOLEHKAN
+        # =================================================
 
         status_valid = [
             'Hadir',
@@ -905,11 +1294,13 @@ def absensi(request):
             'Alpa',
         ]
 
-        # ---------------------------------------------
-        # Simpan absensi setiap siswa
-        # ---------------------------------------------
+        # =================================================
+        # SIMPAN PRESENSI
+        # =================================================
 
-        for student in students:
+        for riwayat in riwayat_qs:
+
+            student = riwayat.student
 
             status = request.POST.get(
                 f'status_{student.id}',
@@ -921,9 +1312,17 @@ def absensi(request):
                 ''
             ).strip()
 
-            # Validasi status
+            # -------------------------------------------------
+            # VALIDASI STATUS
+            # -------------------------------------------------
+
             if status not in status_valid:
+
                 status = 'Alpa'
+
+            # -------------------------------------------------
+            # SIMPAN
+            # -------------------------------------------------
 
             Absensi.objects.update_or_create(
                 student=student,
@@ -936,14 +1335,13 @@ def absensi(request):
 
         messages.success(
             request,
-            f'Presensi siswa untuk tanggal '
-            f'{tanggal_obj.strftime("%d/%m/%Y")} berhasil disimpan.',
+            (
+                f'Presensi siswa untuk tanggal '
+                f'{tanggal_obj.strftime("%d/%m/%Y")} '
+                f'berhasil disimpan.'
+            ),
             extra_tags='presensi_siswa'
         )
-
-        # ---------------------------------------------
-        # KEMBALI KE HALAMAN ABSENSI
-        # ---------------------------------------------
 
         return redirect(
             f"{reverse('presensi_siswa')}"
@@ -952,7 +1350,7 @@ def absensi(request):
         )
 
     # =====================================================
-    # GET - TAMPILKAN ABSENSI
+    # GET
     # =====================================================
 
     tanggal = request.GET.get(
@@ -960,7 +1358,10 @@ def absensi(request):
         timezone.localdate().isoformat()
     )
 
-    # Validasi tanggal GET
+    # -----------------------------------------------------
+    # VALIDASI TANGGAL
+    # -----------------------------------------------------
+
     try:
 
         tanggal_obj = datetime.strptime(
@@ -971,84 +1372,160 @@ def absensi(request):
     except (ValueError, TypeError):
 
         tanggal_obj = timezone.localdate()
+
         tanggal = tanggal_obj.isoformat()
 
-    # ---------------------------------------------
-    # Filter kelas
-    # ---------------------------------------------
+    # =====================================================
+    # KELAS YANG DIPILIH
+    # =====================================================
 
     kelas_id = request.GET.get(
         'kelas',
         ''
     ).strip()
 
-    # ---------------------------------------------
-    # Ambil siswa aktif
-    # ---------------------------------------------
+    # =====================================================
+    # AMBIL SISWA BERDASARKAN HISTORI
+    # =====================================================
 
-    students = (
-        Student.objects
-        .select_related('kelas')
-        .filter(status=True)
-        .order_by('nama')
-    )
+    if tahun_ajaran:
 
-    if kelas_id:
-        students = students.filter(
-            kelas_id=kelas_id
+        riwayat_qs = (
+            RiwayatKelasSiswa.objects
+            .filter(
+                tahun_ajaran=tahun_ajaran,
+                student__status=True
+            )
+            .select_related(
+                'student',
+                'kelas'
+            )
+            .order_by(
+                'student__nama'
+            )
         )
 
-    # ---------------------------------------------
-    # Ambil data absensi tanggal tersebut
-    # ---------------------------------------------
+        # -------------------------------------------------
+        # FILTER KELAS
+        # -------------------------------------------------
+
+        if kelas_id:
+
+            riwayat_qs = riwayat_qs.filter(
+                kelas_id=kelas_id
+            )
+
+    else:
+
+        riwayat_qs = (
+            RiwayatKelasSiswa.objects.none()
+        )
+
+    # =====================================================
+    # BENTUK DAFTAR SISWA
+    # =====================================================
+
+    students = []
+
+    for riwayat in riwayat_qs:
+
+        student = riwayat.student
+
+        # -------------------------------------------------
+        # KELAS YANG DITAMPILKAN
+        # BERASAL DARI HISTORI
+        # -------------------------------------------------
+
+        student.kelas = riwayat.kelas
+
+        # Simpan histori untuk kebutuhan template
+        student.histori_presensi = riwayat
+
+        students.append(
+            student
+        )
+
+    # =====================================================
+    # ID SISWA
+    # =====================================================
+
+    student_ids = [
+        student.id
+        for student in students
+    ]
+
+    # =====================================================
+    # DATA PRESENSI PADA TANGGAL TERSEBUT
+    # =====================================================
 
     absensi_data = (
         Absensi.objects
         .filter(
             tanggal=tanggal_obj,
-            student__in=students
+            student_id__in=student_ids
         )
     )
 
-    # ---------------------------------------------
-    # Buat map absensi
-    # ---------------------------------------------
+    # =====================================================
+    # MAP PRESENSI
+    # =====================================================
 
     absensi_map = {
         absensi.student_id: absensi
         for absensi in absensi_data
     }
 
-    # ---------------------------------------------
-    # Tempel data absensi ke masing-masing siswa
-    # ---------------------------------------------
+    # =====================================================
+    # TEMPEL PRESENSI KE SISWA
+    # =====================================================
 
     for student in students:
 
         student.absensi_hari_ini = (
-            absensi_map.get(student.id)
+            absensi_map.get(
+                student.id
+            )
         )
 
-    # ---------------------------------------------
-    # Ambil semua kelas
-    # ---------------------------------------------
+    # =====================================================
+    # KELAS YANG TERSEDIA
+    # HANYA DARI TAHUN AJARAN TERPILIH
+    # =====================================================
 
-    kelass = (
-        Kelas.objects
-        .all()
-        .order_by('nama')
-    )
+    if tahun_ajaran:
 
-    # ---------------------------------------------
-    # Render
-    # ---------------------------------------------
+        kelass = (
+            Kelas.objects
+            .filter(
+                riwayat_siswa__tahun_ajaran=(
+                    tahun_ajaran
+                )
+            )
+            .distinct()
+            .order_by(
+                'nama'
+            )
+        )
+
+    else:
+
+        kelass = Kelas.objects.none()
+
+    # =====================================================
+    # CONTEXT
+    # =====================================================
 
     context = {
         'students': students,
         'kelass': kelass,
         'tanggal': tanggal,
         'kelas_id': kelas_id,
+        'tahun_ajaran_aktif': tahun_ajaran,
     }
+
+    # =====================================================
+    # RENDER
+    # =====================================================
 
     return render(
         request,
@@ -1063,90 +1540,175 @@ def absensi(request):
 def rekap_absensi(request):
 
     # =====================================================
-    # TANGGAL
+    # TAHUN AJARAN DARI NAVBAR / SESSION
     # =====================================================
 
-    tanggal_hari_ini = timezone.localdate()
+    tahun_ajaran_id = request.session.get(
+        'tahun_ajaran_id'
+    )
 
-    tanggal_mulai = request.GET.get(
+    tahun_ajaran = None
+
+    if tahun_ajaran_id:
+
+        tahun_ajaran = (
+            TahunAjaran.objects
+            .filter(
+                id=tahun_ajaran_id
+            )
+            .first()
+        )
+
+    # Jika belum ada pilihan dari navbar,
+    # gunakan Tahun Ajaran yang master-nya aktif
+    if tahun_ajaran is None:
+
+        tahun_ajaran = (
+            TahunAjaran.objects
+            .filter(
+                aktif=True
+            )
+            .first()
+        )
+
+        if tahun_ajaran:
+
+            request.session[
+                'tahun_ajaran_id'
+            ] = tahun_ajaran.id
+
+    # =====================================================
+    # FILTER TANGGAL
+    # =====================================================
+
+    tanggal_mulai_value = request.GET.get(
         'tanggal_mulai',
         ''
     ).strip()
 
-    tanggal_sampai = request.GET.get(
+    tanggal_sampai_value = request.GET.get(
         'tanggal_sampai',
         ''
     ).strip()
 
-    # -----------------------------------------------------
+    kelas_id = request.GET.get(
+        'kelas',
+        ''
+    ).strip()
+
+    hari_ini = timezone.localdate()
+
+    # =====================================================
     # TANGGAL MULAI
-    # -----------------------------------------------------
+    # =====================================================
 
-    if not tanggal_mulai:
-
-        tanggal_mulai_obj = tanggal_hari_ini.replace(day=1)
-
-        tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
-
-    else:
+    if tanggal_mulai_value:
 
         try:
 
             tanggal_mulai_obj = datetime.strptime(
-                tanggal_mulai,
+                tanggal_mulai_value,
                 '%Y-%m-%d'
             ).date()
 
-        except ValueError:
+        except (ValueError, TypeError):
 
-            tanggal_mulai_obj = tanggal_hari_ini.replace(day=1)
+            tanggal_mulai_obj = (
+                hari_ini.replace(day=1)
+            )
 
-            tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
-
-    # -----------------------------------------------------
-    # TANGGAL SAMPAI
-    # -----------------------------------------------------
-
-    if not tanggal_sampai:
-
-        bulan_berikutnya = (
-            tanggal_mulai_obj.replace(day=28)
-            + timedelta(days=4)
-        )
-
-        tanggal_sampai_obj = (
-            bulan_berikutnya
-            - timedelta(days=bulan_berikutnya.day)
-        )
-
-        tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
+            tanggal_mulai_value = (
+                tanggal_mulai_obj.isoformat()
+            )
 
     else:
+
+        tanggal_mulai_obj = (
+            hari_ini.replace(day=1)
+        )
+
+        tanggal_mulai_value = (
+            tanggal_mulai_obj.isoformat()
+        )
+
+    # =====================================================
+    # TANGGAL SAMPAI
+    # =====================================================
+
+    if tanggal_sampai_value:
 
         try:
 
             tanggal_sampai_obj = datetime.strptime(
-                tanggal_sampai,
+                tanggal_sampai_value,
                 '%Y-%m-%d'
             ).date()
 
-        except ValueError:
+        except (ValueError, TypeError):
 
-            bulan_berikutnya = (
-                tanggal_mulai_obj.replace(day=28)
-                + timedelta(days=4)
+            if tanggal_mulai_obj.month == 12:
+
+                tanggal_sampai_obj = (
+                    tanggal_mulai_obj.replace(
+                        year=(
+                            tanggal_mulai_obj.year + 1
+                        ),
+                        month=1,
+                        day=1
+                    )
+                    - timedelta(days=1)
+                )
+
+            else:
+
+                tanggal_sampai_obj = (
+                    tanggal_mulai_obj.replace(
+                        month=(
+                            tanggal_mulai_obj.month + 1
+                        ),
+                        day=1
+                    )
+                    - timedelta(days=1)
+                )
+
+            tanggal_sampai_value = (
+                tanggal_sampai_obj.isoformat()
             )
+
+    else:
+
+        if tanggal_mulai_obj.month == 12:
 
             tanggal_sampai_obj = (
-                bulan_berikutnya
-                - timedelta(days=bulan_berikutnya.day)
+                tanggal_mulai_obj.replace(
+                    year=(
+                        tanggal_mulai_obj.year + 1
+                    ),
+                    month=1,
+                    day=1
+                )
+                - timedelta(days=1)
             )
 
-            tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
+        else:
 
-    # -----------------------------------------------------
+            tanggal_sampai_obj = (
+                tanggal_mulai_obj.replace(
+                    month=(
+                        tanggal_mulai_obj.month + 1
+                    ),
+                    day=1
+                )
+                - timedelta(days=1)
+            )
+
+        tanggal_sampai_value = (
+            tanggal_sampai_obj.isoformat()
+        )
+
+    # =====================================================
     # JIKA TANGGAL TERBALIK
-    # -----------------------------------------------------
+    # =====================================================
 
     if tanggal_mulai_obj > tanggal_sampai_obj:
 
@@ -1155,99 +1717,236 @@ def rekap_absensi(request):
             tanggal_mulai_obj
         )
 
-        tanggal_mulai = tanggal_mulai_obj.strftime('%Y-%m-%d')
-        tanggal_sampai = tanggal_sampai_obj.strftime('%Y-%m-%d')
+        tanggal_mulai_value = (
+            tanggal_mulai_obj.isoformat()
+        )
+
+        tanggal_sampai_value = (
+            tanggal_sampai_obj.isoformat()
+        )
 
     # =====================================================
     # DAFTAR TANGGAL
     # =====================================================
 
-    jumlah_hari = (
-        tanggal_sampai_obj - tanggal_mulai_obj
-    ).days + 1
+    tanggal_list = []
 
-    tanggal_list = [
-        tanggal_mulai_obj + timedelta(days=i)
-        for i in range(jumlah_hari)
+    tanggal_cursor = tanggal_mulai_obj
+
+    while tanggal_cursor <= tanggal_sampai_obj:
+
+        tanggal_list.append(
+            tanggal_cursor
+        )
+
+        tanggal_cursor += timedelta(
+            days=1
+        )
+
+    jumlah_hari = len(
+        tanggal_list
+    )
+
+    # =====================================================
+    # NAMA BULAN
+    # =====================================================
+
+    nama_bulan_list = [
+        '',
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember',
     ]
 
-    hari_bulan = [
-        tanggal.day
-        for tanggal in tanggal_list
-    ]
+    if (
+        tanggal_mulai_obj.month
+        == tanggal_sampai_obj.month
+        and
+        tanggal_mulai_obj.year
+        == tanggal_sampai_obj.year
+    ):
+
+        nama_bulan = (
+            nama_bulan_list[
+                tanggal_mulai_obj.month
+            ]
+            + ' '
+            + str(tanggal_mulai_obj.year)
+        )
+
+    else:
+
+        nama_bulan = (
+            f'{nama_bulan_list[tanggal_mulai_obj.month]} '
+            f'{tanggal_mulai_obj.year}'
+            f' - '
+            f'{nama_bulan_list[tanggal_sampai_obj.month]} '
+            f'{tanggal_sampai_obj.year}'
+        )
+
+    # =====================================================
+    # JIKA TAHUN AJARAN BELUM ADA
+    # =====================================================
+
+    if not tahun_ajaran:
+
+        context = {
+
+            'tahun_ajaran_aktif': None,
+
+            'kelass': (
+                Kelas.objects.none()
+            ),
+
+            'rekap_bulanan_siswa': [],
+
+            'tanggal_list': tanggal_list,
+
+            'tanggal_mulai': (
+                tanggal_mulai_obj
+            ),
+
+            'tanggal_sampai': (
+                tanggal_sampai_obj
+            ),
+
+            'tanggal_mulai_value': (
+                tanggal_mulai_value
+            ),
+
+            'tanggal_sampai_value': (
+                tanggal_sampai_value
+            ),
+
+            'jumlah_hari': jumlah_hari,
+
+            'nama_bulan': nama_bulan,
+
+            'kelas_id': kelas_id,
+
+            'total_siswa': 0,
+
+            'total_hadir': 0,
+
+            'total_izin': 0,
+
+            'total_sakit': 0,
+
+            'total_alpa': 0,
+
+            'persentase_kehadiran': 0,
+        }
+
+        return render(
+            request,
+            'students/rekap_absensi.html',
+            context
+        )
+
+    # =====================================================
+    # AMBIL SISWA BERDASARKAN
+    # TAHUN AJARAN YANG DIPILIH DI NAVBAR
+    # =====================================================
+
+    riwayat_qs = (
+        RiwayatKelasSiswa.objects
+        .filter(
+            tahun_ajaran=tahun_ajaran,
+            student__status=True
+        )
+        .select_related(
+            'student',
+            'kelas'
+        )
+        .order_by(
+            'student__nama'
+        )
+    )
 
     # =====================================================
     # FILTER KELAS
     # =====================================================
 
-    kelas_id = request.GET.get(
-        'kelas',
-        ''
-    ).strip()
-
-    kelass = (
-        Kelas.objects
-        .all()
-        .order_by('nama')
-    )
-
-    # =====================================================
-    # SISWA AKTIF
-    # =====================================================
-
-    students = (
-        Student.objects
-        .select_related('kelas')
-        .filter(status=True)
-        .order_by('nama')
-    )
-
     if kelas_id:
 
-        students = students.filter(
-            kelas_id=kelas_id
+        riwayat_qs = (
+            riwayat_qs.filter(
+                kelas_id=kelas_id
+            )
         )
 
     # =====================================================
-    # ABSENSI
+    # DAFTAR SISWA
     # =====================================================
 
-    absensis = (
+    students = []
+
+    for riwayat in riwayat_qs:
+
+        student = riwayat.student
+
+        # Kelas berdasarkan histori
+        student.kelas = (
+            riwayat.kelas
+        )
+
+        students.append(
+            student
+        )
+
+    # =====================================================
+    # ID SISWA
+    # =====================================================
+
+    student_ids = [
+        student.id
+        for student in students
+    ]
+
+    # =====================================================
+    # DATA PRESENSI
+    # =====================================================
+
+    absensi_data = (
         Absensi.objects
-        .select_related(
-            'student',
-            'student__kelas'
-        )
         .filter(
+            student_id__in=student_ids,
             tanggal__range=[
                 tanggal_mulai_obj,
-                tanggal_sampai_obj
-            ],
-            student__in=students
+                tanggal_sampai_obj,
+            ]
         )
-        .order_by('tanggal')
+        .order_by(
+            'tanggal'
+        )
     )
 
     # =====================================================
-    # MAP ABSENSI
+    # BUAT MAP PRESENSI
     # =====================================================
 
     absensi_map = {}
 
-    for absensi_data in absensis:
-
-        if absensi_data.student_id not in absensi_map:
-
-            absensi_map[absensi_data.student_id] = {}
+    for absensi in absensi_data:
 
         absensi_map[
-            absensi_data.student_id
-        ][
-            absensi_data.tanggal
-        ] = absensi_data.status
+            (
+                absensi.student_id,
+                absensi.tanggal
+            )
+        ] = absensi.status
 
     # =====================================================
-    # REKAP PER SISWA
+    # REKAP SETIAP SISWA
     # =====================================================
 
     rekap_bulanan_siswa = []
@@ -1259,59 +1958,66 @@ def rekap_absensi(request):
 
     for student in students:
 
-        data_hari = absensi_map.get(
-            student.id,
-            {}
-        )
-
-        hadir = 0
-        izin = 0
-        sakit = 0
-        alpa = 0
-
         # -------------------------------------------------
-        # SIAPKAN STATUS SETIAP TANGGAL
+        # DATA HARIAN SISWA
         # -------------------------------------------------
 
-        daftar_hari = []
+        hari = {}
+
+        jumlah_hadir_siswa = 0
+        jumlah_izin_siswa = 0
+        jumlah_sakit_siswa = 0
+        jumlah_alpa_siswa = 0
 
         for tanggal in tanggal_list:
 
-            status = data_hari.get(tanggal)
+            status = absensi_map.get(
+                (
+                    student.id,
+                    tanggal
+                )
+            )
+
+            hari[tanggal] = status
 
             if status == 'Hadir':
-                hadir += 1
+
+                jumlah_hadir_siswa += 1
+                total_hadir += 1
 
             elif status == 'Izin':
-                izin += 1
+
+                jumlah_izin_siswa += 1
+                total_izin += 1
 
             elif status == 'Sakit':
-                sakit += 1
+
+                jumlah_sakit_siswa += 1
+                total_sakit += 1
 
             elif status == 'Alpa':
-                alpa += 1
 
-            daftar_hari.append({
-                'tanggal': tanggal,
-                'hari': tanggal.day,
-                'status': status,
-            })
+                jumlah_alpa_siswa += 1
+                total_alpa += 1
 
         # -------------------------------------------------
-        # TOTAL
+        # PERSENTASE SISWA
         # -------------------------------------------------
 
-        total = (
-            hadir
-            + izin
-            + sakit
-            + alpa
+        total_data_siswa = (
+            jumlah_hadir_siswa
+            + jumlah_izin_siswa
+            + jumlah_sakit_siswa
+            + jumlah_alpa_siswa
         )
 
-        if total > 0:
+        if total_data_siswa > 0:
 
             persentase = round(
-                (hadir / total) * 100,
+                (
+                    jumlah_hadir_siswa
+                    / total_data_siswa
+                ) * 100,
                 1
             )
 
@@ -1319,40 +2025,45 @@ def rekap_absensi(request):
 
             persentase = 0
 
+        # -------------------------------------------------
+        # SIMPAN REKAP SISWA
+        # -------------------------------------------------
+
         rekap_bulanan_siswa.append({
+
             'student': student,
-            'hari': data_hari,
-            'daftar_hari': daftar_hari,
-            'hadir': hadir,
-            'izin': izin,
-            'sakit': sakit,
-            'alpa': alpa,
-            'total': total,
+
+            'hari': hari,
+
             'persentase': persentase,
+
+            'hadir': jumlah_hadir_siswa,
+
+            'izin': jumlah_izin_siswa,
+
+            'sakit': jumlah_sakit_siswa,
+
+            'alpa': jumlah_alpa_siswa,
+
         })
 
-        total_hadir += hadir
-        total_izin += izin
-        total_sakit += sakit
-        total_alpa += alpa
-
     # =====================================================
-    # STATISTIK
+    # PERSENTASE KEHADIRAN KESELURUHAN
     # =====================================================
 
-    total_absensi = (
+    total_data = (
         total_hadir
         + total_izin
         + total_sakit
         + total_alpa
     )
 
-    if total_absensi > 0:
+    if total_data > 0:
 
         persentase_kehadiran = round(
             (
                 total_hadir
-                / total_absensi
+                / total_data
             ) * 100,
             1
         )
@@ -1362,45 +2073,29 @@ def rekap_absensi(request):
         persentase_kehadiran = 0
 
     # =====================================================
-    # NAMA BULAN
+    # DAFTAR KELAS PADA TAHUN AJARAN TERPILIH
     # =====================================================
 
-    nama_bulan_indonesia = {
-        'January': 'Januari',
-        'February': 'Februari',
-        'March': 'Maret',
-        'April': 'April',
-        'May': 'Mei',
-        'June': 'Juni',
-        'July': 'Juli',
-        'August': 'Agustus',
-        'September': 'September',
-        'October': 'Oktober',
-        'November': 'November',
-        'December': 'Desember',
-    }
-
-    if (
-        tanggal_mulai_obj.month == tanggal_sampai_obj.month
-        and
-        tanggal_mulai_obj.year == tanggal_sampai_obj.year
-    ):
-
-        nama_bulan = (
-            nama_bulan_indonesia.get(
-                tanggal_mulai_obj.strftime('%B'),
-                tanggal_mulai_obj.strftime('%B')
+    kelass = (
+        Kelas.objects
+        .filter(
+            riwayat_siswa__tahun_ajaran=(
+                tahun_ajaran
             )
-            + f' {tanggal_mulai_obj.year}'
         )
-
-    else:
-
-        nama_bulan = (
-            tanggal_mulai_obj.strftime('%d/%m/%Y')
-            + ' - '
-            + tanggal_sampai_obj.strftime('%d/%m/%Y')
+        .distinct()
+        .order_by(
+            'nama'
         )
+    )
+
+    # =====================================================
+    # TOTAL SISWA
+    # =====================================================
+
+    total_siswa = len(
+        students
+    )
 
     # =====================================================
     # CONTEXT
@@ -1408,74 +2103,56 @@ def rekap_absensi(request):
 
     context = {
 
-        'bulan':
-            tanggal_mulai_obj.strftime('%Y-%m'),
+        'tahun_ajaran_aktif': (
+            tahun_ajaran
+        ),
 
-        'nama_bulan':
-            nama_bulan,
+        'students': students,
 
-        'tahun':
-            tanggal_mulai_obj.year,
+        'rekap_bulanan_siswa': (
+            rekap_bulanan_siswa
+        ),
 
-        'nomor_bulan':
-            tanggal_mulai_obj.month,
+        'kelass': kelass,
 
-        'tanggal_list':
-            tanggal_list,
+        'tanggal_list': tanggal_list,
 
-        'hari_bulan':
-            hari_bulan,
+        'tanggal_mulai': (
+            tanggal_mulai_obj
+        ),
 
-        'jumlah_hari':
-            jumlah_hari,
+        'tanggal_sampai': (
+            tanggal_sampai_obj
+        ),
 
-        'tanggal_mulai':
-            tanggal_mulai_obj,
+        'tanggal_mulai_value': (
+            tanggal_mulai_value
+        ),
 
-        'tanggal_sampai':
-            tanggal_sampai_obj,
+        'tanggal_sampai_value': (
+            tanggal_sampai_value
+        ),
 
-        'tanggal_mulai_obj':
-            tanggal_mulai_obj,
+        'jumlah_hari': jumlah_hari,
 
-        'tanggal_sampai_obj':
-            tanggal_sampai_obj,
+        'nama_bulan': nama_bulan,
 
-        'tanggal_mulai_value':
-            tanggal_mulai,
+        'kelas_id': kelas_id,
 
-        'tanggal_sampai_value':
-            tanggal_sampai,
+        'total_siswa': total_siswa,
 
-        'kelas_id':
-            kelas_id,
+        'total_hadir': total_hadir,
 
-        'kelass':
-            kelass,
+        'total_izin': total_izin,
 
-        'rekap_bulanan_siswa':
-            rekap_bulanan_siswa,
+        'total_sakit': total_sakit,
 
-        'total_hadir':
-            total_hadir,
+        'total_alpa': total_alpa,
 
-        'total_izin':
-            total_izin,
+        'persentase_kehadiran': (
+            persentase_kehadiran
+        ),
 
-        'total_sakit':
-            total_sakit,
-
-        'total_alpa':
-            total_alpa,
-
-        'total_absensi':
-            total_absensi,
-
-        'persentase_kehadiran':
-            persentase_kehadiran,
-
-        'hari_efektif':
-            jumlah_hari,
     }
 
     return render(
@@ -1483,7 +2160,6 @@ def rekap_absensi(request):
         'students/rekap_absensi.html',
         context
     )
-
 
 # =========================================================
 # INPUT PRESENSI GURU
@@ -3298,7 +3974,6 @@ def cetak_rekap_absensi(request):
         context
     )
 
-
 def data_kelas(request):
 
     kelass = Kelas.objects.all().order_by('nama')
@@ -3417,12 +4092,44 @@ def data_kelas(request):
 
             nama = kelas.nama
 
-            kelas.delete()
+            # =================================================
+            # CEK HISTORI PENDIDIKAN
+            # =================================================
 
-            messages.success(
-                request,
-                f'Kelas {nama} berhasil dihapus.'
+            jumlah_histori = (
+                RiwayatKelasSiswa.objects
+                .filter(
+                    kelas=kelas
+                )
+                .count()
             )
+
+            if jumlah_histori > 0:
+
+                messages.error(
+                    request,
+                    (
+                        f'Kelas {nama} tidak dapat dihapus '
+                        f'karena masih digunakan dalam '
+                        f'histori pendidikan '
+                        f'{jumlah_histori} siswa. '
+                        f'Hapus atau ubah histori tersebut '
+                        f'terlebih dahulu.'
+                    )
+                )
+
+            else:
+
+                # =============================================
+                # AMAN DIHAPUS
+                # =============================================
+
+                kelas.delete()
+
+                messages.success(
+                    request,
+                    f'Kelas {nama} berhasil dihapus.'
+                )
 
         return redirect(
             'data_kelas'
@@ -3814,7 +4521,6 @@ def data_mata_pelajaran(request):
         )
     else:
 
-        # Ambil dari session
         tahun_ajaran_session = request.session.get(
             'tahun_ajaran_id'
         )
@@ -3826,8 +4532,6 @@ def data_mata_pelajaran(request):
                 .first()
             )
         else:
-            # Jika session belum ada,
-            # gunakan tahun ajaran yang aktif
             tahun_ajaran_aktif = (
                 TahunAjaran.objects
                 .filter(aktif=True)
@@ -3861,6 +4565,29 @@ def data_mata_pelajaran(request):
             )
 
             nama_mapel = mapel.nama
+
+            # =====================================================
+            # CEK APAKAH SUDAH MEMILIKI NILAI
+            # =====================================================
+
+            if Penilaian.objects.filter(
+                mata_pelajaran=mapel
+            ).exists():
+
+                messages.error(
+                    request,
+                    f'Mata pelajaran "{nama_mapel}" tidak dapat dihapus karena sudah memiliki nilai.'
+                )
+
+                return redirect(
+                    f"{request.path}?tahun_ajaran={tahun_ajaran_aktif.id}"
+                    if tahun_ajaran_aktif
+                    else request.path
+                )
+
+            # =====================================================
+            # HAPUS JIKA BELUM MEMILIKI NILAI
+            # =====================================================
 
             mapel.delete()
 
@@ -4506,41 +5233,70 @@ def rapot(request):
 
     if tahun_ajaran_id and kelas_id:
 
-        # Ambil siswa berdasarkan RIWAYAT
-        student_ids = (
-            RiwayatKelasSiswa.objects
-            .filter(
-                tahun_ajaran_id=tahun_ajaran_id,
-                kelas_id=kelas_id,
-            )
-            .values_list(
-                'student_id',
-                flat=True
-            )
-        )
+        # =================================================
+        # AMBIL DATA DARI RIWAYAT
+        # =================================================
 
-        students = (
-            Student.objects
+        riwayat_siswa = (
+            RiwayatKelasSiswa.objects
             .select_related(
+                'student',
                 'kelas',
                 'tahun_ajaran'
             )
             .filter(
-                id__in=student_ids
+                tahun_ajaran_id=tahun_ajaran_id,
+                kelas_id=kelas_id,
+                status=True,
+                student__status=True,
             )
-            .order_by('nama')
         )
 
         # =================================================
-        # PENCARIAN
+        # SEARCH
         # =================================================
 
         if search:
 
-            students = students.filter(
-                Q(nama__icontains=search) |
-                Q(nim__icontains=search)
+            riwayat_siswa = riwayat_siswa.filter(
+                Q(student__nama__icontains=search) |
+                Q(student__nim__icontains=search)
             )
+
+        # =================================================
+        # BENTUKKAN DATA SISWA
+        # =================================================
+
+        students_list = []
+
+        for riwayat in riwayat_siswa:
+
+            student = riwayat.student
+
+            # ---------------------------------------------
+            # PENTING:
+            # Jangan gunakan student.kelas
+            # Jangan gunakan student.tahun_ajaran
+            #
+            # Gunakan data dari histori
+            # ---------------------------------------------
+
+            student.kelas_rapot = riwayat.kelas
+            student.tahun_ajaran_rapot = riwayat.tahun_ajaran
+
+            students_list.append(
+                student
+            )
+
+        # =================================================
+        # URUTKAN NAMA
+        # =================================================
+
+        students_list.sort(
+            key=lambda student: student.nama.lower()
+        )
+
+        students = students_list
 
     # =====================================================
     # CONTEXT
@@ -4594,10 +5350,7 @@ def cetak_rapot_siswa(request, id):
     # =====================================================
 
     student = get_object_or_404(
-        Student.objects.select_related(
-            'kelas',
-            'tahun_ajaran'
-        ),
+        Student,
         id=id
     )
 
@@ -4620,6 +5373,7 @@ def cetak_rapot_siswa(request, id):
                 student=student,
                 tahun_ajaran_id=tahun_ajaran_id,
                 kelas_id=kelas_id,
+                status=True,
             )
             .first()
         )
@@ -4635,7 +5389,11 @@ def cetak_rapot_siswa(request, id):
                 'Siswa tidak terdaftar pada kelas dan tahun ajaran yang dipilih.'
             )
 
-            return redirect('rapot')
+            return redirect(
+                f'{reverse("rapot")}'
+                f'?tahun_ajaran={tahun_ajaran_id}'
+                f'&kelas={kelas_id}'
+            )
 
     # =====================================================
     # TAHUN AJARAN & KELAS
@@ -4643,10 +5401,18 @@ def cetak_rapot_siswa(request, id):
 
     if riwayat:
 
+        # ---------------------------------------------
+        # GUNAKAN HISTORI
+        # ---------------------------------------------
+
         tahun_ajaran = riwayat.tahun_ajaran
         kelas = riwayat.kelas
 
     else:
+
+        # ---------------------------------------------
+        # Jika cetak tanpa filter histori
+        # ---------------------------------------------
 
         tahun_ajaran = student.tahun_ajaran
         kelas = student.kelas
@@ -4702,7 +5468,6 @@ def cetak_rapot_siswa(request, id):
         'students/cetak_rapot.html',
         context
     )
-
 
 def import_siswa(request):
 
@@ -6124,46 +6889,76 @@ def download_format_siswa(request):
 
     return response
 
-
 def kenaikan_siswa(request):
 
-    
+    # ==========================================================
+    # MASTER DATA
+    # ==========================================================
+
     tahun_ajarans = TahunAjaran.objects.all().order_by('-nama')
     kelass = Kelas.objects.all().order_by('nama')
 
     tahun_id = request.GET.get('tahun_ajaran')
     kelas_id = request.GET.get('kelas')
+    tahun_tujuan_id = request.GET.get('tahun_tujuan')
 
-    siswa = Student.objects.filter(
-        status=True
-    ).select_related(
-        'kelas',
-        'tahun_ajaran'
-    )
+    # ==========================================================
+    # FUNGSI UNTUK MENENTUKAN URUTAN TAHUN AJARAN
+    #
+    # Contoh:
+    # 2026/2027 Ganjil = (2026, 2027, 1)
+    # 2026/2027 Genap  = (2026, 2027, 2)
+    # ==========================================================
 
-    if tahun_id:
-        siswa = siswa.filter(
-            tahun_ajaran_id=tahun_id
+    def periode_key(tahun_ajaran):
+
+        nama = (tahun_ajaran.nama or '').strip().lower()
+
+        match = re.match(
+            r'^(\d{4})/(\d{4})\s*(.*)$',
+            nama
         )
 
-    if kelas_id:
-        siswa = siswa.filter(
-            kelas_id=kelas_id
+        if match:
+
+            tahun_awal = int(match.group(1))
+            tahun_akhir = int(match.group(2))
+            semester_nama = match.group(3)
+
+            if 'ganjil' in semester_nama:
+                semester = 1
+
+            elif 'genap' in semester_nama:
+                semester = 2
+
+            else:
+                semester = 0
+
+            return (
+                tahun_awal,
+                tahun_akhir,
+                semester
+            )
+
+        # Jika format nama tahun ajaran tidak sesuai
+        return (
+            0,
+            0,
+            0
         )
+
+    # ==========================================================
+    # POST - PROSES KENAIKAN
+    # ==========================================================
 
     if request.method == 'POST':
-
-        # =====================================================
-        # AMBIL DATA POST
-        # =====================================================
 
         siswa_ids = request.POST.getlist('students')
         tahun_tujuan_id = request.POST.get('tahun_tujuan')
 
-
-        # =====================================================
-        # VALIDASI TAHUN AJARAN TUJUAN
-        # =====================================================
+        # ------------------------------------------------------
+        # VALIDASI TAHUN TUJUAN
+        # ------------------------------------------------------
 
         if not tahun_tujuan_id:
 
@@ -6173,25 +6968,6 @@ def kenaikan_siswa(request):
             )
 
             return redirect('kenaikan_siswa')
-
-
-        # =====================================================
-        # VALIDASI SISWA
-        # =====================================================
-
-        if not siswa_ids:
-
-            messages.error(
-                request,
-                'Silakan pilih minimal satu siswa yang akan dinaikkan.'
-            )
-
-            return redirect('kenaikan_siswa')
-
-
-        # =====================================================
-        # VALIDASI TAHUN AJARAN TUJUAN
-        # =====================================================
 
         try:
 
@@ -6208,42 +6984,128 @@ def kenaikan_siswa(request):
 
             return redirect('kenaikan_siswa')
 
+        # ------------------------------------------------------
+        # VALIDASI SISWA
+        # ------------------------------------------------------
 
-        # =====================================================
-        # VALIDASI SEMUA KELAS TUJUAN
-        # =====================================================
+        if not siswa_ids:
 
-        data_kenaikan = []
+            messages.error(
+                request,
+                'Silakan pilih minimal satu siswa yang akan dinaikkan.'
+            )
+
+            return redirect(
+                f'{reverse("kenaikan_siswa")}'
+                f'?tahun_ajaran={tahun_id or ""}'
+                f'&kelas={kelas_id or ""}'
+                f'&tahun_tujuan={tahun_tujuan_id}'
+            )
+
+        # ------------------------------------------------------
+        # CEGAH TAHUN TUJUAN SAMA DENGAN TAHUN ASAL
+        # ------------------------------------------------------
+
+        if tahun_id and str(tahun_id) == str(tahun_tujuan_id):
+
+            messages.error(
+                request,
+                'Tahun ajaran tujuan tidak boleh sama dengan tahun ajaran asal.'
+            )
+
+            return redirect(
+                f'{reverse("kenaikan_siswa")}'
+                f'?tahun_ajaran={tahun_id}'
+                f'&kelas={kelas_id or ""}'
+                f'&tahun_tujuan={tahun_tujuan_id}'
+            )
+
+        # ------------------------------------------------------
+        # VALIDASI PERIODE TAHUN AJARAN
+        # ------------------------------------------------------
+
+        if tahun_id:
+
+            try:
+
+                tahun_asal = TahunAjaran.objects.get(
+                    id=tahun_id
+                )
+
+                periode_asal = periode_key(
+                    tahun_asal
+                )
+
+                periode_tujuan = periode_key(
+                    tahun_tujuan
+                )
+
+                if periode_tujuan <= periode_asal:
+
+                    messages.error(
+                        request,
+                        'Tahun ajaran tujuan harus lebih baru dari tahun ajaran asal.'
+                    )
+
+                    return redirect(
+                        f'{reverse("kenaikan_siswa")}'
+                        f'?tahun_ajaran={tahun_id}'
+                        f'&kelas={kelas_id or ""}'
+                        f'&tahun_tujuan={tahun_tujuan_id}'
+                    )
+
+            except TahunAjaran.DoesNotExist:
+
+                pass
+
+        # ======================================================
+        # PROSES SETIAP SISWA
+        # ======================================================
+
+        jumlah_diproses = 0
 
         for student_id in siswa_ids:
+
+            student = get_object_or_404(
+                Student,
+                id=student_id
+            )
+
+            # --------------------------------------------------
+            # Pastikan siswa belum memiliki histori pada
+            # tahun ajaran tujuan
+            # --------------------------------------------------
+
+            sudah_ada = RiwayatKelasSiswa.objects.filter(
+                student=student,
+                tahun_ajaran=tahun_tujuan
+            ).exists()
+
+            if sudah_ada:
+
+                continue
+
+            # --------------------------------------------------
+            # Ambil kelas tujuan
+            # --------------------------------------------------
 
             kelas_tujuan_id = request.POST.get(
                 f'kelas_tujuan_{student_id}'
             )
 
-
-            # -------------------------------------------------
-            # KELAS WAJIB DIPILIH
-            # -------------------------------------------------
-
             if not kelas_tujuan_id:
-
-                student = get_object_or_404(
-                    Student,
-                    id=student_id
-                )
 
                 messages.error(
                     request,
                     f'Kelas tujuan untuk siswa "{student.nama}" wajib dipilih.'
                 )
 
-                return redirect('kenaikan_siswa')
-
-
-            # -------------------------------------------------
-            # CEK KELAS TUJUAN BENAR-BENAR ADA
-            # -------------------------------------------------
+                return redirect(
+                    f'{reverse("kenaikan_siswa")}'
+                    f'?tahun_ajaran={tahun_id or ""}'
+                    f'&kelas={kelas_id or ""}'
+                    f'&tahun_tujuan={tahun_tujuan_id}'
+                )
 
             try:
 
@@ -6253,66 +7115,36 @@ def kenaikan_siswa(request):
 
             except Kelas.DoesNotExist:
 
-                student = get_object_or_404(
-                    Student,
-                    id=student_id
-                )
-
                 messages.error(
                     request,
                     f'Kelas tujuan untuk siswa "{student.nama}" tidak valid.'
                 )
 
-                return redirect('kenaikan_siswa')
-
-
-            # -------------------------------------------------
-            # SIMPAN SEMENTARA
-            # -------------------------------------------------
-
-            data_kenaikan.append(
-                (
-                    student_id,
-                    kelas_tujuan
+                return redirect(
+                    f'{reverse("kenaikan_siswa")}'
+                    f'?tahun_ajaran={tahun_id or ""}'
+                    f'&kelas={kelas_id or ""}'
+                    f'&tahun_tujuan={tahun_tujuan_id}'
                 )
-            )
 
+            # --------------------------------------------------
+            # SIMPAN HISTORI BARU
+            # --------------------------------------------------
 
-        # =====================================================
-        # SEMUA VALID
-        # BARU PROSES KENAIKAN
-        # =====================================================
-
-        jumlah_diproses = 0
-
-        for student_id, kelas_tujuan in data_kenaikan:
-
-            student = get_object_or_404(
-                Student,
-                id=student_id
-            )
-
-
-            # =================================================
-            # SIMPAN HISTORI PENDIDIKAN
-            # =================================================
-
-            RiwayatKelasSiswa.objects.update_or_create(
-
+            RiwayatKelasSiswa.objects.create(
                 student=student,
-
                 tahun_ajaran=tahun_tujuan,
-
-                defaults={
-                    'kelas': kelas_tujuan
-                }
-
+                kelas=kelas_tujuan,
+                semester=student.semester,
+                status=True
             )
 
-
-            # =================================================
-            # UPDATE DATA SISWA
-            # =================================================
+            # --------------------------------------------------
+            # UPDATE DATA UTAMA SISWA
+            #
+            # Ini hanya untuk menjaga halaman lain tetap sinkron.
+            # Kenaikan Siswa sendiri menggunakan histori.
+            # --------------------------------------------------
 
             student.tahun_ajaran = tahun_tujuan
             student.kelas = kelas_tujuan
@@ -6324,38 +7156,276 @@ def kenaikan_siswa(request):
                 ]
             )
 
-
             jumlah_diproses += 1
 
+        # ======================================================
+        # PESAN
+        # ======================================================
 
-        # =====================================================
-        # PESAN BERHASIL
-        # =====================================================
+        if jumlah_diproses > 0:
 
-        messages.success(
-            request,
-            f'Kenaikan {jumlah_diproses} siswa berhasil diproses.'
+            messages.success(
+                request,
+                f'Kenaikan {jumlah_diproses} siswa berhasil diproses.'
+            )
+
+        else:
+
+            messages.warning(
+                request,
+                'Tidak ada siswa yang diproses. Siswa mungkin sudah memiliki histori pada tahun ajaran tujuan.'
+            )
+
+        # ======================================================
+        # KEMBALI KE FILTER YANG SAMA
+        # ======================================================
+
+        return redirect(
+            f'{reverse("kenaikan_siswa")}'
+            f'?tahun_ajaran={tahun_id or ""}'
+            f'&kelas={kelas_id or ""}'
+            f'&tahun_tujuan={tahun_tujuan_id}'
         )
 
-        return redirect('kenaikan_siswa')
+    # ==========================================================
+    # GET
+    # ==========================================================
 
+    histori = RiwayatKelasSiswa.objects.filter(
+        status=True,
+        student__status=True
+    ).select_related(
+        'student',
+        'tahun_ajaran',
+        'kelas'
+    )
 
-    # =========================================================
-    # TAMPILKAN HALAMAN
-    # =========================================================
+    # ==========================================================
+    # JIKA TAHUN AJARAN ASAL DIPILIH
+    # ==========================================================
+
+    if tahun_id:
+
+        histori = histori.filter(
+            tahun_ajaran_id=tahun_id
+        )
+
+    # ==========================================================
+    # JIKA KELAS ASAL DIPILIH
+    # ==========================================================
+
+    if kelas_id:
+
+        histori = histori.filter(
+            kelas_id=kelas_id
+        )
+
+    # ==========================================================
+    # AMBIL DATA HISTORI
+    # ==========================================================
+
+    histori = list(histori)
+
+    # ==========================================================
+    # JIKA TAHUN AJARAN ASAL DIPILIH
+    #
+    # HAPUS siswa yang sudah mempunyai histori yang lebih baru.
+    #
+    # Contoh:
+    #
+    # Rizki
+    # 2026/2027 Ganjil -> 1A
+    # 2026/2027 Genap  -> 2A
+    #
+    # Ketika filter:
+    # 2026/2027 Ganjil + 1A
+    #
+    # Rizki TIDAK ditampilkan.
+    # ==========================================================
+
+    if tahun_id:
+
+        try:
+
+            tahun_asal = TahunAjaran.objects.get(
+                id=tahun_id
+            )
+
+            periode_asal = periode_key(
+                tahun_asal
+            )
+
+            siswa_hasil = []
+
+            for riwayat in histori:
+
+                # ----------------------------------------------
+                # Cari semua histori siswa
+                # ----------------------------------------------
+
+                semua_histori = RiwayatKelasSiswa.objects.filter(
+                    student_id=riwayat.student_id,
+                    status=True
+                ).select_related(
+                    'tahun_ajaran',
+                    'kelas'
+                )
+
+                sudah_mempunyai_histori_lebih_baru = False
+
+                for histori_lain in semua_histori:
+
+                    periode_lain = periode_key(
+                        histori_lain.tahun_ajaran
+                    )
+
+                    # ------------------------------------------
+                    # Jika ada histori yang lebih baru,
+                    # berarti siswa sudah naik / berpindah
+                    # dari tahun asal.
+                    # ------------------------------------------
+
+                    if periode_lain > periode_asal:
+
+                        sudah_mempunyai_histori_lebih_baru = True
+                        break
+
+                if sudah_mempunyai_histori_lebih_baru:
+                    continue
+
+                # ----------------------------------------------
+                # Nama kelas harus berasal dari histori,
+                # bukan Student.kelas
+                # ----------------------------------------------
+
+                riwayat.student.kelas_sekarang_nama = (
+                    riwayat.kelas.nama
+                )
+
+                riwayat.student.tahun_ajaran_sekarang_nama = (
+                    riwayat.tahun_ajaran.nama
+                )
+
+                siswa_hasil.append(
+                    riwayat.student
+                )
+
+            siswa = siswa_hasil
+
+        except TahunAjaran.DoesNotExist:
+
+            siswa = []
+
+    # ==========================================================
+    # JIKA TAHUN AJARAN ASAL TIDAK DIPILIH
+    #
+    # Ambil histori terakhir setiap siswa.
+    # ==========================================================
+
+    else:
+
+        semua_histori = RiwayatKelasSiswa.objects.filter(
+            status=True,
+            student__status=True
+        ).select_related(
+            'student',
+            'tahun_ajaran',
+            'kelas'
+        )
+
+        siswa_dict = {}
+
+        for riwayat in semua_histori:
+
+            student_id = riwayat.student_id
+
+            if student_id not in siswa_dict:
+
+                siswa_dict[student_id] = riwayat
+
+            else:
+
+                histori_lama = siswa_dict[student_id]
+
+                if periode_key(
+                    riwayat.tahun_ajaran
+                ) > periode_key(
+                    histori_lama.tahun_ajaran
+                ):
+
+                    siswa_dict[student_id] = riwayat
+
+        siswa = []
+
+        for riwayat in siswa_dict.values():
+
+            if kelas_id:
+
+                if str(riwayat.kelas_id) != str(kelas_id):
+                    continue
+
+            riwayat.student.kelas_sekarang_nama = (
+                riwayat.kelas.nama
+            )
+
+            riwayat.student.tahun_ajaran_sekarang_nama = (
+                riwayat.tahun_ajaran.nama
+            )
+
+            siswa.append(
+                riwayat.student
+            )
+
+    # ==========================================================
+    # FILTER TARGET
+    #
+    # Kalau target tahun sudah dipilih dan siswa sudah memiliki
+    # histori di target tersebut, jangan tampilkan.
+    # ==========================================================
+
+    if tahun_tujuan_id:
+
+        siswa_sudah_di_target = set(
+            RiwayatKelasSiswa.objects.filter(
+                tahun_ajaran_id=tahun_tujuan_id
+            ).values_list(
+                'student_id',
+                flat=True
+            )
+        )
+
+        siswa = [
+            student
+            for student in siswa
+            if student.id not in siswa_sudah_di_target
+        ]
+
+    # ==========================================================
+    # URUTKAN NAMA
+    # ==========================================================
+
+    siswa = sorted(
+        siswa,
+        key=lambda x: x.nama.lower()
+    )
+
+    # ==========================================================
+    # RENDER
+    # ==========================================================
 
     return render(
         request,
         'students/kenaikan_siswa.html',
         {
-            'siswa': siswa.order_by('nama'),
+            'siswa': siswa,
             'tahun_ajarans': tahun_ajarans,
             'kelass': kelass,
+
             'tahun_id': tahun_id,
             'kelas_id': kelas_id,
+            'tahun_tujuan_id': tahun_tujuan_id,
         }
     )
-    
 
 def tahun_ajaran(request):
 
@@ -6392,6 +7462,8 @@ def tahun_ajaran(request):
 
             else:
 
+                # Jika tahun ajaran baru dibuat aktif,
+                # nonaktifkan tahun ajaran lainnya
                 if aktif:
 
                     TahunAjaran.objects.update(
@@ -6444,6 +7516,8 @@ def tahun_ajaran(request):
 
             else:
 
+                # Jika tahun ajaran ini dibuat aktif,
+                # nonaktifkan tahun ajaran lainnya
                 if aktif:
 
                     TahunAjaran.objects.exclude(
@@ -6483,11 +7557,35 @@ def tahun_ajaran(request):
 
             nama_tahun = tahun.nama
 
-            tahun.delete()
+            try:
 
-            messages.success(
+                # Coba hapus tahun ajaran
+                tahun.delete()
+
+                messages.success(
+                    request,
+                    f'Tahun ajaran "{nama_tahun}" berhasil dihapus.'
+                )
+
+            except ProtectedError:
+
+                # Tahun ajaran masih digunakan oleh
+                # histori pendidikan siswa
+                messages.warning(
+                    request,
+                    f'Tahun ajaran "{nama_tahun}" tidak dapat dihapus karena masih digunakan dalam histori pendidikan siswa.'
+                )
+
+
+        # =====================================================
+        # AKSI TIDAK DIKENAL
+        # =====================================================
+
+        else:
+
+            messages.error(
                 request,
-                f'Tahun ajaran "{nama_tahun}" berhasil dihapus.'
+                'Aksi tidak dikenali.'
             )
 
 
@@ -6498,6 +7596,10 @@ def tahun_ajaran(request):
         return redirect('tahun_ajaran')
 
 
+    # =========================================================
+    # TAMPILAN HALAMAN
+    # =========================================================
+
     return render(
         request,
         'students/tahun_ajaran.html',
@@ -6505,3 +7607,4 @@ def tahun_ajaran(request):
             'tahun_ajarans': tahun_ajarans
         }
     )
+

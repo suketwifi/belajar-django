@@ -110,7 +110,7 @@ Presensi Siswa
 
                         <option
                             value="{{ kelas.id }}"
-                            {% if kelas_id == kelas.id|stringformat:"s" %}
+                            {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
                                 selected
                             {% endif %}
                         >
@@ -266,43 +266,57 @@ Presensi Siswa
                         <strong>
 
                             {% if tanggal|slice:"5:7" == "01" %}
+
                                 {{ tanggal|slice:"8:10" }} Januari {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "02" %}
+
                                 {{ tanggal|slice:"8:10" }} Februari {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "03" %}
+
                                 {{ tanggal|slice:"8:10" }} Maret {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "04" %}
+
                                 {{ tanggal|slice:"8:10" }} April {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "05" %}
+
                                 {{ tanggal|slice:"8:10" }} Mei {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "06" %}
+
                                 {{ tanggal|slice:"8:10" }} Juni {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "07" %}
+
                                 {{ tanggal|slice:"8:10" }} Juli {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "08" %}
+
                                 {{ tanggal|slice:"8:10" }} Agustus {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "09" %}
+
                                 {{ tanggal|slice:"8:10" }} September {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "10" %}
+
                                 {{ tanggal|slice:"8:10" }} Oktober {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "11" %}
+
                                 {{ tanggal|slice:"8:10" }} November {{ tanggal|slice:"0:4" }}
 
                             {% elif tanggal|slice:"5:7" == "12" %}
+
                                 {{ tanggal|slice:"8:10" }} Desember {{ tanggal|slice:"0:4" }}
 
                             {% else %}
+
                                 {{ tanggal }}
+
                             {% endif %}
 
                         </strong>
@@ -310,14 +324,35 @@ Presensi Siswa
                     </p>
 
 
+                    <!-- TAHUN AJARAN -->
+
+                    {% if tahun_ajaran_aktif %}
+
+                    <p class="tahun-ajaran-data">
+
+                        Tahun Ajaran:
+
+                        <strong>
+                            {{ tahun_ajaran_aktif.nama }}
+                        </strong>
+
+                    </p>
+
+                    {% endif %}
+
+
                     <!-- JUMLAH SISWA -->
 
                     <p class="jumlah-siswa">
 
                         {% if students %}
+
                             {{ students|length }} siswa
+
                         {% else %}
+
                             Belum ada siswa
+
                         {% endif %}
 
                     </p>
@@ -332,11 +367,14 @@ Presensi Siswa
 
                 <div class="attendance-counter">
 
-                    <span id="hadir-counter">
-                        0
+                    <span>
+                        Siswa Hadir
                     </span>
 
-                    siswa hadir
+
+                    <strong id="hadir-counter">
+                        0
+                    </strong>
 
                 </div>
 
@@ -362,11 +400,15 @@ Presensi Siswa
                         <tr>
 
                             <th>
-                                No
+                                NO
                             </th>
 
                             <th>
-                                Nama
+                                NAMA
+                            </th>
+
+                            <th>
+                                JENIS KELAMIN
                             </th>
 
                             <th>
@@ -374,15 +416,19 @@ Presensi Siswa
                             </th>
 
                             <th>
-                                Kelas
+                                KELAS
                             </th>
 
                             <th>
-                                Status
+                                TAHUN AJARAN
                             </th>
 
                             <th>
-                                Keterangan
+                                STATUS
+                            </th>
+
+                            <th>
+                                KETERANGAN
                             </th>
 
                         </tr>
@@ -419,6 +465,12 @@ Presensi Siswa
 
                             </td>
 
+                            <td>
+                                <strong>
+                                    {{ student.jk }}
+                                </strong>
+                            </td>
+
 
                             <!-- NIM -->
 
@@ -436,9 +488,40 @@ Presensi Siswa
                             <td>
 
                                 {% if student.kelas %}
-                                    {{ student.kelas.nama }}
+
+                                    <span class="class-badge">
+                                        {{ student.kelas.nama }}
+                                    </span>
+
                                 {% else %}
+
                                     -
+
+                                {% endif %}
+
+                            </td>
+
+
+                            <!-- TAHUN AJARAN -->
+
+                            <td>
+
+                                {% if student.histori_presensi %}
+
+                                    <span class="tahun-ajaran-badge">
+                                        {{ student.histori_presensi.tahun_ajaran.nama }}
+                                    </span>
+
+                                {% elif tahun_ajaran_aktif %}
+
+                                    <span class="tahun-ajaran-badge">
+                                        {{ tahun_ajaran_aktif.nama }}
+                                    </span>
+
+                                {% else %}
+
+                                    -
+
                                 {% endif %}
 
                             </td>
@@ -528,7 +611,7 @@ Presensi Siswa
                         <tr>
 
                             <td
-                                colspan="6"
+                                colspan="8"
                                 class="empty-state"
                             >
                                 Belum ada data siswa.
@@ -589,17 +672,22 @@ document.addEventListener("DOMContentLoaded", function () {
     const btnMulaiScan =
         document.getElementById("btnMulaiScan");
 
+
     const scannerModal =
         document.getElementById("scannerModal");
+
 
     const btnTutupScanner =
         document.getElementById("btnTutupScanner");
 
+
     const scannerStatus =
         document.getElementById("scannerStatus");
 
+
     const scannerReader =
         document.getElementById("reader");
+
 
     const hadirCounter =
         document.getElementById("hadir-counter");
@@ -627,7 +715,9 @@ document.addEventListener("DOMContentLoaded", function () {
             .forEach(function (select) {
 
                 if (select.value === "Hadir") {
+
                     jumlahHadir++;
+
                 }
 
             });
@@ -654,7 +744,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         if (!nim || scanProcessing) {
+
             return;
+
         }
 
 
@@ -672,7 +764,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
             if (studentNim === nim) {
+
                 rowDitemukan = row;
+
             }
 
         });
@@ -744,7 +838,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         if (noteInput) {
+
             noteInput.value = "";
+
         }
 
 
@@ -752,8 +848,11 @@ document.addEventListener("DOMContentLoaded", function () {
         /* Scroll ke siswa */
 
         rowDitemukan.scrollIntoView({
+
             behavior: "smooth",
+
             block: "center"
+
         });
 
 
@@ -895,7 +994,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         if (!scannerModal || !scannerReader) {
+
             return;
+
         }
 
 
@@ -903,7 +1004,9 @@ document.addEventListener("DOMContentLoaded", function () {
         /* Jangan buka scanner dua kali */
 
         if (scannerRunning) {
+
             return;
+
         }
 
 
@@ -1180,6 +1283,32 @@ document.addEventListener("DOMContentLoaded", function () {
 }
 
 
+/* =====================================================
+   TAHUN AJARAN PADA HEADER
+===================================================== */
+
+.tahun-ajaran-data {
+
+    margin: 2px 0 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+}
+
+
+.tahun-ajaran-data strong {
+
+    color: #4f46e5;
+
+    font-weight: 700;
+
+}
+
+
 .jumlah-siswa {
 
     margin: 4px 0 0;
@@ -1189,6 +1318,8 @@ document.addEventListener("DOMContentLoaded", function () {
     font-size: 12px;
 
 }
+
+
 
 
 
@@ -1219,11 +1350,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     padding: 0 15px;
 
-    border: 1px solid #4f46e5;
+    border: 1px solid #2563eb;
 
     border-radius: 8px;
 
-    background: #4f46e5;
+    background: #2563eb;
 
     color: #ffffff;
 
@@ -1256,9 +1387,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 .btn-mulai-scan:hover {
 
-    background: #4338ca;
+    background: #2563eb;
 
-    border-color: #4338ca;
+    border-color: #2563eb;
 
     transform: translateY(-1px);
 
@@ -1278,6 +1409,8 @@ document.addEventListener("DOMContentLoaded", function () {
     transform: translateY(0);
 
 }
+
+
 
 
 
@@ -1310,6 +1443,8 @@ document.addEventListener("DOMContentLoaded", function () {
     z-index: 99999;
 
 }
+
+
 
 
 
@@ -1346,6 +1481,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+
 /* =====================================================
    HEADER MODAL
 ===================================================== */
@@ -1369,6 +1506,8 @@ document.addEventListener("DOMContentLoaded", function () {
     font-weight: 700;
 
 }
+
+
 
 
 
@@ -1428,6 +1567,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+
 /* =====================================================
    READER
 ===================================================== */
@@ -1463,6 +1604,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+
 /* =====================================================
    STATUS
 ===================================================== */
@@ -1483,6 +1626,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
+
+
 /* =====================================================
    HASIL SCAN
 ===================================================== */
@@ -1495,6 +1640,8 @@ document.addEventListener("DOMContentLoaded", function () {
         background 0.3s ease;
 
 }
+
+
 
 
 
@@ -1512,6 +1659,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
 }
+
+
 
 
 
@@ -1575,9 +1724,100 @@ document.addEventListener("DOMContentLoaded", function () {
 
     }
 
+
+    .tahun-ajaran-data {
+
+        font-size: 11px;
+
+    }
+
+
+
 }
+.btn-save {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: none !important;
+}
+
+.btn-save:hover {
+    background: #1d4ed8 !important;
+}
+
+/* =========================================================
+   TOMBOL TAMPILKAN
+   ========================================================= */
+
+.btn-view {
+    background: #2563eb !important;
+    color: #ffffff !important;
+    border: none;
+}
+
+.btn-view:hover {
+    background: #1d4ed8 !important;
+}
+
+.attendance-counter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+
+.attendance-counter span {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.attendance-counter strong {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.tahun-ajaran-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 105px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+
+.class-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 
 </style>
 
 {% endblock %}
-

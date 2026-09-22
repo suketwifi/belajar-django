@@ -402,58 +402,7 @@ Input Presensi Guru
         {% if gurus %}
 
         <div class="presensi-guru-footer">
-
-            <div class="presensi-info">
-
-                Data presensi guru untuk
-
-                <strong>
-
-                    {% if tanggal|slice:"5:7" == "01" %}
-                        {{ tanggal|slice:"8:10" }} Januari {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "02" %}
-                        {{ tanggal|slice:"8:10" }} Februari {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "03" %}
-                        {{ tanggal|slice:"8:10" }} Maret {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "04" %}
-                        {{ tanggal|slice:"8:10" }} April {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "05" %}
-                        {{ tanggal|slice:"8:10" }} Mei {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "06" %}
-                        {{ tanggal|slice:"8:10" }} Juni {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "07" %}
-                        {{ tanggal|slice:"8:10" }} Juli {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "08" %}
-                        {{ tanggal|slice:"8:10" }} Agustus {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "09" %}
-                        {{ tanggal|slice:"8:10" }} September {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "10" %}
-                        {{ tanggal|slice:"8:10" }} Oktober {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "11" %}
-                        {{ tanggal|slice:"8:10" }} November {{ tanggal|slice:"0:4" }}
-
-                    {% elif tanggal|slice:"5:7" == "12" %}
-                        {{ tanggal|slice:"8:10" }} Desember {{ tanggal|slice:"0:4" }}
-
-                    {% else %}
-                        {{ tanggal }}
-                    {% endif %}
-
-                </strong>
-
-            </div>
-
-
+            
             <button
                 type="submit"
                 class="btn-simpan-presensi"
@@ -792,7 +741,7 @@ Input Presensi Guru
 .presensi-guru-footer {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     padding: 18px 24px;
     border-top: 1px solid #e5e7eb;
     background: #ffffff;
@@ -988,7 +937,7 @@ Input Presensi Guru
     }
 
     .btn-simpan-presensi {
-        width: 100%;
+        width: auto;
     }
 
 }

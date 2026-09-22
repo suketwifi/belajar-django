@@ -1,17 +1,16 @@
 {% extends "students/base.html" %}
 
 {% block title %}
-
 Tahun Ajaran
-
 {% endblock %}
 
 {% block content %}
 
 <div class="tahun-page">
 
-
-<!-- HEADER -->
+<!-- =================================================
+     HEADER
+================================================= -->
 
 <div class="page-header">
 
@@ -19,14 +18,72 @@ Tahun Ajaran
 
         <h1>Tahun Ajaran</h1>
 
-        <p>Kelola data tahun ajaran sekolah</p>
+        <p>
+            Kelola data tahun ajaran sekolah
+        </p>
 
     </div>
 
 </div>
 
 
-<!-- FORM TAMBAH -->
+<!-- =================================================
+     PERINGATAN KERAS
+================================================= -->
+
+<div class="tahun-warning">
+
+    <div class="tahun-warning-icon">
+        !
+    </div>
+
+    <div class="tahun-warning-content">
+
+        <h3>
+            PERINGATAN KERAS — TAHUN AJARAN
+        </h3>
+
+        <p class="tahun-warning-main">
+            <strong>
+                JANGAN MENGUBAH ATAU MENGHAPUS TAHUN AJARAN
+                YANG SUDAH BERJALAN ATAU SUDAH DIGUNAKAN.
+            </strong>
+        </p>
+
+        <p>
+            Perubahan tahun ajaran dapat menyebabkan
+            ketidaksesuaian data pada:
+        </p>
+
+        <ul>
+            <li>Presensi Siswa</li>
+            <li>Rekap Presensi Siswa</li>
+            <li>Presensi Guru</li>
+            <li>Penilaian Siswa</li>
+            <li>Rapot</li>
+            <li>Histori Pendidikan Siswa</li>
+            <li>Kenaikan Siswa</li>
+        </ul>
+
+        <div class="tahun-warning-important">
+
+            ⚠️
+            <span>
+                Pastikan perubahan Tahun Ajaran hanya dilakukan
+                oleh <strong>Super Admin / Kepala Sekolah</strong>
+                dan dilakukan dengan sangat hati-hati.
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =================================================
+     FORM TAMBAH
+================================================= -->
 
 <div class="tahun-form-card">
 
@@ -34,9 +91,13 @@ Tahun Ajaran
 
         <div>
 
-            <h2>Tambah Tahun Ajaran</h2>
+            <h2>
+                Tambah Tahun Ajaran
+            </h2>
 
-            <p>Masukkan tahun ajaran baru</p>
+            <p>
+                Masukkan tahun ajaran baru
+            </p>
 
         </div>
 
@@ -46,7 +107,11 @@ Tahun Ajaran
 
         {% csrf_token %}
 
-        <input type="hidden" name="aksi" value="tambah">
+        <input
+            type="hidden"
+            name="aksi"
+            value="tambah"
+        >
 
         <div class="tahun-form-row">
 
@@ -83,12 +148,12 @@ Tahun Ajaran
                     name="aktif"
                 >
 
-                    <option value="1">
-                        Aktif
+                    <option value="0" selected>
+                        Tidak Aktif
                     </option>
 
-                    <option value="0">
-                        Tidak Aktif
+                    <option value="1">
+                        Aktif
                     </option>
 
                 </select>
@@ -116,7 +181,9 @@ Tahun Ajaran
 </div>
 
 
-<!-- TABEL -->
+<!-- =================================================
+     TABEL
+================================================= -->
 
 <div class="tahun-table-card">
 
@@ -124,9 +191,13 @@ Tahun Ajaran
 
         <div>
 
-            <h2>Daftar Tahun Ajaran</h2>
+            <h2>
+                Daftar Tahun Ajaran
+            </h2>
 
-            <p>Data tahun ajaran yang tersedia</p>
+            <p>
+                Data tahun ajaran yang tersedia
+            </p>
 
         </div>
 
@@ -142,19 +213,19 @@ Tahun Ajaran
                 <tr>
 
                     <th width="70">
-                        No
+                        NO
                     </th>
 
                     <th>
-                        Tahun Ajaran
+                        TAHUN AJARAN
                     </th>
 
                     <th width="160">
-                        Status
+                        STATUS
                     </th>
 
                     <th width="180">
-                        Aksi
+                        AKSI
                     </th>
 
                 </tr>
@@ -315,7 +386,6 @@ Tahun Ajaran
                                 Edit
                             </button>
 
-
                             <button
                                 type="button"
                                 class="tahun-delete-button btn-hapus-tahun"
@@ -344,7 +414,6 @@ Tahun Ajaran
                                 Simpan
                             </button>
 
-
                             <button
                                 type="button"
                                 class="tahun-cancel-button btn-batal-tahun"
@@ -358,6 +427,7 @@ Tahun Ajaran
                     </td>
 
                 </tr>
+
 
                 {% empty %}
 
@@ -386,7 +456,7 @@ Tahun Ajaran
 </div>
 
 <!-- =====================================================
-     POPUP HAPUS
+     POPUP KONFIRMASI HAPUS
 ===================================================== -->
 
 <div
@@ -415,17 +485,15 @@ Tahun Ajaran
 
 
     <p>
-
         Apakah Anda yakin ingin menghapus
-
         <strong id="tahun-delete-nama"></strong>?
-
     </p>
 
 
     <span class="tahun-delete-warning">
 
-        Data yang sudah dihapus tidak dapat dikembalikan.
+        ⚠️ Data yang sudah dihapus tidak dapat dikembalikan
+        dan dapat memengaruhi data akademik.
 
     </span>
 
@@ -490,32 +558,159 @@ Tahun Ajaran
 
 
 /* =====================================================
+   PERINGATAN KERAS
+===================================================== */
+
+.tahun-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+
+    width: 100%;
+    margin-bottom: 24px;
+    padding: 20px 22px;
+
+    background: #fff7ed;
+
+    border: 2px solid #f97316;
+    border-left: 7px solid #dc2626;
+
+    border-radius: 12px;
+
+    box-sizing: border-box;
+
+    box-shadow:
+        0 3px 10px rgba(220, 38, 38, 0.08);
+}
+
+
+.tahun-warning-icon {
+    flex: 0 0 auto;
+
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #dc2626;
+    color: #ffffff;
+
+    font-size: 25px;
+    font-weight: 800;
+}
+
+
+.tahun-warning-content {
+    flex: 1;
+    min-width: 0;
+}
+
+
+.tahun-warning-content h3 {
+    margin: 0 0 8px 0;
+
+    color: #991b1b;
+
+    font-size: 16px;
+    font-weight: 800;
+}
+
+
+.tahun-warning-content p {
+    margin: 0 0 8px 0;
+
+    color: #7c2d12;
+
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+.tahun-warning-content .tahun-warning-main {
+    color: #991b1b;
+
+    font-size: 14px;
+}
+
+
+.tahun-warning-content ul {
+    margin: 6px 0 10px 20px;
+    padding: 0;
+
+    color: #7c2d12;
+
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+
+.tahun-warning-important {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+
+    margin-top: 10px;
+    padding-top: 10px;
+
+    border-top: 1px solid #fed7aa;
+
+    color: #991b1b;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    line-height: 1.6;
+}
+
+
+.tahun-warning-important strong {
+    color: #7f1d1d;
+}
+
+
+/* =====================================================
    FORM TAMBAH
 ===================================================== */
 
 .tahun-form-card {
     background: #ffffff;
+
     border: 1px solid #e5e7eb;
     border-radius: 12px;
+
     padding: 24px;
+
     margin-bottom: 24px;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.04);
 }
+
 
 .tahun-form-header {
     margin-bottom: 22px;
 }
 
+
 .tahun-form-header h2 {
     margin: 0 0 5px 0;
+
     font-size: 17px;
     font-weight: 700;
+
     color: #111827;
 }
 
+
 .tahun-form-header p {
     margin: 0;
+
     font-size: 13px;
+
     color: #6b7280;
 }
 
@@ -526,54 +721,80 @@ Tahun Ajaran
 
 .tahun-form-row {
     display: flex !important;
+
     align-items: flex-end !important;
+
     gap: 16px !important;
+
     flex-wrap: wrap !important;
+
     width: 100%;
+
     margin: 0;
     padding: 0;
 }
+
 
 .tahun-field {
     flex: 0 0 auto;
+
     margin: 0;
     padding: 0;
 }
 
+
 .tahun-field label {
     display: block;
+
     margin: 0 0 8px 0;
+
     font-size: 13px;
+
     font-weight: 600;
+
     color: #374151;
 }
+
 
 .tahun-field input,
 .tahun-field select {
     display: block;
+
     width: 260px;
     height: 44px;
+
     margin: 0;
     padding: 0 13px;
+
     border: 1px solid #d1d5db;
     border-radius: 8px;
+
     background: #ffffff;
+
     color: #111827;
+
     font-family: inherit;
     font-size: 14px;
+
     box-sizing: border-box;
+
     outline: none;
 }
 
+
 .tahun-field select {
     width: 180px;
+
     cursor: pointer;
 }
+
 
 .tahun-field input:focus,
 .tahun-field select:focus {
     border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.10);
 }
 
 
@@ -583,54 +804,84 @@ Tahun Ajaran
 
 .tahun-add-wrap {
     display: flex !important;
+
     align-items: flex-end !important;
+
     justify-content: flex-start !important;
+
     flex: 0 0 auto !important;
+
     width: auto !important;
+
     height: 44px !important;
+
     min-height: 44px !important;
+
     margin: 0 !important;
     padding: 0 !important;
 }
 
+
 .tahun-add-button {
     appearance: none !important;
     -webkit-appearance: none !important;
+
     display: flex !important;
+
     align-items: center !important;
     justify-content: center !important;
+
     width: 100px !important;
     min-width: 100px !important;
+
     height: 44px !important;
+
     margin: 0 !important;
     padding: 0 !important;
+
     border: 0 !important;
+
     border-radius: 8px !important;
+
     background: #2563eb !important;
+
     color: #ffffff !important;
+
     font-family: inherit !important;
+
     font-size: 14px !important;
+
     font-weight: 600 !important;
+
     line-height: 1 !important;
+
     text-align: center !important;
+
     box-sizing: border-box !important;
+
     cursor: pointer !important;
+
     transition:
         background 0.2s ease,
         box-shadow 0.2s ease !important;
 }
 
+
 .tahun-add-button:hover {
     background: #1d4ed8 !important;
 }
+
 
 .tahun-add-button:active {
     background: #1e40af !important;
 }
 
+
 .tahun-add-button:focus {
     outline: none !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.15) !important;
 }
 
 
@@ -640,30 +891,47 @@ Tahun Ajaran
 
 .tahun-table-card {
     background: #ffffff;
+
     border: 1px solid #e5e7eb;
+
     border-radius: 12px;
+
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+
+    box-shadow:
+        0 2px 8px rgba(15, 23, 42, 0.04);
 }
+
 
 .tahun-table-header {
     display: flex;
+
     align-items: center;
+
     justify-content: space-between;
+
     padding: 22px 24px;
+
     border-bottom: 1px solid #e5e7eb;
 }
 
+
 .tahun-table-header h2 {
     margin: 0 0 5px 0;
+
     font-size: 17px;
+
     font-weight: 700;
+
     color: #111827;
 }
 
+
 .tahun-table-header p {
     margin: 0;
+
     font-size: 13px;
+
     color: #6b7280;
 }
 
@@ -674,39 +942,60 @@ Tahun Ajaran
 
 .tahun-table-wrapper {
     width: 100%;
+
     overflow-x: auto;
 }
 
+
 .tahun-table {
     width: 100%;
+
     border-collapse: collapse;
+
     table-layout: fixed;
 }
 
+
 .tahun-table th {
     height: 48px;
+
     padding: 0 18px;
+
     background: #f8fafc;
+
     border-bottom: 1px solid #e5e7eb;
+
     color: #475569;
+
     font-size: 12px;
+
     font-weight: 700;
+
     text-align: left;
+
     white-space: nowrap;
 }
 
+
 .tahun-table td {
     height: 64px;
+
     padding: 10px 18px;
+
     border-bottom: 1px solid #f1f5f9;
+
     color: #374151;
+
     font-size: 14px;
+
     vertical-align: middle;
 }
+
 
 .tahun-table tbody tr:last-child td {
     border-bottom: none;
 }
+
 
 .tahun-table tbody tr:hover {
     background: #fafafa;
@@ -719,13 +1008,18 @@ Tahun Ajaran
 
 .tahun-view-data {
     display: flex;
+
     align-items: center;
+
     min-height: 40px;
 }
 
+
 .tahun-view-data strong {
     color: #111827;
+
     font-size: 14px;
+
     font-weight: 600;
 }
 
@@ -736,23 +1030,35 @@ Tahun Ajaran
 
 .tahun-status {
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
+
     min-width: 82px;
+
     height: 30px;
+
     padding: 0 12px;
-    border-radius: 20px;
+
+    border-radius: 6px;
+
     font-size: 12px;
+
     font-weight: 600;
 }
 
+
 .tahun-status.aktif {
     background: #dcfce7;
+
     color: #15803d;
 }
 
+
 .tahun-status.tidak-aktif {
     background: #f1f5f9;
+
     color: #64748b;
 }
 
@@ -763,25 +1069,41 @@ Tahun Ajaran
 
 .tahun-action-buttons {
     display: flex;
+
     align-items: center;
+
     gap: 8px;
 }
+
 
 .tahun-edit-button,
 .tahun-delete-button {
     appearance: none;
+
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
+
     height: 34px;
+
     padding: 0 13px;
+
     border-radius: 7px;
+
     font-family: inherit;
+
     font-size: 12px;
+
     font-weight: 600;
+
     line-height: 1;
+
     cursor: pointer;
+
     box-sizing: border-box;
+
     transition:
         background 0.2s ease,
         color 0.2s ease;
@@ -792,12 +1114,16 @@ Tahun Ajaran
 
 .tahun-edit-button {
     border: 1px solid #e2e8f0;
+
     background: #f1f5f9;
+
     color: #475569;
 }
 
+
 .tahun-edit-button:hover {
     background: #e2e8f0;
+
     color: #334155;
 }
 
@@ -806,12 +1132,16 @@ Tahun Ajaran
 
 .tahun-delete-button {
     border: 1px solid #fecaca;
+
     background: #fef2f2;
+
     color: #dc2626;
 }
 
+
 .tahun-delete-button:hover {
     background: #fee2e2;
+
     color: #b91c1c;
 }
 
@@ -822,68 +1152,113 @@ Tahun Ajaran
 
 .tahun-edit-row {
     margin: 0;
+
     padding: 0;
 }
+
 
 .tahun-edit-input {
     display: block;
+
     width: 260px;
+
     height: 38px;
+
     margin: 0;
+
     padding: 0 10px;
+
     border: 1px solid #2563eb;
+
     border-radius: 7px;
+
     background: #ffffff;
+
     color: #111827;
+
     font-family: inherit;
+
     font-size: 13px;
+
     box-sizing: border-box;
+
     outline: none;
 }
 
+
 .tahun-edit-input:focus {
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+    box-shadow:
+        0 0 0 3px rgba(37, 99, 235, 0.10);
 }
+
 
 .tahun-status-edit {
     margin: 0;
+
     padding: 0;
 }
 
+
 .tahun-edit-select {
     width: 130px;
+
     height: 38px;
+
     margin: 0;
+
     padding: 0 10px;
+
     border: 1px solid #2563eb;
+
     border-radius: 7px;
+
     background: #ffffff;
+
     color: #111827;
+
     font-family: inherit;
+
     font-size: 13px;
+
     box-sizing: border-box;
+
     outline: none;
 }
 
+
 .tahun-edit-actions {
     display: flex;
+
     align-items: center;
+
     gap: 8px;
 }
+
 
 .tahun-save-button,
 .tahun-cancel-button {
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
+
     height: 34px;
+
     padding: 0 13px;
+
     border-radius: 7px;
+
     font-family: inherit;
+
     font-size: 12px;
+
     font-weight: 600;
+
     line-height: 1;
+
     cursor: pointer;
+
     box-sizing: border-box;
 }
 
@@ -892,9 +1267,12 @@ Tahun Ajaran
 
 .tahun-save-button {
     border: 1px solid #2563eb;
+
     background: #2563eb;
+
     color: #ffffff;
 }
+
 
 .tahun-save-button:hover {
     background: #1d4ed8;
@@ -905,9 +1283,12 @@ Tahun Ajaran
 
 .tahun-cancel-button {
     border: 1px solid #e2e8f0;
+
     background: #f1f5f9;
+
     color: #475569;
 }
+
 
 .tahun-cancel-button:hover {
     background: #e2e8f0;
@@ -920,29 +1301,41 @@ Tahun Ajaran
 
 .tahun-empty {
     padding: 40px 20px !important;
+
     text-align: center !important;
+
     color: #94a3b8 !important;
+
     font-size: 13px !important;
 }
 
 
 /* =====================================================
-   POPUP HAPUS
+   POPUP KONFIRMASI HAPUS
 ===================================================== */
 
 .tahun-delete-modal {
     position: fixed;
+
     inset: 0;
+
     z-index: 9999;
+
     width: 100%;
+
     height: 100%;
 }
 
+
 .tahun-delete-overlay {
     position: absolute;
+
     inset: 0;
+
     width: 100%;
+
     height: 100%;
+
     background: rgba(15, 23, 42, 0.45);
 }
 
@@ -953,57 +1346,93 @@ Tahun Ajaran
 
 .tahun-delete-box {
     position: absolute;
+
     top: 50%;
+
     left: 50%;
+
     width: 420px;
+
     max-width: calc(100% - 32px);
+
     padding: 28px;
+
     transform: translate(-50%, -50%);
+
     background: #ffffff;
+
     border-radius: 13px;
+
     box-shadow:
         0 20px 50px rgba(15, 23, 42, 0.20);
+
     text-align: center;
+
     box-sizing: border-box;
 }
 
+
 .tahun-delete-icon {
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     width: 52px;
+
     height: 52px;
+
     margin: 0 auto 18px auto;
+
     border-radius: 50%;
+
     background: #fee2e2;
+
     color: #dc2626;
+
     font-size: 25px;
+
     font-weight: 700;
 }
+
 
 .tahun-delete-box h3 {
     margin: 0 0 10px 0;
+
     color: #111827;
+
     font-size: 18px;
+
     font-weight: 700;
 }
 
+
 .tahun-delete-box p {
     margin: 0 auto 10px auto;
+
     color: #4b5563;
+
     font-size: 14px;
+
     line-height: 1.6;
 }
+
 
 .tahun-delete-box p strong {
     color: #111827;
 }
 
+
 .tahun-delete-warning {
     display: block;
+
     margin-top: 8px;
+
     color: #dc2626;
+
     font-size: 12px;
+
     line-height: 1.5;
 }
 
@@ -1014,25 +1443,41 @@ Tahun Ajaran
 
 .tahun-delete-actions {
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     gap: 10px;
+
     margin-top: 24px;
 }
+
 
 .tahun-delete-cancel,
 .tahun-delete-confirm {
     display: inline-flex;
+
     align-items: center;
+
     justify-content: center;
+
     height: 40px;
+
     padding: 0 18px;
+
     border-radius: 8px;
+
     font-family: inherit;
+
     font-size: 13px;
+
     font-weight: 600;
+
     line-height: 1;
+
     cursor: pointer;
+
     box-sizing: border-box;
 }
 
@@ -1041,9 +1486,12 @@ Tahun Ajaran
 
 .tahun-delete-cancel {
     border: 1px solid #e2e8f0;
+
     background: #f1f5f9;
+
     color: #475569;
 }
+
 
 .tahun-delete-cancel:hover {
     background: #e2e8f0;
@@ -1054,9 +1502,12 @@ Tahun Ajaran
 
 .tahun-delete-confirm {
     border: 1px solid #dc2626;
+
     background: #dc2626;
+
     color: #ffffff;
 }
+
 
 .tahun-delete-confirm:hover {
     background: #b91c1c;
@@ -1069,232 +1520,309 @@ Tahun Ajaran
 
 @media (max-width: 700px) {
 
-    /* =================================================
-       HALAMAN
-    ================================================= */
-
     .tahun-page {
         width: 100%;
+
         min-width: 0;
     }
 
 
-    /* =================================================
-       FORM TAMBAH
-    ================================================= */
+    /* PERINGATAN */
+
+    .tahun-warning {
+        gap: 12px;
+
+        padding: 16px;
+
+        border-left-width: 5px;
+    }
+
+
+    .tahun-warning-icon {
+        width: 38px;
+
+        height: 38px;
+
+        font-size: 20px;
+    }
+
+
+    .tahun-warning-content h3 {
+        font-size: 14px;
+    }
+
+
+    .tahun-warning-content p,
+    .tahun-warning-content ul,
+    .tahun-warning-important {
+        font-size: 12px;
+    }
+
+
+    /* FORM */
 
     .tahun-form-card {
         padding: 18px;
+
         margin-bottom: 18px;
     }
 
+
     .tahun-form-row {
         flex-direction: column !important;
+
         align-items: stretch !important;
+
         gap: 14px !important;
     }
+
 
     .tahun-field {
         width: 100%;
     }
 
+
     .tahun-field input,
     .tahun-field select {
         width: 100%;
+
         max-width: 100%;
     }
+
 
     .tahun-add-wrap {
         width: 100% !important;
     }
 
+
     .tahun-add-button {
         width: 100% !important;
+
         min-width: 100% !important;
     }
 
 
-    /* =================================================
-       HEADER TABEL
-    ================================================= */
+    /* HEADER TABEL */
 
     .tahun-table-header {
         padding: 18px;
     }
 
+
     .tahun-table-header h2 {
         font-size: 16px;
     }
+
 
     .tahun-table-header p {
         font-size: 12px;
     }
 
 
-    /* =================================================
-       TABEL HP
-       TABEL TETAP UTUH DAN BISA DIGESER
-       AGAR TIDAK BERTUMPUK
-    ================================================= */
+    /* TABEL HP */
 
     .tahun-table-wrapper {
         display: block;
+
         width: 100%;
+
         max-width: 100%;
+
         overflow-x: auto;
+
         overflow-y: hidden;
+
         -webkit-overflow-scrolling: touch;
+
         scrollbar-width: thin;
     }
 
+
     .tahun-table {
         width: 100%;
+
         min-width: 650px;
+
         table-layout: fixed;
+
         border-collapse: collapse;
     }
 
+
     .tahun-table th {
         height: 46px;
+
         padding: 0 12px;
+
         font-size: 12px;
+
         white-space: nowrap;
     }
 
+
     .tahun-table td {
         height: 60px;
+
         padding: 10px 12px;
+
         font-size: 13px;
+
         white-space: nowrap;
+
         vertical-align: middle;
     }
 
 
-    /* =================================================
-       LEBAR KOLOM TABEL
-    ================================================= */
+    /* LEBAR KOLOM */
 
     .tahun-table th:nth-child(1),
     .tahun-table td:nth-child(1) {
         width: 55px;
+
         min-width: 55px;
+
         text-align: center;
     }
+
 
     .tahun-table th:nth-child(2),
     .tahun-table td:nth-child(2) {
         width: 240px;
+
         min-width: 240px;
     }
+
 
     .tahun-table th:nth-child(3),
     .tahun-table td:nth-child(3) {
         width: 130px;
+
         min-width: 130px;
     }
+
 
     .tahun-table th:nth-child(4),
     .tahun-table td:nth-child(4) {
         width: 225px;
+
         min-width: 225px;
     }
 
 
-    /* =================================================
-       DATA TAHUN
-    ================================================= */
+    /* DATA TAHUN */
 
     .tahun-view-data {
         display: flex;
+
         align-items: center;
+
         min-height: 40px;
+
         width: 100%;
+
         white-space: nowrap;
     }
+
 
     .tahun-view-data strong {
         display: block;
+
         font-size: 13px;
+
         white-space: nowrap;
     }
 
 
-    /* =================================================
-       STATUS
-    ================================================= */
+    /* STATUS */
 
     .tahun-status {
         display: inline-flex;
+
         align-items: center;
+
         justify-content: center;
+
         min-width: 82px;
+
         height: 30px;
+
         padding: 0 12px;
+
         white-space: nowrap;
     }
 
 
-    /* =================================================
-       TOMBOL AKSI
-    ================================================= */
+    /* TOMBOL AKSI */
 
     .tahun-action-buttons,
     .tahun-edit-actions {
         display: flex;
+
         align-items: center;
+
         justify-content: flex-start;
+
         flex-wrap: nowrap !important;
+
         gap: 8px;
+
         width: max-content;
+
         white-space: nowrap;
     }
+
 
     .tahun-edit-button,
     .tahun-delete-button,
     .tahun-save-button,
     .tahun-cancel-button {
         flex: 0 0 auto;
+
         white-space: nowrap;
     }
 
 
-    /* =================================================
-       MODE EDIT
-    ================================================= */
+    /* MODE EDIT */
 
     .tahun-edit-row {
         width: 100%;
     }
 
+
     .tahun-edit-input {
         width: 220px;
+
         max-width: none;
     }
+
 
     .tahun-status-edit {
         width: max-content;
     }
+
 
     .tahun-edit-select {
         width: 120px;
     }
 
 
-    /* =================================================
-       POPUP HAPUS
-    ================================================= */
+    /* POPUP HAPUS */
 
     .tahun-delete-box {
         width: calc(100% - 32px);
+
         max-width: 420px;
+
         padding: 24px 20px;
     }
+
 
     .tahun-delete-actions {
         flex-wrap: wrap;
     }
 
 }
+
 
 </style>
 
@@ -1312,82 +1840,134 @@ document.addEventListener('DOMContentLoaded', function () {
     ================================================= */
 
     const editButtons =
-        document.querySelectorAll('.btn-edit-tahun');
+        document.querySelectorAll(
+            '.btn-edit-tahun'
+        );
 
 
     editButtons.forEach(function (button) {
 
-        button.addEventListener('click', function () {
+        button.addEventListener(
+            'click',
+            function () {
 
-            const id = this.dataset.id;
-
-
-            const viewData =
-                document.getElementById(
-                    'tahun-view-' + id
-                );
+                const id =
+                    this.dataset.id;
 
 
-            const statusView =
-                document.getElementById(
-                    'tahun-status-view-' + id
-                );
+                const viewData =
+                    document.getElementById(
+                        'tahun-view-' + id
+                    );
 
 
-            const editRow =
-                document.getElementById(
-                    'tahun-edit-' + id
-                );
+                const statusView =
+                    document.getElementById(
+                        'tahun-status-view-' + id
+                    );
 
 
-            const statusEdit =
-                document.getElementById(
-                    'tahun-status-edit-' + id
-                );
+                const editRow =
+                    document.getElementById(
+                        'tahun-edit-' + id
+                    );
 
 
-            const actions =
-                document.getElementById(
-                    'tahun-actions-' + id
-                );
+                const statusEdit =
+                    document.getElementById(
+                        'tahun-status-edit-' + id
+                    );
 
 
-            const editActions =
-                document.getElementById(
-                    'tahun-edit-actions-' + id
-                );
+                const actions =
+                    document.getElementById(
+                        'tahun-actions-' + id
+                    );
 
 
-            if (viewData) {
-                viewData.style.display = 'none';
+                const editActions =
+                    document.getElementById(
+                        'tahun-edit-actions-' + id
+                    );
+
+
+                if (viewData) {
+
+                    viewData.style.display =
+                        'none';
+
+                }
+
+
+                if (statusView) {
+
+                    statusView.style.display =
+                        'none';
+
+                }
+
+
+                if (editRow) {
+
+                    editRow.style.display =
+                        'block';
+
+                }
+
+
+                if (statusEdit) {
+
+                    statusEdit.style.display =
+                        'block';
+
+                }
+
+
+                if (actions) {
+
+                    actions.style.display =
+                        'none';
+
+                }
+
+
+                if (editActions) {
+
+                    editActions.style.display =
+                        'flex';
+
+                }
+
+
+                /* FOKUS INPUT */
+
+                if (editRow) {
+
+                    const input =
+                        editRow.querySelector(
+                            '.tahun-edit-input'
+                        );
+
+
+                    if (input) {
+
+                        setTimeout(
+                            function () {
+
+                                input.focus();
+
+                                input.select();
+
+                            },
+                            50
+                        );
+
+                    }
+
+                }
+
             }
-
-
-            if (statusView) {
-                statusView.style.display = 'none';
-            }
-
-
-            if (editRow) {
-                editRow.style.display = 'block';
-            }
-
-
-            if (statusEdit) {
-                statusEdit.style.display = 'block';
-            }
-
-
-            if (actions) {
-                actions.style.display = 'none';
-            }
-
-
-            if (editActions) {
-                editActions.style.display = 'flex';
-            }
-
-        });
+        );
 
     });
 
@@ -1397,88 +1977,112 @@ document.addEventListener('DOMContentLoaded', function () {
     ================================================= */
 
     const cancelButtons =
-        document.querySelectorAll('.btn-batal-tahun');
+        document.querySelectorAll(
+            '.btn-batal-tahun'
+        );
 
 
     cancelButtons.forEach(function (button) {
 
-        button.addEventListener('click', function () {
+        button.addEventListener(
+            'click',
+            function () {
 
-            const id = this.dataset.id;
-
-
-            const viewData =
-                document.getElementById(
-                    'tahun-view-' + id
-                );
+                const id =
+                    this.dataset.id;
 
 
-            const statusView =
-                document.getElementById(
-                    'tahun-status-view-' + id
-                );
+                const viewData =
+                    document.getElementById(
+                        'tahun-view-' + id
+                    );
 
 
-            const editRow =
-                document.getElementById(
-                    'tahun-edit-' + id
-                );
+                const statusView =
+                    document.getElementById(
+                        'tahun-status-view-' + id
+                    );
 
 
-            const statusEdit =
-                document.getElementById(
-                    'tahun-status-edit-' + id
-                );
+                const editRow =
+                    document.getElementById(
+                        'tahun-edit-' + id
+                    );
 
 
-            const actions =
-                document.getElementById(
-                    'tahun-actions-' + id
-                );
+                const statusEdit =
+                    document.getElementById(
+                        'tahun-status-edit-' + id
+                    );
 
 
-            const editActions =
-                document.getElementById(
-                    'tahun-edit-actions-' + id
-                );
+                const actions =
+                    document.getElementById(
+                        'tahun-actions-' + id
+                    );
 
 
-            if (viewData) {
-                viewData.style.display = 'flex';
+                const editActions =
+                    document.getElementById(
+                        'tahun-edit-actions-' + id
+                    );
+
+
+                if (viewData) {
+
+                    viewData.style.display =
+                        'flex';
+
+                }
+
+
+                if (statusView) {
+
+                    statusView.style.display =
+                        'flex';
+
+                }
+
+
+                if (editRow) {
+
+                    editRow.style.display =
+                        'none';
+
+                }
+
+
+                if (statusEdit) {
+
+                    statusEdit.style.display =
+                        'none';
+
+                }
+
+
+                if (actions) {
+
+                    actions.style.display =
+                        'flex';
+
+                }
+
+
+                if (editActions) {
+
+                    editActions.style.display =
+                        'none';
+
+                }
+
             }
-
-
-            if (statusView) {
-                statusView.style.display = 'flex';
-            }
-
-
-            if (editRow) {
-                editRow.style.display = 'none';
-            }
-
-
-            if (statusEdit) {
-                statusEdit.style.display = 'none';
-            }
-
-
-            if (actions) {
-                actions.style.display = 'flex';
-            }
-
-
-            if (editActions) {
-                editActions.style.display = 'none';
-            }
-
-        });
+        );
 
     });
 
 
     /* =================================================
-       POPUP HAPUS
+       POPUP KONFIRMASI HAPUS
     ================================================= */
 
     const modal =
@@ -1517,62 +2121,92 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-    /* BUKA POPUP */
+    /* =================================================
+       BUKA POPUP
+    ================================================= */
 
     function openDeleteModal(id, nama) {
 
         if (deleteId) {
+
             deleteId.value = id;
+
         }
 
 
         if (deleteName) {
+
             deleteName.textContent = nama;
+
         }
 
 
         if (modal) {
-            modal.style.display = 'block';
+
+            modal.style.display =
+                'block';
+
         }
 
 
-        document.body.style.overflow = 'hidden';
+        document.body.style.overflow =
+            'hidden';
 
     }
 
 
-    /* TUTUP POPUP */
+    /* =================================================
+       TUTUP POPUP
+    ================================================= */
 
     function closeDeleteModal() {
 
         if (modal) {
-            modal.style.display = 'none';
+
+            modal.style.display =
+                'none';
+
         }
 
 
-        document.body.style.overflow = '';
+        document.body.style.overflow =
+            '';
 
     }
 
 
-    /* TOMBOL HAPUS */
+    /* =================================================
+       TOMBOL HAPUS
+    ================================================= */
 
     deleteButtons.forEach(function (button) {
 
-        button.addEventListener('click', function () {
+        button.addEventListener(
+            'click',
+            function () {
 
-            const id = this.dataset.id;
+                const id =
+                    this.dataset.id;
 
-            const nama = this.dataset.nama;
 
-            openDeleteModal(id, nama);
+                const nama =
+                    this.dataset.nama;
 
-        });
+
+                openDeleteModal(
+                    id,
+                    nama
+                );
+
+            }
+        );
 
     });
 
 
-    /* TOMBOL BATAL */
+    /* =================================================
+       TOMBOL BATAL
+    ================================================= */
 
     if (cancelDelete) {
 
@@ -1584,7 +2218,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    /* KLIK OVERLAY */
+    /* =================================================
+       KLIK OVERLAY
+    ================================================= */
 
     if (overlay) {
 
@@ -1596,7 +2232,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-    /* TOMBOL ESCAPE */
+    /* =================================================
+       TOMBOL ESCAPE
+    ================================================= */
 
     document.addEventListener(
         'keydown',

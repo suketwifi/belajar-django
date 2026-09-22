@@ -32,11 +32,6 @@ Mata Pelajaran
         href="{% url 'tambah_mata_pelajaran' %}"
         class="mapel-add-button"
     >
-
-        <span class="mapel-add-icon">
-            +
-        </span>
-
         <span>
             Tambah Mata Pelajaran
         </span>
@@ -314,9 +309,11 @@ Mata Pelajaran
 
                         <!-- TAHUN AJARAN -->
 
-                        <td>
-                            {{ mapel.tahun_ajaran.nama }}
-                        </td>
+                            <td>
+                                <span class="tahun-ajaran-badge">
+                                    {{ mapel.tahun_ajaran.nama }}
+                                </span>
+                            </td>
 
 
                         <!-- KELAS -->
@@ -327,13 +324,13 @@ Mata Pelajaran
 
                                 {% for kelas in mapel.kelas.all %}
 
-                                    <span class="mapel-kelas-badge">
+                                    <span class="class-badge">
                                         {{ kelas.nama }}
                                     </span>
 
                                 {% empty %}
 
-                                    <span class="mapel-kelas-empty">
+                                    <span class="class-badge">
                                         Semua kelas
                                     </span>
 
@@ -1325,7 +1322,7 @@ document.addEventListener(
     align-items: center;
     justify-content: center;
     padding: 5px 10px;
-    border-radius: 20px;
+    border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
 }
@@ -1368,7 +1365,7 @@ document.addEventListener(
     min-width: 50px;
     height: 34px;
     padding: 0 12px;
-    border: none;
+    border: 1px solid #cbd5e1;
     border-radius: 7px;
     background: #f1f5f9;
     color: #334155;
@@ -1399,7 +1396,7 @@ document.addEventListener(
     min-width: 58px;
     height: 34px;
     padding: 0 12px;
-    border: none;
+    border: 1px solid #dc2626;
     border-radius: 7px;
     background: #fef2f2;
     color: #dc2626;
@@ -1703,6 +1700,39 @@ document.addEventListener(
     }
 
 }
+.tahun-ajaran-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 105px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+
+
+.class-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 
 </style>
 

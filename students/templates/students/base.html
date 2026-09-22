@@ -1,14 +1,13 @@
 {% load static %}
 
 <!DOCTYPE html>
-
 <html lang="id">
 
 <head>
 
     <link
         rel="icon"
-        type="image.jpeg"
+        type="image/jpeg"
         href="{% static 'students/logo-madin.jpeg' %}"
     >
 
@@ -20,11 +19,9 @@
     >
 
     <title>
-
         {% block title %}
             Sistem Madrasah
         {% endblock %}
-
     </title>
 
     <link
@@ -54,12 +51,6 @@
             width: 100%;
             max-width: 100%;
             overflow-x: hidden;
-
-            /*
-             * Tetap smooth untuk navigasi biasa.
-             * JavaScript scroll restoration akan menggunakan
-             * scrollTo secara langsung.
-             */
             scroll-behavior: smooth;
         }
 
@@ -81,9 +72,6 @@
             overflow-x: hidden;
             overflow-y: auto;
 
-            /*
-             * HP hanya menggunakan scroll vertikal.
-             */
             touch-action: pan-y;
         }
 
@@ -195,10 +183,6 @@
 
             padding: 24px 16px;
 
-            /*
-             * DESKTOP:
-             * Sidebar menjadi area scroll sendiri.
-             */
             overflow-y: auto;
             overflow-x: hidden;
 
@@ -213,9 +197,6 @@
 
             -webkit-overflow-scrolling: touch;
 
-            /*
-             * Hanya izinkan gerakan vertikal.
-             */
             touch-action: pan-y;
         }
 
@@ -270,6 +251,7 @@
             color: #94a3b8;
 
             font-size: 9px;
+
             line-height: 1.4;
         }
 
@@ -355,7 +337,6 @@
         .menu-item > a:hover,
         .submenu a:hover {
             background: #1e293b;
-
             color: #ffffff;
 
             transform: translateX(2px);
@@ -368,7 +349,6 @@
 
         .sidebar a.active {
             background: #2563eb;
-
             color: #ffffff;
 
             box-shadow:
@@ -387,7 +367,6 @@
 
         .submenu {
             margin-left: 12px;
-
             padding-left: 10px;
 
             border-left: 1px solid #334155;
@@ -396,9 +375,7 @@
 
         .submenu a {
             font-size: 13px;
-
             padding: 9px 12px;
-
             color: #94a3b8;
         }
 
@@ -431,9 +408,7 @@
 
         .navbar {
             display: flex;
-
             align-items: center;
-
             justify-content: space-between;
 
             background: #ffffff;
@@ -455,16 +430,13 @@
 
         .navbar h3 {
             font-size: 18px;
-
             font-weight: 600;
-
             color: #1e293b;
         }
 
 
         .navbar-brand {
             display: flex;
-
             align-items: center;
 
             gap: 12px;
@@ -491,7 +463,6 @@
 
         .navbar-brand-text {
             display: flex;
-
             flex-direction: column;
 
             gap: 2px;
@@ -504,7 +475,6 @@
             color: #0f172a;
 
             font-size: 17px;
-
             font-weight: 700;
 
             line-height: 1.2;
@@ -519,57 +489,301 @@
             line-height: 1.3;
         }
 
+
         /* =========================================================
-        TAHUN AJARAN GLOBAL
+           TAHUN AJARAN GLOBAL
+           HANYA BAGIAN INI YANG DIUBAH
         ========================================================= */
 
         .tahun-ajaran-wrapper {
             position: relative;
+
             display: flex;
             align-items: center;
+
             gap: 10px;
         }
 
+
         .tahun-ajaran-label {
             color: #64748b;
+
             font-size: 12px;
             font-weight: 600;
+
             white-space: nowrap;
         }
+
 
         .tahun-ajaran-selector {
             display: inline-flex;
             align-items: center;
             justify-content: space-between;
+
             gap: 10px;
 
             min-width: 180px;
+
             padding: 9px 12px;
 
             background: #f8fafc;
+
             border: 1px solid #cbd5e1;
+
             border-radius: 8px;
 
             color: #1e293b;
+
+            font-family: inherit;
+
             font-size: 13px;
             font-weight: 600;
+
+            cursor: pointer;
 
             transition: all 0.2s ease;
         }
 
+
         .tahun-ajaran-selector:hover {
             background: #ffffff;
+
             border-color: #2563eb;
+
             color: #2563eb;
         }
+
+
+        .tahun-ajaran-selector:focus {
+            outline: none;
+
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
+
 
         .tahun-ajaran-arrow {
             color: #64748b;
             font-size: 12px;
+
+            transition:
+                transform 0.2s ease;
         }
 
-        .tahun-ajaran-selector:hover .tahun-ajaran-arrow {
+
+        .tahun-ajaran-selector:hover
+        .tahun-ajaran-arrow {
             color: #2563eb;
+        }
+
+
+        .tahun-ajaran-selector.open
+        .tahun-ajaran-arrow {
+            transform: rotate(180deg);
+        }
+
+
+        /* =========================================================
+           POPUP TAHUN AJARAN
+        ========================================================= */
+
+        .tahun-ajaran-modal {
+            position: fixed;
+
+            inset: 0;
+
+            width: 100%;
+            height: 100%;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+
+            background:
+                rgba(15, 23, 42, 0.45);
+
+            z-index: 99998;
+        }
+
+
+        .tahun-ajaran-modal.show {
+            display: flex;
+        }
+
+
+        .tahun-ajaran-modal-box {
+            width: 100%;
+            max-width: 430px;
+
+            max-height:
+                calc(100vh - 40px);
+
+            background: #ffffff;
+
+            border-radius: 12px;
+
+            box-shadow:
+                0 20px 50px
+                rgba(15, 23, 42, 0.20);
+
+            overflow: hidden;
+        }
+
+
+        .tahun-ajaran-modal-header {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding: 18px 20px;
+
+            border-bottom:
+                1px solid #e2e8f0;
+        }
+
+
+        .tahun-ajaran-modal-header strong {
+            color: #0f172a;
+
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+
+        .tahun-ajaran-modal-close {
+            width: 32px;
+            height: 32px;
+
+            flex-shrink: 0;
+
+            border: none;
+
+            border-radius: 7px;
+
+            background: #f1f5f9;
+
+            color: #64748b;
+
+            font-size: 21px;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .tahun-ajaran-modal-close:hover {
+            background: #e2e8f0;
+
+            color: #0f172a;
+        }
+
+
+        .tahun-ajaran-modal-body {
+            padding: 18px 20px 20px;
+
+            max-height:
+                calc(100vh - 130px);
+
+            overflow-y: auto;
+        }
+
+
+        .tahun-ajaran-option-form {
+            margin: 0 0 9px;
+        }
+
+
+        .tahun-ajaran-option-form:last-child {
+            margin-bottom: 0;
+        }
+
+
+        .tahun-ajaran-option {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            width: 100%;
+
+            padding: 12px 14px;
+
+            border: 1px solid #e2e8f0;
+
+            border-radius: 8px;
+
+            background: #ffffff;
+
+            color: #1e293b;
+
+            font-family: inherit;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            text-align: left;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease;
+        }
+
+
+        .tahun-ajaran-option:hover {
+            background: #f8fafc;
+
+            border-color: #2563eb;
+        }
+
+
+        .tahun-ajaran-option.current {
+            background: #eff6ff;
+
+            border-color: #2563eb;
+
+            color: #2563eb;
+        }
+
+
+        .tahun-ajaran-option-status {
+            font-size: 11px;
+
+            font-weight: 600;
+
+            color: #64748b;
+        }
+
+
+        .tahun-ajaran-option.current
+        .tahun-ajaran-option-status {
+            color: #2563eb;
+        }
+
+
+        .tahun-ajaran-empty {
+            padding: 25px 10px;
+
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-size: 13px;
         }
 
 
@@ -579,9 +793,7 @@
 
         .page-header {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
 
             gap: 20px;
@@ -592,7 +804,6 @@
 
         .page-header h1 {
             font-size: 26px;
-
             font-weight: 700;
 
             color: #0f172a;
@@ -603,7 +814,6 @@
 
         .page-header p {
             color: #64748b;
-
             font-size: 14px;
         }
 
@@ -614,9 +824,7 @@
 
         .btn-add {
             display: inline-flex;
-
             align-items: center;
-
             justify-content: center;
 
             gap: 7px;
@@ -634,7 +842,6 @@
             cursor: pointer;
 
             font-size: 14px;
-
             font-weight: 600;
 
             transition: all 0.2s ease;
@@ -698,7 +905,6 @@
 
         .card h3 {
             font-size: 13px;
-
             font-weight: 600;
 
             color: #64748b;
@@ -709,7 +915,6 @@
 
         .card h2 {
             font-size: 30px;
-
             font-weight: 700;
 
             color: #0f172a;
@@ -720,7 +925,6 @@
 
         .card p {
             color: #94a3b8;
-
             font-size: 13px;
         }
 
@@ -751,7 +955,6 @@
             display: flex;
 
             justify-content: space-between;
-
             align-items: center;
 
             gap: 15px;
@@ -762,7 +965,6 @@
 
         .table-header h2 {
             font-size: 18px;
-
             color: #0f172a;
         }
 
@@ -833,7 +1035,6 @@
             color: #475569;
 
             font-size: 12px;
-
             font-weight: 700;
 
             text-align: left;
@@ -881,7 +1082,6 @@
 
         .status {
             display: inline-flex;
-
             align-items: center;
 
             padding: 5px 10px;
@@ -889,21 +1089,18 @@
             border-radius: 20px;
 
             font-size: 12px;
-
             font-weight: 600;
         }
 
 
         .status.active {
             background: #dcfce7;
-
             color: #166534;
         }
 
 
         .status.inactive {
             background: #fee2e2;
-
             color: #991b1b;
         }
 
@@ -919,7 +1116,6 @@
 
         .actions button {
             width: 34px;
-
             height: 34px;
 
             border: none;
@@ -1004,7 +1200,6 @@
             margin-bottom: 7px;
 
             font-size: 14px;
-
             font-weight: 600;
 
             color: #334155;
@@ -1068,7 +1263,6 @@
             display: flex;
 
             justify-content: space-between;
-
             align-items: center;
 
             gap: 20px;
@@ -1118,7 +1312,6 @@
             display: inline-flex;
 
             align-items: center;
-
             justify-content: center;
 
             gap: 7px;
@@ -1128,7 +1321,6 @@
             border-radius: 9px;
 
             font-size: 14px;
-
             font-weight: 600;
 
             text-decoration: none;
@@ -1206,7 +1398,6 @@
 
         .profile-avatar {
             width: 64px;
-
             height: 64px;
 
             min-width: 64px;
@@ -1214,7 +1405,6 @@
             display: flex;
 
             align-items: center;
-
             justify-content: center;
 
             border-radius: 50%;
@@ -1343,7 +1533,6 @@
 
         .detail-card-icon {
             width: 40px;
-
             height: 40px;
 
             min-width: 40px;
@@ -1351,7 +1540,6 @@
             display: flex;
 
             align-items: center;
-
             justify-content: center;
 
             border-radius: 10px;
@@ -1389,7 +1577,8 @@
         .detail-page .detail-list {
             display: grid;
 
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns:
+                1fr 1fr;
 
             gap: 12px;
 
@@ -1543,7 +1732,6 @@
             display: inline-flex;
 
             align-items: center;
-
             justify-content: center;
 
             padding: 10px 16px;
@@ -1573,7 +1761,6 @@
             display: inline-flex;
 
             align-items: center;
-
             justify-content: center;
 
             height: 40px;
@@ -1712,7 +1899,6 @@
             display: inline-flex;
 
             align-items: center;
-
             justify-content: center;
 
             height: 40px;
@@ -1771,7 +1957,6 @@
             display: inline-flex;
 
             align-items: center;
-
             justify-content: center;
 
             height: 40px;
@@ -1817,7 +2002,6 @@
             width: 100%;
 
             margin: 0;
-
             padding: 0;
         }
 
@@ -1882,108 +2066,254 @@
             text-align: center;
         }
 
+
         /* =========================================================
-        POPUP NOTIFIKASI
+           POPUP NOTIFIKASI GLOBAL
         ========================================================= */
 
         .popup-container {
             position: fixed;
+
             top: 24px;
             right: 24px;
+
             z-index: 99999;
+
             width: min(380px, calc(100vw - 30px));
+
             display: flex;
+
             flex-direction: column;
-            gap: 12px;
+
+            gap: 10px;
+
             pointer-events: none;
         }
 
+
         .popup-notification {
             display: flex;
+
             align-items: flex-start;
+
             gap: 12px;
+
             padding: 15px 16px;
+
             background: #ffffff;
+
             border: 1px solid #e2e8f0;
+
+            border-left: 4px solid #22c55e;
+
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
-            animation: popupSlideIn 0.35s ease forwards;
+
+            box-shadow:
+                0 10px 30px rgba(15, 23, 42, 0.15);
+
             pointer-events: auto;
+
+            animation:
+                popupSlideIn 0.3s ease forwards;
         }
+
+
+        /* =========================================================
+           POPUP ICON
+        ========================================================= */
 
         .popup-icon {
             width: 32px;
             height: 32px;
+
             min-width: 32px;
+
             display: flex;
+
             align-items: center;
             justify-content: center;
+
             border-radius: 50%;
+
             background: #dcfce7;
+
             color: #15803d;
+
             font-size: 16px;
+
             font-weight: 700;
         }
+
+
+        /* =========================================================
+           POPUP CONTENT
+        ========================================================= */
 
         .popup-content {
             flex: 1;
+
             min-width: 0;
         }
 
+
         .popup-content strong {
             display: block;
+
             margin-bottom: 3px;
+
             color: #0f172a;
+
             font-size: 14px;
+
             font-weight: 700;
         }
 
+
         .popup-content span {
             display: block;
+
             color: #64748b;
+
             font-size: 13px;
+
             line-height: 1.5;
+
+            word-break: break-word;
         }
+
+
+        /* =========================================================
+           POPUP CLOSE
+        ========================================================= */
 
         .popup-close {
             border: none;
+
             background: transparent;
+
             color: #94a3b8;
-            font-size: 18px;
+
+            font-size: 20px;
+
             line-height: 1;
+
             cursor: pointer;
+
             padding: 0;
+
+            transition: color 0.2s ease;
         }
+
 
         .popup-close:hover {
             color: #334155;
         }
 
+
+        /* =========================================================
+           SUCCESS
+        ========================================================= */
+
+        .popup-notification.success {
+            border-left-color: #22c55e;
+        }
+
+
+        .popup-notification.success .popup-icon {
+            background: #dcfce7;
+
+            color: #15803d;
+        }
+
+
+        /* =========================================================
+           WARNING
+        ========================================================= */
+
+        .popup-notification.warning {
+            border-left-color: #f59e0b;
+        }
+
+
+        .popup-notification.warning .popup-icon {
+            background: #fef3c7;
+
+            color: #d97706;
+        }
+
+
+        /* =========================================================
+           ERROR
+        ========================================================= */
+
+        .popup-notification.error {
+            border-left-color: #ef4444;
+        }
+
+
+        .popup-notification.error .popup-icon {
+            background: #fee2e2;
+
+            color: #dc2626;
+        }
+
+
+        /* =========================================================
+           INFO
+        ========================================================= */
+
+        .popup-notification.info {
+            border-left-color: #3b82f6;
+        }
+
+
+        .popup-notification.info .popup-icon {
+            background: #dbeafe;
+
+            color: #2563eb;
+        }
+
+
+        /* =========================================================
+           POPUP ANIMATION
+        ========================================================= */
+
         @keyframes popupSlideIn {
+
             from {
                 opacity: 0;
-                transform: translateX(30px);
+
+                transform:
+                    translateX(30px);
             }
 
             to {
                 opacity: 1;
-                transform: translateX(0);
+
+                transform:
+                    translateX(0);
             }
+
         }
 
-        @media (max-width: 768px) {
-            .popup-container {
-                top: 14px;
-                right: 15px;
-                left: 15px;
-                width: auto;
+
+        @keyframes popupSlideOut {
+
+            from {
+                opacity: 1;
+
+                transform:
+                    translateX(0);
             }
 
-            .popup-notification {
-                padding: 14px;
+            to {
+                opacity: 0;
+
+                transform:
+                    translateX(30px);
             }
+
         }
-
 
 
         /* =========================================================
@@ -2021,11 +2351,9 @@
             html,
             body {
                 width: 100%;
-
                 max-width: 100%;
 
                 overflow-x: hidden;
-
                 overflow-y: auto;
 
                 touch-action: pan-y;
@@ -2036,7 +2364,6 @@
                 position: relative;
 
                 top: auto;
-
                 left: auto;
 
                 width: 100%;
@@ -2050,7 +2377,6 @@
                 overflow: visible;
 
                 overflow-x: visible;
-
                 overflow-y: visible;
 
                 overscroll-behavior: auto;
@@ -2073,7 +2399,6 @@
 
             .sidebar-brand img {
                 width: 40px;
-
                 height: 40px;
             }
 
@@ -2092,7 +2417,6 @@
                 margin-left: 0;
 
                 width: 100%;
-
                 max-width: 100%;
 
                 padding: 18px;
@@ -2107,6 +2431,12 @@
                 padding: 15px 18px;
 
                 min-height: auto;
+
+                flex-direction: column;
+
+                align-items: stretch;
+
+                gap: 10px;
             }
 
 
@@ -2129,14 +2459,19 @@
                 font-size: 9px;
             }
 
+
             .tahun-ajaran-wrapper {
                 width: 100%;
+
                 justify-content: space-between;
+
                 margin-top: 12px;
             }
 
+
             .tahun-ajaran-selector {
                 min-width: 0;
+
                 flex: 1;
             }
 
@@ -2259,6 +2594,36 @@
                 flex: 1;
             }
 
+
+            /* POPUP MOBILE */
+
+            .popup-container {
+                top: 14px;
+
+                right: 15px;
+
+                left: 15px;
+
+                width: auto;
+            }
+
+
+            .popup-notification {
+                padding: 14px;
+            }
+
+
+            /* TAHUN AJARAN POPUP MOBILE */
+
+            .tahun-ajaran-modal {
+                padding: 15px;
+            }
+
+
+            .tahun-ajaran-modal-box {
+                max-width: 100%;
+            }
+
         }
 
 
@@ -2280,7 +2645,6 @@
 
             .navbar-brand img {
                 width: 38px;
-
                 height: 38px;
             }
 
@@ -2318,7 +2682,6 @@
 
             .profile-avatar {
                 width: 52px;
-
                 height: 52px;
 
                 min-width: 52px;
@@ -2358,6 +2721,21 @@
 
             .sidebar {
                 padding: 16px;
+            }
+
+
+            .tahun-ajaran-modal {
+                padding: 10px;
+            }
+
+
+            .tahun-ajaran-modal-header {
+                padding: 15px;
+            }
+
+
+            .tahun-ajaran-modal-body {
+                padding: 15px;
             }
 
         }
@@ -2422,10 +2800,12 @@
 
 </head>
 
+
 <body>
 
+
 <!-- =====================================================
-     POPUP NOTIFIKASI
+     POPUP NOTIFIKASI GLOBAL
 ====================================================== -->
 
 {% if messages %}
@@ -2434,17 +2814,55 @@
 
     {% for message in messages %}
 
-    <div class="popup-notification">
+    <div class="popup-notification {{ message.level_tag }}">
 
         <div class="popup-icon">
-            ✓
+
+            {% if message.level_tag == 'success' %}
+
+                ✓
+
+            {% elif message.level_tag == 'warning' %}
+
+                !
+
+            {% elif message.level_tag == 'error' %}
+
+                !
+
+            {% else %}
+
+                i
+
+            {% endif %}
+
         </div>
+
 
         <div class="popup-content">
 
             <strong>
-                Berhasil
+
+                {% if message.level_tag == 'success' %}
+
+                    Berhasil
+
+                {% elif message.level_tag == 'warning' %}
+
+                    Peringatan
+
+                {% elif message.level_tag == 'error' %}
+
+                    Gagal
+
+                {% else %}
+
+                    Informasi
+
+                {% endif %}
+
             </strong>
+
 
             <span>
                 {{ message }}
@@ -2452,10 +2870,12 @@
 
         </div>
 
+
         <button
             type="button"
             class="popup-close"
-            onclick="this.parentElement.remove()"
+            onclick="this.closest('.popup-notification').remove()"
+            aria-label="Tutup"
         >
             ×
         </button>
@@ -2467,7 +2887,6 @@
 </div>
 
 {% endif %}
-
 
 
 
@@ -2494,12 +2913,13 @@
             </strong>
 
             <span>
-                Sistem Utama Fasilitas Informasi, Siswa, &amp; Madrasah
+                Sistem Utama Fasilitas Informasi, Siswa, & Madrasah
             </span>
 
         </div>
 
     </div>
+
 
 
     <!-- =================================================
@@ -2517,7 +2937,10 @@
 
     </a>
 
-    
+
+
+    <!-- TETAP MENUJU HALAMAN MASTER TAHUN AJARAN -->
+
     <a href="{% url 'tahun_ajaran' %}">
 
         <span class="menu-text">
@@ -2549,6 +2972,8 @@
     </a>
 
 
+    <!-- DIPERBAIKI SESUAI urls.py ANDA -->
+
     <a
         href="{% url 'data_guru' %}"
         class="{% if '/guru/' in request.path %}active{% endif %}"
@@ -2560,6 +2985,18 @@
 
     </a>
 
+    
+    <a
+        href="{% url 'data_asrama' %}"
+        class="{% if '/asrama/' in request.path %}active{% endif %}"
+    >
+
+        <span class="menu-text">
+            Data Asrama
+        </span>
+
+    </a>
+    
 
     <a
         href="{% url 'data_kelas' %}"
@@ -2568,18 +3005,6 @@
 
         <span class="menu-text">
             Data Kelas
-        </span>
-
-    </a>
-
-
-    <a
-        href="{% url 'data_asrama' %}"
-        class="{% if '/asrama/' in request.path %}active{% endif %}"
-    >
-
-        <span class="menu-text">
-            Data Asrama
         </span>
 
     </a>
@@ -2597,8 +3022,9 @@
     </a>
 
 
+
     <!-- =================================================
-        AKADEMIK
+         AKADEMIK
     ================================================== -->
 
     <div class="menu-title">
@@ -2616,7 +3042,8 @@
         </span>
 
     </a>
-   
+
+
     <a
         href="{% url 'rapot' %}"
         class="{% if request.path == '/rapot/' %}active{% endif %}"
@@ -2645,6 +3072,7 @@
         </span>
 
     </a>
+
 
 
     <!-- =================================================
@@ -2710,6 +3138,7 @@
     </div>
 
 
+
     <!-- =================================================
          SISTEM
     ================================================== -->
@@ -2732,12 +3161,12 @@
     {% endif %}
 
 
+
     <!-- =================================================
          AKUN
     ================================================== -->
 
     {% if request.user.is_authenticated %}
-
 
         <div class="menu-title">
             Akun
@@ -2804,6 +3233,7 @@
 </aside>
 
 
+
 <!-- =====================================================
      MAIN CONTENT
 ====================================================== -->
@@ -2817,6 +3247,7 @@
 
     <div class="navbar">
 
+
         <div class="navbar-brand">
 
             <img
@@ -2824,15 +3255,17 @@
                 alt="Logo Madrasah"
             >
 
+
             <div class="navbar-brand-text">
 
                 <strong>
                     SUFISM
                 </strong>
 
+
                 <span>
                     Sistem Utama Fasilitas Informasi,
-                    Siswa, &amp; Madrasah
+                    Siswa, & Madrasah
                 </span>
 
             </div>
@@ -2840,7 +3273,11 @@
         </div>
 
 
-        <!-- TAHUN AJARAN -->
+
+        <!-- =================================================
+             TAHUN AJARAN GLOBAL
+             SEKARANG POPUP
+        ================================================== -->
 
         {% if request.user.is_authenticated %}
 
@@ -2850,22 +3287,35 @@
                 Tahun Ajaran
             </span>
 
-            <a
-                href="{% url 'pilih_tahun_ajaran' %}"
+
+            <button
+                type="button"
+                id="tahunAjaranSelector"
                 class="tahun-ajaran-selector"
+                aria-expanded="false"
+                aria-controls="tahunAjaranModal"
             >
+
                 <span>
+
                     {% if tahun_ajaran_aktif %}
+
                         {{ tahun_ajaran_aktif.nama }}
+
                     {% else %}
+
                         Pilih Tahun Ajaran
+
                     {% endif %}
+
                 </span>
+
 
                 <span class="tahun-ajaran-arrow">
                     ▾
                 </span>
-            </a>
+
+            </button>
 
         </div>
 
@@ -2874,12 +3324,14 @@
     </div>
 
 
+
     <!-- =================================================
          PAGE CONTENT
     ================================================== -->
 
     {% block content %}
     {% endblock %}
+
 
 
     <!-- =================================================
@@ -2894,6 +3346,109 @@
 
 
 </main>
+
+
+
+<!-- =====================================================
+     POPUP PILIH TAHUN AJARAN
+====================================================== -->
+
+{% if request.user.is_authenticated %}
+
+<div
+    id="tahunAjaranModal"
+    class="tahun-ajaran-modal"
+    aria-hidden="true"
+>
+
+
+    <div class="tahun-ajaran-modal-box">
+
+
+        <div class="tahun-ajaran-modal-header">
+
+            <strong>
+                Pilih Tahun Ajaran
+            </strong>
+
+
+            <button
+                type="button"
+                id="tahunAjaranModalClose"
+                class="tahun-ajaran-modal-close"
+                aria-label="Tutup"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="tahun-ajaran-modal-body">
+
+
+            {% if tahun_ajarans %}
+
+                {% for tahun in tahun_ajarans %}
+
+                <form
+                    method="post"
+                    action="{% url 'pilih_tahun_ajaran' %}"
+                    class="tahun-ajaran-option-form"
+                >
+
+                    {% csrf_token %}
+
+                    <input
+                        type="hidden"
+                        name="tahun_ajaran_id"
+                        value="{{ tahun.id }}"
+                    >
+
+                    <input
+                        type="hidden"
+                        name="next"
+                        value="{{ request.get_full_path }}"
+                    >
+
+                    <button
+                        type="submit"
+                        class="tahun-ajaran-option {% if tahun.aktif %}active{% endif %}"
+                    >
+
+                        <span>
+                            {{ tahun.nama }}
+                        </span>
+
+                        {% if tahun.aktif %}
+                            <span class="tahun-ajaran-option-status">
+                                Aktif
+                            </span>
+                        {% endif %}
+
+                    </button>
+
+                </form>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="tahun-ajaran-empty">
+                    Belum ada tahun ajaran.
+                </div>
+
+            {% endif %}
+
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endif %}
+
 
 
 <!-- =====================================================
@@ -2940,18 +3495,11 @@
 
 
         if (!sidebar) {
-
             return;
-
         }
 
 
-        /*
-         * MOBILE
-         *
-         * Sidebar bukan area scroll.
-         * BODY/WINDOW yang melakukan scroll.
-         */
+        /* MOBILE */
 
         if (isMobile()) {
 
@@ -2961,15 +3509,10 @@
             );
 
             return;
-
         }
 
 
-        /*
-         * DESKTOP
-         *
-         * Sidebar merupakan area scroll sendiri.
-         */
+        /* DESKTOP */
 
         sessionStorage.setItem(
             DESKTOP_SCROLL_KEY,
@@ -2986,15 +3529,11 @@
 
 
         if (!sidebar) {
-
             return;
-
         }
 
 
-        /*
-         * MOBILE
-         */
+        /* MOBILE */
 
         if (isMobile()) {
 
@@ -3021,12 +3560,8 @@
                 );
 
 
-            if (
-                Number.isNaN(position)
-            ) {
-
+            if (Number.isNaN(position)) {
                 return;
-
             }
 
 
@@ -3034,9 +3569,13 @@
                 function () {
 
                     window.scrollTo({
+
                         top: position,
+
                         left: 0,
+
                         behavior: "instant"
+
                     });
 
 
@@ -3044,9 +3583,13 @@
                         function () {
 
                             window.scrollTo({
+
                                 top: position,
+
                                 left: 0,
+
                                 behavior: "instant"
+
                             });
 
                         }
@@ -3061,9 +3604,7 @@
         }
 
 
-        /*
-         * DESKTOP
-         */
+        /* DESKTOP */
 
         const saved =
             sessionStorage.getItem(
@@ -3088,12 +3629,8 @@
             );
 
 
-        if (
-            Number.isNaN(position)
-        ) {
-
+        if (Number.isNaN(position)) {
             return;
-
         }
 
 
@@ -3126,18 +3663,14 @@
 
 
         if (!sidebar) {
-
             return;
-
         }
 
 
         restoreScrollPosition();
 
 
-        /*
-         * DESKTOP SIDEBAR SCROLL
-         */
+        /* DESKTOP SIDEBAR SCROLL */
 
         sidebar.addEventListener(
             "scroll",
@@ -3156,9 +3689,7 @@
         );
 
 
-        /*
-         * MOBILE PAGE SCROLL
-         */
+        /* MOBILE PAGE SCROLL */
 
         window.addEventListener(
             "scroll",
@@ -3177,9 +3708,7 @@
         );
 
 
-        /*
-         * MENU CLICK
-         */
+        /* MENU CLICK */
 
         const menuLinks =
             sidebar.querySelectorAll(
@@ -3214,9 +3743,7 @@
         );
 
 
-        /*
-         * PAGE HIDE
-         */
+        /* PAGE HIDE */
 
         window.addEventListener(
             "pagehide",
@@ -3228,9 +3755,7 @@
         );
 
 
-        /*
-         * PAGE SHOW
-         */
+        /* PAGE SHOW */
 
         window.addEventListener(
             "pageshow",
@@ -3244,9 +3769,7 @@
     }
 
 
-    /*
-     * DOM READY
-     */
+    /* DOM READY */
 
     if (
         document.readyState ===
@@ -3269,35 +3792,253 @@
 
 </script>
 
-<script>
-document.addEventListener("DOMContentLoaded", function () {
 
-    const notifications =
-        document.querySelectorAll(
-            ".popup-notification"
+
+<!-- =====================================================
+     JAVASCRIPT POPUP NOTIFIKASI
+====================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const notifications =
+            document.querySelectorAll(
+                ".popup-notification"
+            );
+
+
+        notifications.forEach(
+            function (notification) {
+
+                setTimeout(
+                    function () {
+
+                        notification.style.animation =
+                            "popupSlideOut 0.3s ease forwards";
+
+
+                        setTimeout(
+                            function () {
+
+                                notification.remove();
+
+                            },
+                            300
+                        );
+
+                    },
+                    4000
+                );
+
+            }
         );
 
-    notifications.forEach(function (notification) {
+    }
+);
 
-        setTimeout(function () {
-
-            notification.style.opacity = "0";
-            notification.style.transform =
-                "translateX(30px)";
-
-            notification.style.transition =
-                "all 0.3s ease";
-
-            setTimeout(function () {
-                notification.remove();
-            }, 300);
-
-        }, 4000);
-
-    });
-
-});
 </script>
+
+
+
+<!-- =====================================================
+     JAVASCRIPT POPUP TAHUN AJARAN
+====================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        const selector =
+            document.getElementById(
+                "tahunAjaranSelector"
+            );
+
+
+        const modal =
+            document.getElementById(
+                "tahunAjaranModal"
+            );
+
+
+        const closeButton =
+            document.getElementById(
+                "tahunAjaranModalClose"
+            );
+
+
+        if (
+            !selector ||
+            !modal ||
+            !closeButton
+        ) {
+
+            return;
+
+        }
+
+
+        /* =================================================
+           BUKA POPUP
+        ================================================= */
+
+        function openTahunAjaranModal() {
+
+            modal.classList.add(
+                "show"
+            );
+
+
+            modal.setAttribute(
+                "aria-hidden",
+                "false"
+            );
+
+
+            selector.setAttribute(
+                "aria-expanded",
+                "true"
+            );
+
+
+            selector.classList.add(
+                "open"
+            );
+
+
+            document.body.style.overflow =
+                "hidden";
+
+        }
+
+
+        /* =================================================
+           TUTUP POPUP
+        ================================================= */
+
+        function closeTahunAjaranModal() {
+
+            modal.classList.remove(
+                "show"
+            );
+
+
+            modal.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+
+            selector.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+
+            selector.classList.remove(
+                "open"
+            );
+
+
+            document.body.style.overflow =
+                "";
+
+        }
+
+
+        /* =================================================
+           KLIK TAHUN AJARAN DI NAVBAR
+        ================================================= */
+
+        selector.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    modal.classList.contains(
+                        "show"
+                    )
+                ) {
+
+                    closeTahunAjaranModal();
+
+                } else {
+
+                    openTahunAjaranModal();
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           KLIK X
+        ================================================= */
+
+        closeButton.addEventListener(
+            "click",
+            function () {
+
+                closeTahunAjaranModal();
+
+            }
+        );
+
+
+        /* =================================================
+           KLIK DI LUAR POPUP
+        ================================================= */
+
+        modal.addEventListener(
+            "click",
+            function (event) {
+
+                if (
+                    event.target === modal
+                ) {
+
+                    closeTahunAjaranModal();
+
+                }
+
+            }
+        );
+
+
+        /* =================================================
+           ESC
+        ================================================= */
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key === "Escape" &&
+                    modal.classList.contains(
+                        "show"
+                    )
+                ) {
+
+                    closeTahunAjaranModal();
+
+                }
+
+            }
+        );
+
+
+    }
+);
+
+</script>
+
 
 {% block extra_js %}
 {% endblock %}

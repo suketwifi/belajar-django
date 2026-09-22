@@ -120,15 +120,23 @@ Data Siswa
 ========================================================= */
 
 .btn-add {
-    border: 1px solid #2563eb;
-    background: #2563eb;
+
+    border: 1px solid #0f766e;
+
+    background: #0f766e;
+
     color: #ffffff;
+
 }
 
 .btn-add:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
+
+    background: #115e59;
+
+    border-color: #115e59;
+
     color: #ffffff;
+
 }
 
 /* =========================================================
@@ -265,14 +273,21 @@ Data Siswa
 ========================================================= */
 
 .student-filter .btn-export {
-    border: 1px solid #059669;
-    background: #059669;
+
+    border: 1px solid #0f766e;
+
+    background: #0f766e;
+
     color: #ffffff;
+
 }
 
 .student-filter .btn-export:hover {
-    background: #047857;
-    border-color: #047857;
+
+    background: #115e59;
+
+    border-color: #115e59;
+
 }
 
 /* =========================================================
@@ -1056,6 +1071,19 @@ Data Siswa
     }
 }
 
+.student-delete-warning {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    border: 1px solid #dc2626;
+    border-radius: 6px;
+    background: #fef2f2;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
 </style>
 
 <div class="student-page">
@@ -1106,7 +1134,7 @@ Data Siswa
                 href="{% url 'student_create' %}"
                 class="student-action-btn btn-add"
             >
-                + Tambah Siswa
+                Tambah Siswa
             </a>
 
         </div>
@@ -1317,17 +1345,22 @@ Data Siswa
         </div>
 
     </form>
-
+    
     <!-- =====================================================
          TABLE
     ====================================================== -->
 
+    <div class="student-delete-warning">
+                    ⚠️ Perhatian: Menghapus DATA SISWA akan menghapus data terkait siswa tersebut dan tidak dapat dikembalikan.
+    </div>
+    
     <div class="student-table-card">
 
+            
         <!-- TABLE HEADER -->
 
         <div class="student-table-header">
-
+    
             <div>
 
                 <h2>
@@ -1350,6 +1383,7 @@ Data Siswa
 
         <div class="student-table-wrapper">
 
+            
             <table class="student-table">
 
                 <!-- TABLE HEAD -->
