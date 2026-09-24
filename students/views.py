@@ -3150,6 +3150,7 @@ def penilaian(request):
     # =====================================================
 
     students = Student.objects.none()
+
     mata_pelajarans = MataPelajaran.objects.none()
 
     # =====================================================
@@ -3159,7 +3160,7 @@ def penilaian(request):
     if tahun_ajaran_id and kelas_id:
 
         # -------------------------------------------------
-        # SISWA DIAMBIL DARI RIWAYAT KELAS
+        # AMBIL ID SISWA DARI RIWAYAT KELAS
         # -------------------------------------------------
 
         student_ids = (
@@ -3174,12 +3175,12 @@ def penilaian(request):
             )
         )
 
+        # -------------------------------------------------
+        # AMBIL DATA SISWA
+        # -------------------------------------------------
+
         students = (
             Student.objects
-            .select_related(
-                'kelas',
-                'tahun_ajaran'
-            )
             .filter(
                 id__in=student_ids
             )
@@ -3244,7 +3245,9 @@ def penilaian(request):
                 'Tahun ajaran dan kelas harus dipilih.'
             )
 
-            return redirect('penilaian')
+            return redirect(
+                'penilaian'
+            )
 
         # -------------------------------------------------
         # AMBIL TAHUN AJARAN
@@ -3330,6 +3333,7 @@ def penilaian(request):
                 if nilai_harian_raw:
 
                     try:
+
                         nilai_harian = int(
                             nilai_harian_raw
                         )
@@ -3373,6 +3377,7 @@ def penilaian(request):
                 if nilai_ujian_raw:
 
                     try:
+
                         nilai_ujian = int(
                             nilai_ujian_raw
                         )
@@ -3450,10 +3455,15 @@ def penilaian(request):
                 # =========================================
 
                 Penilaian.objects.update_or_create(
+
                     student=student,
+
                     tahun_ajaran=tahun_ajaran,
+
                     mata_pelajaran=mapel,
+
                     defaults={
+
                         'nilai_harian':
                             nilai_harian,
 
@@ -3481,6 +3491,55 @@ def penilaian(request):
         )
 
     # =====================================================
+    # DATA KELAS DAN TAHUN AJARAN DARI RIWAYAT
+    # =====================================================
+
+    if students.exists() and tahun_ajaran_id and kelas_id:
+
+        riwayat_siswa = {
+
+            riwayat.student_id: riwayat
+
+            for riwayat in (
+                RiwayatKelasSiswa.objects
+                .filter(
+                    tahun_ajaran_id=tahun_ajaran_id,
+                    kelas_id=kelas_id,
+                    student_id__in=students.values_list(
+                        'id',
+                        flat=True
+                    )
+                )
+                .select_related(
+                    'kelas',
+                    'tahun_ajaran'
+                )
+            )
+        }
+
+        for student in students:
+
+            riwayat = riwayat_siswa.get(
+                student.id
+            )
+
+            if riwayat:
+
+                student.kelas_rapot = (
+                    riwayat.kelas
+                )
+
+                student.tahun_ajaran_rapot = (
+                    riwayat.tahun_ajaran
+                )
+
+            else:
+
+                student.kelas_rapot = None
+
+                student.tahun_ajaran_rapot = None
+
+    # =====================================================
     # DATA NILAI YANG SUDAH ADA
     # =====================================================
 
@@ -3505,6 +3564,7 @@ def penilaian(request):
         for nilai in penilaians:
 
             if nilai.student_id not in penilaian_data:
+
                 penilaian_data[
                     nilai.student_id
                 ] = {}
@@ -3551,7 +3611,7 @@ def penilaian(request):
         'students/penilaian.html',
         context
     )
-
+    
 # =========================================================
 # CETAK REKAP ABSENSI
 # =========================================================

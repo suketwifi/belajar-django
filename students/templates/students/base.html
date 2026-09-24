@@ -2951,7 +2951,10 @@
 
     <!-- TETAP MENUJU HALAMAN MASTER TAHUN AJARAN -->
 
-    <a href="{% url 'tahun_ajaran' %}">
+    <a
+        href="{% url 'tahun_ajaran' %}"
+        class="{% if request.path == '/tahun-ajaran/' %}active{% endif %}"
+    >
 
         <span class="menu-text">
             Tahun Ajaran
@@ -3033,8 +3036,8 @@
 
 
 
-    <!-- =================================================
-         AKADEMIK
+   <!-- =================================================
+        AKADEMIK
     ================================================== -->
 
     <div class="menu-title">
@@ -3075,7 +3078,10 @@
     </a>
 
 
-    <a href="{% url 'kenaikan_siswa' %}">
+    <a
+        href="{% url 'kenaikan_siswa' %}"
+        class="{% if request.path == '/kenaikan-siswa/' %}active{% endif %}"
+    >
 
         <span class="menu-text">
             Kenaikan Siswa

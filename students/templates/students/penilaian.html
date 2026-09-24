@@ -10,7 +10,6 @@ Penilaian Siswa
 
 <div class="penilaian-page">
 
-
 <!-- =====================================================
      HEADER
 ====================================================== -->
@@ -36,154 +35,190 @@ Penilaian Siswa
      FILTER
 ====================================================== -->
 
-<div class="penilaian-card filter-card">
+<div class="penilaian-filter-area no-print">
 
-    <div class="penilaian-card-header">
+    <div class="filter-card">
 
-        <div>
+        <form method="get" class="penilaian-filter">
 
-            <h2>
-                Filter Penilaian
-            </h2>
+            <!-- TAHUN AJARAN -->
 
-            <p>
-                Pilih tahun ajaran, kelas, dan cari siswa
-            </p>
+            <div class="filter-group">
 
-        </div>
+                <label for="tahun_ajaran">
+                    Tahun Ajaran
+                </label>
+
+                <select
+                    name="tahun_ajaran"
+                    id="tahun_ajaran"
+                >
+
+                    <option value="">
+                        -- Pilih Tahun Ajaran --
+                    </option>
+
+                    {% for tahun in tahun_ajarans %}
+
+                        <option
+                            value="{{ tahun.id }}"
+                            {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ tahun.nama }}
+                            {% if tahun.aktif %}
+                                (Aktif)
+                            {% endif %}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- KELAS -->
+
+            <div class="filter-group">
+
+                <label for="kelas">
+                    Kelas
+                </label>
+
+                <select
+                    name="kelas"
+                    id="kelas"
+                >
+
+                    <option value="">
+                        -- Pilih Kelas --
+                    </option>
+
+                    {% for kelas in kelass %}
+
+                        <option
+                            value="{{ kelas.id }}"
+                            {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ kelas.nama }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- TOMBOL -->
+
+            <div class="filter-buttons">
+
+                <button
+                    type="submit"
+                    class="btn-tampilkan"
+                >
+                    Tampilkan
+                </button>
+
+                <a
+                    href="{% url 'penilaian' %}"
+                    class="btn-reset"
+                >
+                    Reset
+                </a>
+
+            </div>
+
+        </form>
 
     </div>
-
-
-    <form
-        method="get"
-        class="penilaian-filter"
-    >
-
-        <!-- TAHUN AJARAN -->
-
-        <div class="filter-group">
-
-            <label for="tahun_ajaran">
-                Tahun Ajaran
-            </label>
-
-            <select
-                name="tahun_ajaran"
-                id="tahun_ajaran"
-            >
-
-                <option value="">
-                    -- Pilih Tahun Ajaran --
-                </option>
-
-                {% for tahun in tahun_ajarans %}
-
-                    <option
-                        value="{{ tahun.id }}"
-                        {% if tahun_ajaran_id|stringformat:"s" == tahun.id|stringformat:"s" %}
-                            selected
-                        {% endif %}
-                    >
-                        {{ tahun.nama }}
-
-                        {% if tahun.aktif %}
-                            (Aktif)
-                        {% endif %}
-
-                    </option>
-
-                {% endfor %}
-
-            </select>
-
-        </div>
-
-
-        <!-- KELAS -->
-
-        <div class="filter-group">
-
-            <label for="kelas">
-                Kelas
-            </label>
-
-            <select
-                name="kelas"
-                id="kelas"
-            >
-
-                <option value="">
-                    -- Pilih Kelas --
-                </option>
-
-                {% for kelas in kelass %}
-
-                    <option
-                        value="{{ kelas.id }}"
-                        {% if kelas_id|stringformat:"s" == kelas.id|stringformat:"s" %}
-                            selected
-                        {% endif %}
-                    >
-                        {{ kelas.nama }}
-                    </option>
-
-                {% endfor %}
-
-            </select>
-
-        </div>
-
-
-        <!-- PENCARIAN SISWA -->
-
-        <div class="filter-group">
-
-            <label for="search">
-                Cari Siswa
-            </label>
-
-            <input
-                type="text"
-                name="search"
-                id="search"
-                value="{{ search }}"
-                placeholder="Ketik nama atau NIM..."
-            >
-
-        </div>
-
-
-        <!-- TOMBOL -->
-
-        <div class="filter-action">
-
-            <button
-                type="submit"
-                class="btn-filter"
-            >
-                Tampilkan
-            </button>
-
-            <a
-                href="{% url 'penilaian' %}"
-                class="btn-reset"
-            >
-                Reset
-            </a>
-
-        </div>
-
-    </form>
 
 </div>
 
 
 <!-- =====================================================
-     INFORMASI
+     HASIL FILTER
 ====================================================== -->
 
 {% if tahun_ajaran_id and kelas_id %}
+
+
+    <!-- =================================================
+         PENCARIAN SISWA
+    ================================================== -->
+
+    <div class="penilaian-search-card no-print">
+
+        <div class="penilaian-search-title">
+
+            <h3>
+                Pencarian Siswa
+            </h3>
+
+            <p>
+                Cari berdasarkan nama atau NIM.
+            </p>
+
+        </div>
+
+
+        <form
+            method="get"
+            class="penilaian-search-form"
+        >
+
+            <input
+                type="hidden"
+                name="tahun_ajaran"
+                value="{{ tahun_ajaran_id }}"
+            >
+
+            <input
+                type="hidden"
+                name="kelas"
+                value="{{ kelas_id }}"
+            >
+
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Cari nama atau NIM..."
+                class="penilaian-search-input"
+            >
+
+            <button
+                type="submit"
+                class="btn-cari-siswa"
+            >
+                Cari
+            </button>
+
+
+            {% if search %}
+
+                <a
+                    href="?tahun_ajaran={{ tahun_ajaran_id }}&kelas={{ kelas_id }}"
+                    class="btn-reset-search"
+                >
+                    Reset
+                </a>
+
+            {% endif %}
+
+        </form>
+
+    </div>
+
+
+    <!-- =================================================
+         INFORMASI
+    ================================================== -->
 
     <div class="penilaian-info">
 
@@ -206,14 +241,10 @@ Penilaian Siswa
 
     </div>
 
-{% endif %}
 
-
-<!-- =====================================================
-     DATA PENILAIAN
-====================================================== -->
-
-{% if tahun_ajaran_id and kelas_id %}
+    <!-- =================================================
+         DATA PENILAIAN
+    ================================================= -->
 
     {% if students and mata_pelajarans %}
 
@@ -247,7 +278,6 @@ Penilaian Siswa
 
 
             <div class="penilaian-card">
-
 
                 <!-- HEADER DAFTAR NILAI -->
 
@@ -306,6 +336,22 @@ Penilaian Siswa
                                 </th>
 
 
+                                <th
+                                    rowspan="2"
+                                    class="col-kelas"
+                                >
+                                    Kelas
+                                </th>
+
+
+                                <th
+                                    rowspan="2"
+                                    class="col-tahun-ajaran"
+                                >
+                                    Tahun Ajaran
+                                </th>
+
+
                                 {% for mapel in mata_pelajarans %}
 
                                     <th
@@ -351,7 +397,6 @@ Penilaian Siswa
 
                                     <tr>
 
-
                                         <!-- NO -->
 
                                         <td class="col-no">
@@ -370,6 +415,44 @@ Penilaian Siswa
                                             <div class="student-nim">
                                                 NIM: {{ student.nim }}
                                             </div>
+
+                                        </td>
+
+
+                                        <!-- KELAS -->
+
+                                        <td class="kelas-cell">
+
+                                            {% if student.kelas_rapot %}
+
+                                                <span class="class-badge">
+                                                    {{ student.kelas_rapot.nama }}
+                                                </span>
+
+                                            {% else %}
+
+                                                -
+
+                                            {% endif %}
+
+                                        </td>
+
+
+                                        <!-- TAHUN AJARAN -->
+
+                                        <td class="tahun-ajaran-cell">
+
+                                            {% if student.tahun_ajaran_rapot %}
+
+                                                <span class="tahun-ajaran-badge">
+                                                    {{ student.tahun_ajaran_rapot.nama }}
+                                                </span>
+
+                                            {% else %}
+
+                                                -
+
+                                            {% endif %}
 
                                         </td>
 
@@ -599,7 +682,9 @@ document.addEventListener(
                 !ujian ||
                 !akhir
             ) {
+
                 return;
+
             }
 
 
@@ -653,7 +738,8 @@ document.addEventListener(
 
             const nilaiAkhir =
                 Math.round(
-                    (h * 0.60) + (u * 0.40)
+                    (h * 0.60) +
+                    (u * 0.40)
                 );
 
 
@@ -710,7 +796,6 @@ document.addEventListener(
 
 <style>
 
-
 /* =========================================================
    PAGE
 ========================================================= */
@@ -725,12 +810,12 @@ document.addEventListener(
 ========================================================= */
 
 .penilaian-page-header {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .penilaian-page-header h1 {
     margin: 0;
-    color: #111827;
+    color: #0f172a;
     font-size: 28px;
     font-weight: 700;
     line-height: 1.3;
@@ -738,173 +823,223 @@ document.addEventListener(
 
 .penilaian-page-header p {
     margin: 7px 0 0;
-    color: #6b7280;
+    color: #64748b;
     font-size: 14px;
 }
 
-
 /* =========================================================
-   CARD
+   FILTER PENILAIAN
 ========================================================= */
 
-.penilaian-card {
-    width: 100%;
+.penilaian-filter-area {
     margin-bottom: 20px;
+}
+
+.penilaian-filter-area .filter-card {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+
     background: #ffffff;
-    border: 1px solid #e5e7eb;
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
-    overflow: hidden;
-    box-shadow:
-        0 2px 8px
-        rgba(15, 23, 42, 0.05);
 }
-
-
-/* =========================================================
-   CARD HEADER
-========================================================= */
-
-.penilaian-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 20px 22px;
-    background: #fafafa;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.penilaian-card-header h2 {
-    margin: 0;
-    color: #111827;
-    font-size: 17px;
-    font-weight: 600;
-}
-
-.penilaian-card-header p {
-    margin: 5px 0 0;
-    color: #6b7280;
-    font-size: 13px;
-}
-
-.separator {
-    margin: 0 4px;
-    color: #9ca3af;
-}
-
-
-/* =========================================================
-   FILTER
-========================================================= */
 
 .penilaian-filter {
     display: grid;
+
     grid-template-columns:
-        minmax(180px, 1fr)
-        minmax(180px, 1fr)
-        minmax(220px, 1.4fr)
+        repeat(2, minmax(0, 1fr))
         auto;
-    gap: 14px;
+
+    gap: 15px;
+
     align-items: end;
-    padding: 22px;
+
+    margin: 0;
+    padding: 0;
 }
 
-.filter-group {
+.penilaian-filter .filter-group {
     min-width: 0;
+    margin: 0;
+    padding: 0;
 }
 
-.filter-group label {
+.penilaian-filter .filter-group label {
     display: block;
-    margin-bottom: 7px;
-    color: #374151;
+
+    margin: 0 0 7px 0;
+    padding: 0;
+
+    color: #475569;
     font-size: 13px;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.penilaian-filter .filter-group select,
+.penilaian-filter .filter-group input {
+    display: block;
+
+    width: 100%;
+    height: 42px;
+
+    margin: 0;
+    padding: 0 12px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+
+    background: #ffffff;
+    color: #1e293b;
+
+    font-family: inherit;
+    font-size: 13px;
+    line-height: normal;
+
+    outline: none;
+}
+
+.penilaian-filter .filter-group select {
+    cursor: pointer;
+}
+
+.penilaian-filter .filter-group select:hover,
+.penilaian-filter .filter-group input:hover {
+    border-color: #94a3b8;
+}
+
+.penilaian-filter .filter-group select:focus,
+.penilaian-filter .filter-group input:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================================
+   TOMBOL FILTER PENILAIAN
+========================================================= */
+
+.penilaian-filter .filter-buttons {
+    display: flex;
+
+    gap: 8px;
+
+    margin: 0;
+    padding: 0;
+
+    align-items: stretch;
+}
+
+.penilaian-filter .btn-tampilkan,
+.penilaian-filter .btn-reset {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    height: 42px;
+
+    margin: 0;
+    padding: 0 16px;
+
+    box-sizing: border-box;
+
+    border-radius: 8px;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    line-height: normal;
+    text-decoration: none;
+
+    white-space: nowrap;
+
+    cursor: pointer;
+}
+
+.penilaian-filter .btn-tampilkan {
+    background: #2563eb;
+    color: #ffffff;
+    border: 1px solid #2563eb;
+}
+
+.penilaian-filter .btn-tampilkan:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.penilaian-filter .btn-reset {
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #d1d5db;
+}
+
+.penilaian-filter .btn-reset:hover {
+    background: #f8fafc;
+    border-color: #9ca3af;
+}
+
+/* =========================================================
+   PENCARIAN SISWA
+========================================================= */
+
+.penilaian-search-card {
+    margin-bottom: 20px;
+    padding: 18px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.penilaian-search-title {
+    margin-bottom: 12px;
+}
+
+.penilaian-search-title h3 {
+    margin: 0 0 4px;
+    color: #0f172a;
+    font-size: 15px;
     font-weight: 600;
 }
 
-.filter-group select,
-.filter-group input {
-    display: block;
-    width: 100%;
-    height: 42px;
+.penilaian-search-title p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.penilaian-search-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.penilaian-search-input {
+    flex: 1;
+    height: 40px;
     padding: 0 12px;
     box-sizing: border-box;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
     background: #ffffff;
-    color: #111827;
-    font-size: 13px;
+    color: #1e293b;
     outline: none;
+    font-size: 13px;
 }
 
-.filter-group select {
-    cursor: pointer;
-}
-
-.filter-group select:hover,
-.filter-group input:hover {
-    border-color: #9ca3af;
-}
-
-.filter-group select:focus,
-.filter-group input:focus {
+.penilaian-search-input:focus {
     border-color: #2563eb;
     box-shadow:
         0 0 0 3px
-        rgba(
-            37,
-            99,
-            235,
-            0.10
-        );
-}
-
-
-/* =========================================================
-   FILTER BUTTON
-========================================================= */
-
-.filter-action {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.btn-filter,
-.btn-reset {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 42px;
-    padding: 0 16px;
-    box-sizing: border-box;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.btn-filter {
-    border: 1px solid #2563eb;
-    background: #2563eb;
-    color: #ffffff;
-}
-
-.btn-filter:hover {
-    border-color: #1d4ed8;
-    background: #1d4ed8;
-}
-
-.btn-reset {
-    border: 1px solid #d1d5db;
-    background: #ffffff;
-    color: #475569;
-}
-
-.btn-reset:hover {
-    background: #f8fafc;
-    border-color: #9ca3af;
+        rgba(37, 99, 235, 0.10);
 }
 
 
@@ -917,10 +1052,10 @@ document.addEventListener(
     align-items: center;
     gap: 12px;
     margin-bottom: 20px;
-    padding: 14px 17px;
+    padding: 13px 15px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border-radius: 8px;
 }
 
 .info-check {
@@ -956,6 +1091,51 @@ document.addEventListener(
 
 
 /* =========================================================
+   CARD DAFTAR NILAI
+========================================================= */
+
+.penilaian-card {
+    width: 100%;
+    margin-bottom: 22px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+        0 3px 10px
+        rgba(15, 23, 42, 0.04);
+}
+
+.penilaian-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 20px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.penilaian-card-header h2 {
+    margin: 0 0 4px;
+    color: #0f172a;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.penilaian-card-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+}
+
+.separator {
+    margin: 0 4px;
+    color: #94a3b8;
+}
+
+
+/* =========================================================
    TABLE
 ========================================================= */
 
@@ -974,16 +1154,17 @@ document.addEventListener(
 
 .penilaian-table th,
 .penilaian-table td {
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e2e8f0;
 }
 
 .penilaian-table thead th {
     background: #f8fafc;
-    color: #374151;
-    font-size: 12px;
-    font-weight: 600;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
     text-align: center;
     white-space: nowrap;
+    text-transform: uppercase;
 }
 
 .penilaian-table thead tr:first-child th {
@@ -994,7 +1175,7 @@ document.addEventListener(
 .penilaian-table thead tr:last-child th {
     height: 38px;
     padding: 5px 8px;
-    color: #6b7280;
+    color: #64748b;
     font-size: 11px;
 }
 
@@ -1006,7 +1187,7 @@ document.addEventListener(
 }
 
 .penilaian-table tbody tr:hover td {
-    background: #fafafa;
+    background: #f8fafc;
 }
 
 
@@ -1018,7 +1199,7 @@ document.addEventListener(
     width: 50px;
     min-width: 50px;
     text-align: center !important;
-    color: #6b7280;
+    color: #64748b;
 }
 
 
@@ -1037,15 +1218,67 @@ document.addEventListener(
 }
 
 .student-name {
-    color: #111827;
+    color: #0f172a;
     font-size: 13px;
     font-weight: 600;
 }
 
 .student-nim {
     margin-top: 3px;
-    color: #9ca3af;
+    color: #94a3b8;
     font-size: 11px;
+}
+
+
+/* =========================================================
+   KELAS & TAHUN AJARAN
+========================================================= */
+
+.col-kelas,
+.col-tahun-ajaran,
+.kelas-cell,
+.tahun-ajaran-cell {
+    text-align: center !important;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.col-kelas {
+    min-width: 90px;
+}
+
+.col-tahun-ajaran {
+    min-width: 125px;
+}
+
+.class-badge,
+.tahun-ajaran-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.class-badge {
+    min-width: 50px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.tahun-ajaran-badge {
+    min-width: 105px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
 }
 
 
@@ -1055,9 +1288,9 @@ document.addEventListener(
 
 .mapel-header {
     min-width: 180px;
-    color: #111827 !important;
+    color: #0f172a !important;
     font-weight: 600 !important;
-    border-left: 1px solid #e5e7eb;
+    border-left: 1px solid #e2e8f0;
 }
 
 .nilai-header {
@@ -1100,12 +1333,7 @@ document.addEventListener(
     border-color: #2563eb;
     box-shadow:
         0 0 0 3px
-        rgba(
-            37,
-            99,
-            235,
-            0.10
-        );
+        rgba(37, 99, 235, 0.10);
 }
 
 .nilai-input::placeholder {
@@ -1150,9 +1378,9 @@ document.addEventListener(
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    padding: 17px 22px;
+    padding: 17px 20px;
     background: #fafafa;
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid #e2e8f0;
 }
 
 .nilai-keterangan {
@@ -1160,7 +1388,7 @@ document.addEventListener(
     align-items: center;
     flex-wrap: wrap;
     gap: 16px;
-    color: #6b7280;
+    color: #64748b;
     font-size: 12px;
 }
 
@@ -1217,41 +1445,42 @@ document.addEventListener(
 }
 
 .penilaian-empty {
-    padding: 55px 25px;
+    width: 100%;
     margin-bottom: 20px;
+    padding: 55px 25px;
+    box-sizing: border-box;
+
     background: #ffffff;
-    border: 1px solid #e5e7eb;
+
+    border: 1px solid #e2e8f0;
     border-radius: 12px;
+
     text-align: center;
+
     box-shadow:
-        0 2px 8px
-        rgba(
-            15,
-            23,
-            42,
-            0.05
-        );
+        0 3px 10px
+        rgba(15, 23, 42, 0.04);
 }
 
 .penilaian-empty h3 {
     margin: 0;
+
     color: #374151;
+
     font-size: 16px;
     font-weight: 600;
 }
 
 .penilaian-empty p {
     max-width: 500px;
+
     margin: 8px auto 0;
-    color: #9ca3af;
+
+    color: #94a3b8;
+
     font-size: 13px;
     line-height: 1.5;
 }
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
 
 @media (max-width: 1050px) {
 
@@ -1261,14 +1490,10 @@ document.addEventListener(
             1fr;
     }
 
-    .filter-group:nth-child(3) {
-        grid-column: 1 / 2;
+    .penilaian-filter .filter-buttons {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
     }
-
-    .filter-action {
-        grid-column: 2 / 3;
-    }
-
 }
 
 
@@ -1280,41 +1505,20 @@ document.addEventListener(
 
     .penilaian-filter {
         grid-template-columns: 1fr;
-        padding: 18px;
     }
 
-    .filter-group:nth-child(3) {
+    .penilaian-filter .filter-buttons {
         grid-column: auto;
-    }
 
-    .filter-action {
-        grid-column: auto;
         width: 100%;
+
         flex-direction: column;
     }
 
-    .btn-filter,
-    .btn-reset {
+    .penilaian-filter .btn-tampilkan,
+    .penilaian-filter .btn-reset {
         width: 100%;
     }
-
-    .penilaian-info {
-        align-items: flex-start;
-    }
-
-    .penilaian-footer {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .nilai-keterangan {
-        gap: 8px 14px;
-    }
-
-    .btn-save {
-        width: 100%;
-    }
-
 }
 
 
@@ -1324,22 +1528,9 @@ document.addEventListener(
         font-size: 22px;
     }
 
-    .penilaian-card-header {
+    .penilaian-filter-area .filter-card {
         padding: 16px;
     }
-
-    .penilaian-filter {
-        padding: 16px;
-    }
-
-    .penilaian-info {
-        padding: 12px;
-    }
-
-    .info-content span {
-        font-size: 11px;
-    }
-
 }
 
 </style>

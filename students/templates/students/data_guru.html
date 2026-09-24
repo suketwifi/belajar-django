@@ -8,436 +8,424 @@ Data Guru
 
 <div class="guru-page">
 
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
 
-<!-- =====================================================
-     HEADER
-     ===================================================== -->
-
-<div class="page-header">
-
-    <div>
-        <h1>Data Guru</h1>
-
-        <p>
-            Kelola daftar guru yang tersedia di madrasah
-        </p>
-    </div>
-
-    <button
-        type="button"
-        class="guru-add-button"
-        id="btn-tambah-guru"
-    >
-        <span>Tambah Guru</span>
-    </button>
-
-</div>
-
-
-<!-- =====================================================
-     FORM TAMBAH GURU
-     ===================================================== -->
-
-<div
-    class="guru-form-card"
-    id="form-tambah-guru"
-    style="display: none;"
->
-
-    <div class="guru-form-header">
+    <div class="page-header">
 
         <div>
-
-            <h2>
-                Tambah Guru
-            </h2>
+            <h1>Data Guru</h1>
 
             <p>
-                Masukkan data guru baru
+                Kelola daftar guru yang tersedia di madrasah.
             </p>
-
         </div>
 
     </div>
 
 
-    <form method="POST">
+    <!-- =====================================================
+         FORM TAMBAH GURU
+         ===================================================== -->
 
-        {% csrf_token %}
+    <div class="guru-form-card">
 
-        <input
-            type="hidden"
-            name="aksi"
-            value="tambah"
-        >
+        <div class="guru-form-header">
 
+            <div>
 
-        <div class="guru-form-body">
+                <h2>
+                    Tambah Guru
+                </h2>
 
-            <div class="guru-form-group">
-
-                <label>
-                    Nama Guru
-                </label>
-
-                <input
-                    type="text"
-                    name="nama"
-                    placeholder="Masukkan nama guru"
-                    required
-                >
-
-            </div>
-
-
-            <div class="guru-form-group">
-
-                <label>
-                    Jenis Kelamin
-                </label>
-
-                <select
-                    name="jenis_kelamin"
-                    required
-                >
-
-                    <option value="">
-                        Pilih jenis kelamin
-                    </option>
-
-                    <option value="L">
-                        Laki-laki
-                    </option>
-
-                    <option value="P">
-                        Perempuan
-                    </option>
-
-                </select>
+                <p>
+                    Masukkan data guru baru.
+                </p>
 
             </div>
 
         </div>
 
 
-        <div class="guru-form-actions">
+        <form method="POST">
 
-            <button
-                type="submit"
-                class="guru-save-button"
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="aksi"
+                value="tambah"
             >
-                Simpan
-            </button>
 
-            <button
-                type="button"
-                class="guru-cancel-button"
-                id="btn-batal-tambah"
-            >
-                Batal
-            </button>
+            <div class="guru-form-body">
 
-        </div>
+                <div class="guru-form-group">
 
-    </form>
+                    <label>
+                        Nama Guru
+                    </label>
 
-</div>
+                    <input
+                        type="text"
+                        name="nama"
+                        placeholder="Contoh: Ahmad Fauzi"
+                        required
+                    >
 
-
-<!-- =====================================================
-     STATISTIK
-     ===================================================== -->
-
-<div class="guru-stat-card">
-
-    <div class="guru-stat-label">
-        Total Guru
-    </div>
-
-    <div class="guru-stat-number">
-        {{ gurus|length }}
-    </div>
-
-    <div class="guru-stat-description">
-        Guru terdaftar
-    </div>
-
-</div>
-
-<div class="student-delete-warning">
-    ⚠️ Perhatian: Menghapus DATA GURU akan menghapus data terkait guru tersebut dan tidak dapat dikembalikan.
-</div>
+                </div>
 
 
+                <div class="guru-form-group">
 
-<!-- =====================================================
-     DAFTAR GURU
-     ===================================================== -->
+                    <label>
+                        Jenis Kelamin
+                    </label>
 
-<div class="guru-table-card">
+                    <select
+                        name="jenis_kelamin"
+                        required
+                    >
 
-    <div class="guru-table-header">
+                        <option value="">
+                            Pilih jenis kelamin
+                        </option>
 
-        <div>
-
-            <h2>
-                Daftar Guru
-            </h2>
-
-            <p>
-                Data guru yang terdaftar dalam sistem
-            </p>
-
-        </div>
-
-    </div>
-
-
-    <div class="guru-table-wrapper">
-
-        <table class="guru-table">
-
-            <thead>
-
-                <tr>
-
-                    <th class="guru-no">
-                        NO
-                    </th>
-
-                    <th>
-                        NAMA GURU
-                    </th>
-
-                    <th class="guru-gender-header">
-                        JENIS KELAMIN
-                    </th>
-
-                    <th class="guru-action-header">
-                        AKSI
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {% for guru in gurus %}
-
-                <!-- DATA GURU -->
-
-                <tr>
-
-                    <td class="guru-no">
-                        {{ forloop.counter }}
-                    </td>
-
-
-                    <td class="guru-name">
-                        {{ guru.nama }}
-                    </td>
-
-
-                    <td class="guru-gender">
-
-                        {% if guru.jenis_kelamin == 'L' %}
-
+                        <option value="L">
                             Laki-laki
+                        </option>
 
-                        {% elif guru.jenis_kelamin == 'P' %}
-
+                        <option value="P">
                             Perempuan
+                        </option>
 
-                        {% else %}
+                    </select>
 
-                            -
-
-                        {% endif %}
-
-                    </td>
+                </div>
 
 
-                    <td class="guru-action">
+                <div class="guru-form-submit">
 
-                        <div class="guru-action-buttons">
+                    <button
+                        type="submit"
+                        class="guru-save-button"
+                    >
+                        Tambah
+                    </button>
 
-                            <button
-                                type="button"
-                                class="guru-edit-button btn-edit-guru"
-                                data-id="{{ guru.id }}"
-                            >
-                                Edit
-                            </button>
+                </div>
 
+            </div>
 
-                            <button
-                                type="button"
-                                class="guru-delete-button btn-hapus-guru"
-                                data-id="{{ guru.id }}"
-                                data-nama="{{ guru.nama }}"
-                            >
-                                Hapus
-                            </button>
+        </form>
 
-                        </div>
-
-                    </td>
-
-                </tr>
+    </div>
 
 
-                <!-- FORM EDIT -->
+    <!-- =====================================================
+         STATISTIK
+         ===================================================== -->
 
-                <tr
-                    class="guru-edit-row"
-                    id="edit-{{ guru.id }}"
-                    style="display: none;"
-                >
+    <div class="guru-stat-card">
 
-                    <td colspan="4">
+        <div class="guru-stat-label">
+            Total Guru
+        </div>
 
-                        <form method="POST">
+        <div class="guru-stat-number">
+            {{ gurus|length }}
+        </div>
 
-                            {% csrf_token %}
+        <div class="guru-stat-description">
+            Guru terdaftar
+        </div>
 
-                            <input
-                                type="hidden"
-                                name="aksi"
-                                value="edit"
-                            >
-
-                            <input
-                                type="hidden"
-                                name="guru_id"
-                                value="{{ guru.id }}"
-                            >
+    </div>
 
 
-                            <div class="guru-edit-form">
+    <!-- =====================================================
+         PERINGATAN
+         ===================================================== -->
 
-                                <div class="guru-form-group">
+    <div class="student-delete-warning">
 
-                                    <label>
-                                        Nama Guru
-                                    </label>
+        ⚠️ Perhatian: Menghapus DATA GURU akan menghapus
+        data terkait guru tersebut dan tidak dapat dikembalikan.
 
-                                    <input
-                                        type="text"
-                                        name="nama"
-                                        value="{{ guru.nama }}"
-                                        required
-                                    >
-
-                                </div>
+    </div>
 
 
-                                <div class="guru-form-group">
+    <!-- =====================================================
+         DAFTAR GURU
+         ===================================================== -->
 
-                                    <label>
-                                        Jenis Kelamin
-                                    </label>
+    <div class="guru-table-card">
 
-                                    <select
-                                        name="jenis_kelamin"
-                                        required
-                                    >
+        <div class="guru-table-header">
 
-                                        <option value="">
-                                            Pilih jenis kelamin
-                                        </option>
+            <div>
 
+                <h2>
+                    Daftar Guru
+                </h2>
 
-                                        <option
-                                            value="L"
-                                            {% if guru.jenis_kelamin == 'L' %}
-                                                selected
-                                            {% endif %}
-                                        >
-                                            Laki-laki
-                                        </option>
+                <p>
+                    Data guru yang terdaftar dalam sistem.
+                </p>
+
+            </div>
+
+        </div>
 
 
-                                        <option
-                                            value="P"
-                                            {% if guru.jenis_kelamin == 'P' %}
-                                                selected
-                                            {% endif %}
-                                        >
-                                            Perempuan
-                                        </option>
+        <div class="guru-table-wrapper">
 
-                                    </select>
+            <table class="guru-table">
 
-                                </div>
+                <thead>
+
+                    <tr>
+
+                        <th class="guru-no">
+                            NO
+                        </th>
+
+                        <th>
+                            NAMA GURU
+                        </th>
+
+                        <th class="guru-gender-header">
+                            JENIS KELAMIN
+                        </th>
+
+                        <th class="guru-action-header">
+                            AKSI
+                        </th>
+
+                    </tr>
+
+                </thead>
 
 
-                                <div class="guru-edit-actions">
+                <tbody>
 
-                                    <button
-                                        type="submit"
-                                        class="guru-save-button"
-                                    >
-                                        Simpan
-                                    </button>
+                    {% for guru in gurus %}
+
+                    <!-- DATA GURU -->
+
+                    <tr>
+
+                        <td class="guru-no">
+                            {{ forloop.counter }}
+                        </td>
 
 
-                                    <button
-                                        type="button"
-                                        class="guru-cancel-button btn-batal-guru"
-                                        data-id="{{ guru.id }}"
-                                    >
-                                        Batal
-                                    </button>
+                        <td class="guru-name">
+                            {{ guru.nama }}
+                        </td>
 
-                                </div>
+
+                        <td class="guru-gender">
+
+                            {% if guru.jenis_kelamin == 'L' %}
+
+                                Laki-laki
+
+                            {% elif guru.jenis_kelamin == 'P' %}
+
+                                Perempuan
+
+                            {% else %}
+
+                                -
+
+                            {% endif %}
+
+                        </td>
+
+
+                        <td class="guru-action">
+
+                            <div class="guru-action-buttons">
+
+                                <button
+                                    type="button"
+                                    class="guru-edit-button btn-edit-guru"
+                                    data-id="{{ guru.id }}"
+                                >
+                                    Edit
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    class="guru-delete-button btn-hapus-guru"
+                                    data-id="{{ guru.id }}"
+                                    data-nama="{{ guru.nama }}"
+                                >
+                                    Hapus
+                                </button>
 
                             </div>
 
-                        </form>
+                        </td>
 
-                    </td>
-
-                </tr>
+                    </tr>
 
 
-                {% empty %}
+                    <!-- =================================================
+                         FORM EDIT
+                         ================================================= -->
 
-                <!-- DATA KOSONG -->
-
-                <tr>
-
-                    <td
-                        colspan="4"
-                        class="guru-empty"
+                    <tr
+                        class="guru-edit-row"
+                        id="edit-{{ guru.id }}"
+                        style="display: none;"
                     >
 
-                        <div class="guru-empty-title">
-                            Belum ada data guru
-                        </div>
+                        <td colspan="4">
 
-                        <div class="guru-empty-text">
-                            Silakan tambahkan guru menggunakan tombol
-                            "Tambah Guru".
-                        </div>
+                            <form method="POST">
 
-                    </td>
+                                {% csrf_token %}
 
-                </tr>
+                                <input
+                                    type="hidden"
+                                    name="aksi"
+                                    value="edit"
+                                >
 
-                {% endfor %}
+                                <input
+                                    type="hidden"
+                                    name="guru_id"
+                                    value="{{ guru.id }}"
+                                >
 
-            </tbody>
 
-        </table>
+                                <div class="guru-edit-form">
+
+
+                                    <div class="guru-form-group">
+
+                                        <label>
+                                            Nama Guru
+                                        </label>
+
+                                        <input
+                                            type="text"
+                                            name="nama"
+                                            value="{{ guru.nama }}"
+                                            required
+                                        >
+
+                                    </div>
+
+
+                                    <div class="guru-form-group">
+
+                                        <label>
+                                            Jenis Kelamin
+                                        </label>
+
+                                        <select
+                                            name="jenis_kelamin"
+                                            required
+                                        >
+
+                                            <option value="">
+                                                Pilih jenis kelamin
+                                            </option>
+
+
+                                            <option
+                                                value="L"
+                                                {% if guru.jenis_kelamin == 'L' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                Laki-laki
+                                            </option>
+
+
+                                            <option
+                                                value="P"
+                                                {% if guru.jenis_kelamin == 'P' %}
+                                                    selected
+                                                {% endif %}
+                                            >
+                                                Perempuan
+                                            </option>
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <div class="guru-edit-actions">
+
+                                        <button
+                                            type="submit"
+                                            class="guru-save-button"
+                                        >
+                                            Simpan
+                                        </button>
+
+
+                                        <button
+                                            type="button"
+                                            class="guru-cancel-button btn-batal-guru"
+                                            data-id="{{ guru.id }}"
+                                        >
+                                            Batal
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </form>
+
+                        </td>
+
+                    </tr>
+
+
+                    {% empty %}
+
+                    <!-- DATA KOSONG -->
+
+                    <tr>
+
+                        <td
+                            colspan="4"
+                            class="guru-empty"
+                        >
+
+                            <div class="guru-empty-title">
+                                Belum ada data guru
+                            </div>
+
+                            <div class="guru-empty-text">
+                                Silakan tambahkan guru menggunakan
+                                form "Tambah Guru" di atas.
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
 
     </div>
 
 </div>
 
-
-</div>
 
 <!-- =========================================================
      POPUP KONFIRMASI HAPUS
@@ -449,74 +437,75 @@ Data Guru
     style="display: none;"
 >
 
-
-<div class="guru-delete-overlay"></div>
-
-
-<div class="guru-delete-box">
-
-    <h3>
-        Hapus Data Guru?
-    </h3>
+    <div class="guru-delete-overlay"></div>
 
 
-    <p>
+    <div class="guru-delete-box">
 
-        Apakah Anda yakin ingin menghapus
-
-        <strong id="guru-delete-nama"></strong>?
-
-    </p>
+        <h3>
+            Hapus Data Guru?
+        </h3>
 
 
-    <span class="guru-delete-warning">
-        Data yang sudah dihapus tidak dapat dikembalikan.
-    </span>
+        <p>
+
+            Apakah Anda yakin ingin menghapus
+
+            <strong id="guru-delete-nama"></strong>?
+
+        </p>
 
 
-    <form method="POST">
+        <span class="guru-delete-warning">
 
-        {% csrf_token %}
+            Data yang sudah dihapus tidak dapat dikembalikan.
 
-        <input
-            type="hidden"
-            name="aksi"
-            value="hapus"
-        >
-
-        <input
-            type="hidden"
-            name="guru_id"
-            id="guru-delete-id"
-        >
+        </span>
 
 
-        <div class="guru-delete-actions">
+        <form method="POST">
 
-            <button
-                type="button"
-                class="guru-delete-cancel"
-                id="btn-batal-hapus-guru"
+            {% csrf_token %}
+
+            <input
+                type="hidden"
+                name="aksi"
+                value="hapus"
             >
-                Batal
-            </button>
 
-
-            <button
-                type="submit"
-                class="guru-delete-confirm"
+            <input
+                type="hidden"
+                name="guru_id"
+                id="guru-delete-id"
             >
-                Ya, Hapus
-            </button>
 
-        </div>
 
-    </form>
+            <div class="guru-delete-actions">
+
+                <button
+                    type="button"
+                    class="guru-delete-cancel"
+                    id="btn-batal-hapus-guru"
+                >
+                    Batal
+                </button>
+
+
+                <button
+                    type="submit"
+                    class="guru-delete-confirm"
+                >
+                    Ya, Hapus
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
 
 </div>
 
-
-</div>
 
 <!-- =========================================================
      JAVASCRIPT
@@ -527,53 +516,6 @@ Data Guru
 document.addEventListener(
     'DOMContentLoaded',
     function() {
-
-        /* =====================================================
-           TAMBAH GURU
-           ===================================================== */
-
-        const btnTambah =
-            document.getElementById(
-                'btn-tambah-guru'
-            );
-
-        const formTambah =
-            document.getElementById(
-                'form-tambah-guru'
-            );
-
-        const btnBatalTambah =
-            document.getElementById(
-                'btn-batal-tambah'
-            );
-
-
-        btnTambah.addEventListener(
-            'click',
-            function() {
-
-                formTambah.style.display =
-                    'block';
-
-                btnTambah.style.display =
-                    'none';
-
-            }
-        );
-
-
-        btnBatalTambah.addEventListener(
-            'click',
-            function() {
-
-                formTambah.style.display =
-                    'none';
-
-                btnTambah.style.display =
-                    'inline-flex';
-
-            }
-        );
 
 
         /* =====================================================
@@ -649,6 +591,7 @@ document.addEventListener(
                                     'edit-' + id
                                 );
 
+
                             editRow.style.display =
                                 'none';
 
@@ -668,15 +611,18 @@ document.addEventListener(
                 'guru-delete-modal'
             );
 
+
         const deleteNama =
             document.getElementById(
                 'guru-delete-nama'
             );
 
+
         const deleteId =
             document.getElementById(
                 'guru-delete-id'
             );
+
 
         const btnBatalHapus =
             document.getElementById(
@@ -703,8 +649,10 @@ document.addEventListener(
                             deleteId.value =
                                 id;
 
+
                             deleteNama.textContent =
                                 nama;
+
 
                             deleteModal.style.display =
                                 'flex';
@@ -716,6 +664,10 @@ document.addEventListener(
             );
 
 
+        /* =====================================================
+           BATAL HAPUS
+           ===================================================== */
+
         btnBatalHapus.addEventListener(
             'click',
             function() {
@@ -726,6 +678,10 @@ document.addEventListener(
             }
         );
 
+
+        /* =====================================================
+           KLIK OVERLAY
+           ===================================================== */
 
         const deleteOverlay =
             document.querySelector(
@@ -744,6 +700,10 @@ document.addEventListener(
         );
 
 
+        /* =====================================================
+           ESCAPE
+           ===================================================== */
+
         document.addEventListener(
             'keydown',
             function(event) {
@@ -761,9 +721,11 @@ document.addEventListener(
         );
 
     }
+
 );
 
 </script>
+
 
 <style>
 
@@ -784,7 +746,6 @@ document.addEventListener(
     margin-bottom: 26px;
 }
 
-
 .guru-page .page-header h1 {
     margin: 0 0 6px;
     font-size: 30px;
@@ -792,40 +753,10 @@ document.addEventListener(
     color: #172554;
 }
 
-
 .guru-page .page-header p {
     margin: 0;
     color: #64748b;
     font-size: 14px;
-}
-
-
-/* =========================================================
-   TOMBOL TAMBAH
-   ========================================================= */
-
-.guru-add-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    padding: 0 17px;
-    border: none;
-    border-radius: 8px;
-    background: #2563eb;
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition:
-        background 0.2s ease,
-        transform 0.2s ease;
-}
-
-
-.guru-add-button:hover {
-    background: #1d4ed8;
-    transform: translateY(-1px);
 }
 
 
@@ -867,6 +798,7 @@ document.addEventListener(
 
 .guru-form-body {
     display: flex;
+    align-items: end;
     gap: 18px;
     padding: 22px 24px;
     flex-wrap: wrap;
@@ -894,12 +826,16 @@ document.addEventListener(
     height: 42px;
     padding: 0 12px;
     box-sizing: border-box;
+
     border: 1px solid #cbd5e1;
     border-radius: 7px;
+
     background: #ffffff;
     color: #1e293b;
+
     font-size: 14px;
     outline: none;
+
     transition:
         border-color 0.2s ease,
         box-shadow 0.2s ease;
@@ -909,48 +845,66 @@ document.addEventListener(
 .guru-form-group input:focus,
 .guru-form-group select:focus {
     border-color: #2563eb;
+
     box-shadow:
         0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
 
 /* =========================================================
-   FORM ACTION
+   TOMBOL TAMBAH
    ========================================================= */
 
-.guru-form-actions {
-    display: flex;
-    gap: 10px;
-    padding: 0 24px 22px;
-}
-
-
-.guru-save-button,
-.guru-cancel-button {
-    height: 38px;
-    padding: 0 15px;
-    border: none;
-    border-radius: 7px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+.guru-form-submit {
+    flex: 0 0 auto;
 }
 
 
 .guru-save-button {
+    height: 42px;
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 7px;
+
     background: #2563eb;
     color: #ffffff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
 }
 
 
 .guru-save-button:hover {
     background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
 
+/* =========================================================
+   TOMBOL BATAL
+   ========================================================= */
+
 .guru-cancel-button {
+    height: 38px;
+    padding: 0 15px;
+
+    border: none;
+    border-radius: 7px;
+
     background: #f1f5f9;
     color: #475569;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
 }
 
 
@@ -966,12 +920,17 @@ document.addEventListener(
 .guru-stat-card {
     width: 290px;
     min-height: 128px;
+
     box-sizing: border-box;
+
     padding: 24px 26px;
     margin-bottom: 26px;
+
     background: #ffffff;
+
     border: 1px solid #e2e8f0;
     border-radius: 13px;
+
     box-shadow:
         0 2px 7px rgba(15, 23, 42, 0.035);
 }
@@ -986,8 +945,10 @@ document.addEventListener(
 
 .guru-stat-number {
     margin-bottom: 7px;
+
     font-size: 34px;
     line-height: 1;
+
     font-weight: 700;
     color: #0f172a;
 }
@@ -1000,16 +961,44 @@ document.addEventListener(
 
 
 /* =========================================================
+   PERINGATAN
+   ========================================================= */
+
+.student-delete-warning {
+    width: 100%;
+
+    margin-bottom: 14px;
+    padding: 10px 14px;
+
+    box-sizing: border-box;
+
+    border: 1px solid #dc2626;
+    border-radius: 6px;
+
+    background: #fef2f2;
+    color: #dc2626;
+
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
    TABLE CARD
    ========================================================= */
 
 .guru-table-card {
     width: 100%;
+
     background: #ffffff;
+
     border: 1px solid #e2e8f0;
     border-radius: 13px;
+
     box-shadow:
         0 2px 8px rgba(15, 23, 42, 0.035);
+
     overflow: hidden;
 }
 
@@ -1020,20 +1009,24 @@ document.addEventListener(
 
 .guru-table-header {
     padding: 25px 26px 22px;
+
     border-bottom: 1px solid #e5e7eb;
 }
 
 
 .guru-table-header h2 {
     margin: 0 0 6px;
+
     font-size: 19px;
     font-weight: 700;
+
     color: #1e293b;
 }
 
 
 .guru-table-header p {
     margin: 0;
+
     font-size: 13px;
     color: #64748b;
 }
@@ -1055,20 +1048,27 @@ document.addEventListener(
 
 .guru-table {
     width: 100%;
+
     border-collapse: collapse;
     table-layout: fixed;
+
     font-size: 14px;
 }
 
 
 .guru-table thead th {
     height: 48px;
+
     padding: 0 20px;
+
     background: #ffffff;
     color: #64748b;
+
     border-bottom: 1px solid #e2e8f0;
+
     font-size: 12px;
     font-weight: 700;
+
     text-align: left;
 }
 
@@ -1100,8 +1100,11 @@ document.addEventListener(
 
 .guru-table tbody td {
     padding: 0 20px;
+
     border-bottom: 1px solid #edf0f4;
+
     color: #334155;
+
     vertical-align: middle;
 }
 
@@ -1117,6 +1120,7 @@ document.addEventListener(
 
 .guru-name {
     color: #111827 !important;
+
     font-size: 14px;
     font-weight: 600;
 }
@@ -1142,8 +1146,10 @@ document.addEventListener(
 
 .guru-action-buttons {
     display: flex;
+
     align-items: center;
     justify-content: center;
+
     gap: 7px;
 }
 
@@ -1151,27 +1157,36 @@ document.addEventListener(
 .guru-edit-button,
 .guru-delete-button {
     display: inline-flex;
+
     align-items: center;
     justify-content: center;
+
     height: 34px;
     padding: 0 12px;
-    border: none;
+
     border-radius: 7px;
+
     font-size: 12px;
     font-weight: 600;
+
     cursor: pointer;
+
     transition:
         background 0.2s ease,
         color 0.2s ease;
 }
 
 
-/* EDIT */
+/* =========================================================
+   EDIT
+   ========================================================= */
 
 .guru-edit-button {
     min-width: 50px;
+
     background: #f1f5f9;
     color: #334155;
+
     border: 1px solid #cbd5e1;
 }
 
@@ -1182,12 +1197,16 @@ document.addEventListener(
 }
 
 
-/* HAPUS */
+/* =========================================================
+   HAPUS
+   ========================================================= */
 
 .guru-delete-button {
     min-width: 58px;
+
     background: #fef2f2;
     color: #dc2626;
+
     border: 1px solid #dc2626;
 }
 
@@ -1209,14 +1228,18 @@ document.addEventListener(
 
 .guru-edit-row td {
     padding: 20px 24px !important;
+
     border-bottom: 1px solid #e2e8f0 !important;
 }
 
 
 .guru-edit-form {
     display: flex;
+
     align-items: end;
+
     gap: 14px;
+
     flex-wrap: wrap;
 }
 
@@ -1239,14 +1262,18 @@ document.addEventListener(
 
 .guru-empty {
     text-align: center;
+
     padding: 55px 20px !important;
+
     color: #94a3b8;
 }
 
 
 .guru-empty-title {
     margin-bottom: 7px;
+
     color: #475569;
+
     font-size: 15px;
     font-weight: 600;
 }
@@ -1254,6 +1281,7 @@ document.addEventListener(
 
 .guru-empty-text {
     color: #94a3b8;
+
     font-size: 13px;
 }
 
@@ -1264,9 +1292,13 @@ document.addEventListener(
 
 .guru-delete-modal {
     position: fixed;
+
     inset: 0;
+
     z-index: 9999;
+
     display: flex;
+
     align-items: center;
     justify-content: center;
 }
@@ -1274,24 +1306,35 @@ document.addEventListener(
 
 .guru-delete-overlay {
     position: absolute;
+
     inset: 0;
+
     background: rgba(15, 23, 42, 0.45);
+
     backdrop-filter: blur(2px);
 }
 
 
 .guru-delete-box {
     position: relative;
+
     z-index: 1;
+
     width: 420px;
     max-width: calc(100% - 40px);
+
     padding: 30px;
+
     background: #ffffff;
+
     border: 1px solid #e2e8f0;
     border-radius: 13px;
+
     box-shadow:
         0 20px 50px rgba(15, 23, 42, 0.18);
+
     text-align: center;
+
     animation:
         guruDeletePopup 0.18s ease-out;
 }
@@ -1314,7 +1357,9 @@ document.addEventListener(
 
 .guru-delete-box h3 {
     margin: 0 0 10px;
+
     color: #1e293b;
+
     font-size: 19px;
     font-weight: 700;
 }
@@ -1322,7 +1367,9 @@ document.addEventListener(
 
 .guru-delete-box p {
     margin: 0 auto 8px;
+
     color: #475569;
+
     font-size: 14px;
     line-height: 1.6;
 }
@@ -1335,15 +1382,20 @@ document.addEventListener(
 
 .guru-delete-warning {
     display: block;
+
     margin-bottom: 25px;
+
     color: #94a3b8;
+
     font-size: 12px;
 }
 
 
 .guru-delete-actions {
     display: flex;
+
     justify-content: center;
+
     gap: 10px;
 }
 
@@ -1351,12 +1403,17 @@ document.addEventListener(
 .guru-delete-cancel,
 .guru-delete-confirm {
     min-width: 105px;
+
     height: 40px;
+
     padding: 0 16px;
+
     border: none;
     border-radius: 7px;
+
     font-size: 13px;
     font-weight: 600;
+
     cursor: pointer;
 }
 
@@ -1396,11 +1453,6 @@ document.addEventListener(
     }
 
 
-    .guru-add-button {
-        width: auto;
-    }
-
-
     .guru-stat-card {
         width: 100%;
     }
@@ -1408,6 +1460,22 @@ document.addEventListener(
 
     .guru-table {
         min-width: 650px;
+    }
+
+
+    .guru-form-body {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+
+    .guru-form-submit {
+        width: 100%;
+    }
+
+
+    .guru-form-submit .guru-save-button {
+        width: auto;
     }
 
 
@@ -1423,25 +1491,11 @@ document.addEventListener(
 
     .guru-delete-box {
         width: 360px;
+
         padding: 25px 20px;
     }
 
 }
-
-
-.student-delete-warning {
-    width: 100%;
-    margin-bottom: 14px;
-    padding: 10px 14px;
-    border: 1px solid #dc2626;
-    border-radius: 6px;
-    background: #fef2f2;
-    color: #dc2626;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.4;
-}
-
 
 </style>
 
